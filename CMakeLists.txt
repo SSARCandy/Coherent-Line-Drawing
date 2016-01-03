@@ -13,9 +13,11 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 add_executable( Coherent-Line-Drawing
 "${PROJECT_SOURCE_DIR}/src/main.cpp" 
 "${PROJECT_SOURCE_DIR}/src/ETF.cpp" 
+"${PROJECT_SOURCE_DIR}/src/CLD.cpp" 
 "${PROJECT_SOURCE_DIR}/src/postProcessing.cpp" 
 "${PROJECT_SOURCE_DIR}/src/gui.cpp"  
 "${PROJECT_SOURCE_DIR}/include/ETF.h" 
+"${PROJECT_SOURCE_DIR}/include/CLD.h" 
 "${PROJECT_SOURCE_DIR}/include/postProcessing.h" 
 "${PROJECT_SOURCE_DIR}/include/gui.h" 
 )
