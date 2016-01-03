@@ -17,6 +17,9 @@ public:
 	void RotateFlow(float theta);
 
 	Mat flowField;
-	//Mat gvf;
 	Mat RotationMat;
+
+	int halfw;
+	int smoothPasses;
+
 };

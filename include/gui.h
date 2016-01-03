@@ -56,10 +56,12 @@ protected:
 	wxTextCtrl *log; // Show the log
 	wxButton *start;
 	wxButton *clean;
+	wxButton *solve;
 	wxComboBox *processingBox;
 
 	void OnStart(wxCommandEvent& event);
 	void OnClean(wxCommandEvent& event);
+	void OnSolveIt(wxCommandEvent& event);
 
 	void OnProcessingBox(wxCommandEvent& event);
 
@@ -90,6 +92,7 @@ protected:
 enum
 {
 	ID_ONOPENSRC = 1,
+	BUTTON_SolveIt,
 	ID_ONOPENVFB,
 	ID_ONOPENETF,
 	ID_ONOPENTEX,

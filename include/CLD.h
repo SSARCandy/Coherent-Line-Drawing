@@ -6,6 +6,10 @@
 using namespace cv;
 using namespace std;
 
+#define M_PI 3.14159265358979323846
+#define SIGMA_RATIO 1.6 
+#define BINARIZATION_THRESHOLDING 10
+
 class CLD
 {
 public:
@@ -13,19 +17,22 @@ public:
 	CLD(Size);
 	void init(Size);
 	void readSrc(string);
-	void genFDOG();
+	void genCLD();
+	//void genFDOG();
 
-	// missing setter/getter functions
+	// missing setter/getter functions !!!!!!!!!!!!!!!!!!!!!!
 
 
 	Mat originalImg;
 	Mat result;
 	ETF etf;
 
-	int halfw;
-	int smoothPasses;
 	double sigma1;
 	double sigma2;
 	double tau;
 	int black;
+
+private:
+	void genFDoG(Mat&, Mat&, Vector<double>&);
+	void genDDoG(Mat&, Mat&, Vector<double>&, Vector<double>&);
 };

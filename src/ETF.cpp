@@ -12,7 +12,10 @@ ETF::ETF(Size s) {
 }
 
 void ETF::Init(Size s) {
-	flowField = Mat::zeros(s, CV_8UC1);
+	flowField = Mat::zeros(s, CV_32FC3);
+
+	halfw = 4;
+	smoothPasses = 2;
 }
 
 void ETF::ReadFlow(string file, Size s) {
@@ -83,7 +86,7 @@ void ETF::gen_ETF(string file, Size s) {
 		}
 	}
 
-	resize(flowField, flowField, s, 0, 0, CV_INTER_LINEAR);
+	resize(flowField, flowField, Size(src.cols, src.rows), 0, 0, CV_INTER_LINEAR);
 }
 
 //void ETF::GVF()

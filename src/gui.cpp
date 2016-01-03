@@ -62,6 +62,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 	processingBox->Append("originalImg");
 	processingBox->Append("ETF");
+	processingBox->Append("CLD");
 
 
 
@@ -113,28 +114,12 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 #pragma endregion
 
 #pragma region Paint Parameters
-	//wxStaticBox *st_paint = new wxStaticBox(controlpanel, -1, wxT("Paint"), wxDefaultPosition, wxDefaultSize, wxTE_RICH2);
-	//wxStaticBoxSizer *st_paint_sizer = new wxStaticBoxSizer(st_paint, wxVERTICAL);
+	wxStaticBox *st_paint = new wxStaticBox(controlpanel, -1, wxT("Paint"), wxDefaultPosition, wxDefaultSize, wxTE_RICH2);
+	wxStaticBoxSizer *st_paint_sizer = new wxStaticBoxSizer(st_paint, wxVERTICAL);
 
-	//s.Printf("Brush Size : %d", drawPane->brushSize);
-	//slider_brushSize_t = new wxStaticText(controlpanel, SLIDER_BRUSH_SIZE_T, s, wxDefaultPosition, wxDefaultSize, 0);
-	//st_paint_sizer->Add(slider_brushSize_t, 0, wxEXPAND | wxLEFT, 10);
-	//slider_brushSize = new wxSlider(controlpanel, SLIDER_BRUSH_SIZE, drawPane->brushSize, 1, 10, wxDefaultPosition, wxDefaultSize, 0);
-	//st_paint_sizer->Add(slider_brushSize, 0, wxEXPAND | wxLEFT, 10);
+	solve = new wxButton(controlpanel, BUTTON_SolveIt, wxT("\nSolve It !!!\n"), wxDefaultPosition, wxDefaultSize, 0);
 
-	//s.Printf("addA : %.3f", drawPane->cld.addA);
-	//slider_addA_t = new wxStaticText(controlpanel, SLIDER_AddA_T, s, wxDefaultPosition, wxDefaultSize, 0);
-	//st_paint_sizer->Add(slider_addA_t, 0, wxEXPAND | wxLEFT, 10);
-	//slider_addA = new wxSlider(controlpanel, SLIDER_AddA, int(drawPane->cld.addA * 1000), 0, 1000, wxDefaultPosition, wxDefaultSize, 0);
-	//st_paint_sizer->Add(slider_addA, 0, wxEXPAND | wxLEFT, 10);
-
-	//s.Printf("addB : %.3f", drawPane->cld.addB);
-	//slider_addB_t = new wxStaticText(controlpanel, SLIDER_AddB_T, s, wxDefaultPosition, wxDefaultSize, 0);
-	//st_paint_sizer->Add(slider_addB_t, 0, wxEXPAND | wxLEFT, 10);
-	//slider_addB = new wxSlider(controlpanel, SLIDER_AddB, int(drawPane->cld.addB * 1000), 0, 1000, wxDefaultPosition, wxDefaultSize, 0);
-	//st_paint_sizer->Add(slider_addB, 0, wxEXPAND | wxLEFT, 10);
-
-	//rightside->Add(st_paint_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 3);
+	rightside->Add(st_paint_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 3);
 #pragma endregion
 
 	//set portion of size: leftside & rightside(control)
@@ -314,6 +299,10 @@ void MyFrame::OnClean(wxCommandEvent& event) {
 	//addlog("Draw Panel Cleaned.", wxColour(*wxBLACK));
 }
 
+void MyFrame::OnSolveIt(wxCommandEvent& event) {
+	drawPane->cld.genCLD();
+
+}
 
 
 //Comboboxes
@@ -493,7 +482,10 @@ void BasicDrawPane::render(wxDC& dc, bool render_loop_on) {
 		dis.convertTo(dis, CV_8UC1, 255);
 		cvtColor(dis, dis, CV_GRAY2BGR);
 	}
-
+	else if (processingS == "CLD") {
+		dis = cld.result.clone();
+		cvtColor(dis, dis, CV_GRAY2BGR);
+	}
 
 	wxImage img(dis.cols, dis.rows, dis.data, true);
 	wxBitmap bmp(img);
