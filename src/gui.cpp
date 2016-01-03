@@ -117,7 +117,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	wxStaticBox *st_paint = new wxStaticBox(controlpanel, -1, wxT("Paint"), wxDefaultPosition, wxDefaultSize, wxTE_RICH2);
 	wxStaticBoxSizer *st_paint_sizer = new wxStaticBoxSizer(st_paint, wxVERTICAL);
 
-	solve = new wxButton(controlpanel, BUTTON_SolveIt, wxT("\nSolve It !!!\n"), wxDefaultPosition, wxDefaultSize, 0);
+	//solve = new wxButton(controlpanel, BUTTON_SolveIt, wxT("\nSolve It !!!\n"), wxDefaultPosition, wxDefaultSize, 0);
 
 	rightside->Add(st_paint_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 3);
 #pragma endregion
@@ -307,7 +307,10 @@ void MyFrame::OnSolveIt(wxCommandEvent& event) {
 
 //Comboboxes
 void MyFrame::OnProcessingBox(wxCommandEvent& event) {
-	drawPane->processingS = processingBox->GetValue();;
+	drawPane->processingS = processingBox->GetValue();
+	if (processingBox->GetValue() == "CLD") {
+		drawPane->cld.genCLD();
+	}
 	drawPane->paintNow(true); //execute action
 }
 
