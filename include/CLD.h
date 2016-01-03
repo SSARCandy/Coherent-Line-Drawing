@@ -8,7 +8,8 @@ using namespace std;
 
 #define M_PI 3.14159265358979323846
 #define SIGMA_RATIO 1.6 
-#define BINARIZATION_THRESHOLDING 10
+#define BINARIZATION_THRESHOLDING 200
+#define BIAS 200
 
 class CLD
 {

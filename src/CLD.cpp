@@ -86,10 +86,18 @@ void CLD::genCLD() {
 	for (int i = 0; i < originalImg.rows; i++) {
 		for (int j = 0; j < originalImg.cols; j++) {
 			float val = tmp2.at<float>(i, j);
-			int val2 = val * 255;
-			result.at<uchar>(i, j) = val2 < 255 - BINARIZATION_THRESHOLDING ? 0 : 255;
+			int val2 = val * 255 - BIAS;
+			result.at<uchar>(i, j) = max(val2, 0);// > 0 ? val2 - BIAS : 0;//< 255 - BINARIZATION_THRESHOLDING ? 0 : 255;
 		}
 	}
+	normalize(result, result, 0, 255, NORM_MINMAX, CV_8UC1);
+
+	//for (int i = 0; i < originalImg.rows; i++) {
+	//	for (int j = 0; j < originalImg.cols; j++) {
+	//		int val = result.at<uchar>(i, j);
+	//		result.at<uchar>(i, j) = val > BINARIZATION_THRESHOLDING ? 255 : 0;// > 0 ? val2 - BIAS : 0;//< 255 - BINARIZATION_THRESHOLDING ? 0 : 255;
+	//	}
+	//}
 }
 
 
