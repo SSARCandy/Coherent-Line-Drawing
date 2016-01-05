@@ -22,7 +22,6 @@ public:
 	void genCLD();
 	//void genFDOG();
 
-	// missing setter/getter functions !!!!!!!!!!!!!!!!!!!!!!
 
 
 	Mat originalImg;
@@ -32,7 +31,6 @@ public:
 	double sigma1;
 	double sigma2;
 	double rho;
-	int black;
 
 private:
 	void genFDoG(Mat&, Mat&, Vector<double>&);

@@ -43,7 +43,6 @@ void CLD::init(Size s) {
 	sigma1 = .4;
 	sigma2 = 3;
 	rho = .99;
-	black = 0;
 }
 
 void CLD::readSrc(string file) {
@@ -67,23 +66,23 @@ void CLD::genCLD() {
 	MakeGaussianVector(sigma2, g3);
 	half_l = g3.size() - 1;
 
-	Mat tmp(Size(originalImg.cols, originalImg.rows), CV_32FC1);
-	for (int r = 0; r < tmp.rows; r++) {
-		for (int c = 0; c < tmp.cols; c++) {
+	Mat original_converted(Size(originalImg.cols, originalImg.rows), CV_32FC1);
+	for (int r = 0; r < originalImg.rows; r++) {
+		for (int c = 0; c < originalImg.cols; c++) {
 			float v = originalImg.at<uchar>(r, c) / 255.0;
-			tmp.at<float>(r, c) = v;
+			original_converted.at<float>(r, c) = v;
 		}
 	}
 
-	Mat tmp2(Size(originalImg.cols, originalImg.rows), CV_32FC1);
+	Mat tmp(Size(originalImg.cols, originalImg.rows), CV_32FC1);
 	Mat dog(Size(originalImg.cols, originalImg.rows), CV_32FC1);
 
-	genDDoG(tmp, dog, g1, g2);
-	genFDoG(dog, tmp2, g3);
+	genDDoG(original_converted, dog, g1, g2);
+	genFDoG(dog, tmp, g3);
 
 	for (int i = 0; i < originalImg.rows; i++) {
 		for (int j = 0; j < originalImg.cols; j++) {
-			float val = tmp2.at<float>(i, j);
+			float val = tmp.at<float>(i, j);
 			int val2 = val * 255 - BIAS;
 			result.at<uchar>(i, j) = max(val2, 0);// > 0 ? val2 - BIAS : 0;//< 255 - BINARIZATION_THRESHOLDING ? 0 : 255;
 		}
@@ -122,112 +121,106 @@ void CLD::genFDoG(Mat& dog, Mat& tmp, Vector<double>& g3) {
 
 	for (int i = 0; i < image_x; i++) {
 		for (int j = 0; j < image_y; j++) {
-			sum1 = 0.0;
-			w_sum1 = 0.0;
-			weight1 = 0.0;
-			/////////////////////////////////
+			sum1 = w_sum1 = weight1 = 0.0;
+
 			val = dog.at<float>(i, j);
 			weight1 = g3[0];
 			sum1 = val * weight1;
 			w_sum1 += weight1;
-			////////////////////////////////////////////////
-			d_x = (double)i; d_y = (double)j;
-			i_x = i; i_y = j;
-			////////////////////////////
+
+			d_x = (double)i;
+			d_y = (double)j;
+			i_x = i; 
+			i_y = j;
 			for (k = 0; k < half_l; k++) {
 				vt[0] = etf.flowField.at<Vec3f>(i_x, i_y)[0];
 				vt[1] = etf.flowField.at<Vec3f>(i_x, i_y)[1];
 
-				if (vt[0] == 0.0 && vt[1] == 0.0) {
-					break;
-				}
+				if (vt[0] == 0.0 && vt[1] == 0.0) break;
+
 				x = d_x;
 				y = d_y;
-				/////////////////////////////////////////////////////
-				if (x >(double)image_x - 1 || x < 0.0 || y >(double)image_y - 1 || y < 0.0)
-					break;
-				x1 = round(x);	if (x1 < 0) x1 = 0; if (x1 > image_x - 1) x1 = image_x - 1;
-				y1 = round(y);	if (y1 < 0) y1 = 0; if (y1 > image_y - 1) y1 = image_y - 1;
+
+				if (x >(double)image_x - 1 || x < 0.0 || y >(double)image_y - 1 || y < 0.0)	break;
+
+				x1 = min(max((int)round(x), 0), image_x - 1);
+				y1 = min(max((int)round(y), 0), image_y - 1);
+
 				val = dog.at<float>(x1, y1);
-				//////////////////////////////
+
 				weight1 = g3[k];
-				////////////////////
+
 				sum1 += val * weight1;
 				w_sum1 += weight1;
-				/////////////////////////////////////////
+
 				d_x += vt[0] * STEPSIZE;
 				d_y += vt[1] * STEPSIZE;
-				/////////////////////////////////////////
+
 				i_x = round(d_x);
 				i_y = round(d_y);
+
 				if (d_x < 0 || d_x > image_x - 1 || d_y < 0 || d_y > image_y - 1) break;
-				/////////////////////////
 			}
-			////////////////////////////////////////////////
-			d_x = (double)i; d_y = (double)j;
-			i_x = i; i_y = j;
+
+			d_x = (double)i;
+			d_y = (double)j;
+			i_x = i; 
+			i_y = j;
 			for (k = 0; k < half_l; k++) {
 				vt[0] = -etf.flowField.at<Vec3f>(i_x, i_y)[0];
 				vt[1] = -etf.flowField.at<Vec3f>(i_x, i_y)[1];
-				if (vt[0] == 0.0 && vt[1] == 0.0) {
-					break;
-				}
+				if (vt[0] == 0.0 && vt[1] == 0.0) break;
+
 				x = d_x;
 				y = d_y;
-				/////////////////////////////////////////////////////
-				if (x >(double)image_x - 1 || x < 0.0 || y >(double)image_y - 1 || y < 0.0)
-					break;
-				x1 = round(x);	if (x1 < 0) x1 = 0; if (x1 > image_x - 1) x1 = image_x - 1;
-				y1 = round(y);	if (y1 < 0) y1 = 0; if (y1 > image_y - 1) y1 = image_y - 1;
+
+				if (x >(double)image_x - 1 || x < 0.0 || y >(double)image_y - 1 || y < 0.0)	break;
+
+				x1 = min(max((int)round(x), 0), image_x - 1);
+				y1 = min(max((int)round(y), 0), image_y - 1);
+
 				val = dog.at<float>(x1, y1);
-				//////////////////////////////
+
 				weight1 = g3[k];
-				////////////////////
+
 				sum1 += val * weight1;
 				w_sum1 += weight1;
-				/////////////////////////////////////////
+
 				d_x += vt[0] * STEPSIZE;
 				d_y += vt[1] * STEPSIZE;
-				/////////////////////////////////////////
+
 				i_x = round(d_x);
 				i_y = round(d_y);
+
 				if (d_x < 0 || d_x > image_x - 1 || d_y < 0 || d_y > image_y - 1) break;
-				/////////////////////////
 			}
-			////////////////////////////////////////
+
 			sum1 /= w_sum1;
-			//////////////////////////////////////
-			if (sum1 > 0) tmp.at<float>(i, j) = 1.0;
-			else tmp.at<float>(i, j) = 1.0 + tanh(sum1);
+
+
+			tmp.at<float>(i, j) = (sum1 > 0) ? 1.0 : 1.0 + tanh(sum1);
 		}
 	}
 }
 
 void CLD::genDDoG(Mat& image, Mat& dog, Vector<double>& g1, Vector<double>& g2) {
 	Vector<double> vn(2, 0);
+	int x1, y1;
 	double x, y, d_x, d_y;
 	double weight1, weight2, w_sum1, sum1, sum2, w_sum2;
-
-	int s;
-	int x1, y1;
-	int dd;
 	double val;
 
 	int half_w1, half_w2;
+	int image_x, image_y;
 
 	half_w1 = g1.size() - 1;
 	half_w2 = g2.size() - 1;
-
-	int image_x, image_y;
 
 	image_x = originalImg.rows;
 	image_y = originalImg.cols;
 
 	for (int i = 0; i < image_x; i++) {
 		for (int j = 0; j < image_y; j++) {
-			//if (j > 213) {
-			//	vn[0] = vn[0];
-			//}
 			sum1 = sum2 = 0.0;
 			w_sum1 = w_sum2 = 0.0;
 			weight1 = weight2 = 0.0;
@@ -236,40 +229,40 @@ void CLD::genDDoG(Mat& image, Mat& dog, Vector<double>& g1, Vector<double>& g2) 
 			vn[1] = etf.flowField.at<Vec3f>(i, j)[0];
 
 			if (vn[0] == 0.0 && vn[1] == 0.0) {
-				sum1 = 255.0;
-				sum2 = 255.0;
+				sum1 = sum2 = 255.0;
 				dog.at<double>(j, i) = sum1 - rho * sum2;
 				continue;
 			}
-			d_x = i; d_y = j;
 
-			for (s = -half_w2; s <= half_w2; s++) {
-
+			d_x = i;
+			d_y = j;
+			for (int s = -half_w2; s <= half_w2; s++) {
 				x = d_x + vn[0] * s;
 				y = d_y + vn[1] * s;
 
-				if (x > (double)image_x - 1 || x < 0.0 || y >(double)image_y - 1 || y < 0.0)
-					continue;
-				x1 = round(x);	if (x1 < 0) x1 = 0; if (x1 > image_x - 1) x1 = image_x - 1;
-				y1 = round(y);	if (y1 < 0) y1 = 0; if (y1 > image_y - 1) y1 = image_y - 1;
-				//imshow("hyj",image);
+				if (x > (double)image_x - 1 || x < 0.0 || y >(double)image_y - 1 || y < 0.0) continue;
+
+				x1 = min(max((int)round(x), 0), image_x - 1);
+				y1 = min(max((int)round(y), 0), image_y - 1);
+
 				val = image.at<float>(x1, y1);
 
-				dd = abs(s);
-				if (dd > half_w1) weight1 = 0.0;
-				else weight1 = g1[dd];
+				int dd = abs(s);
+				weight1 = (dd > half_w1) ? 0.0 : g1[dd];
+				weight2 = g2[dd];
 
 				sum1 += val * weight1;
-				w_sum1 += weight1;
-
-				weight2 = g2[dd];
 				sum2 += val * weight2;
+				w_sum1 += weight1;
 				w_sum2 += weight2;
 			}
 
 			sum1 /= w_sum1;
 			sum2 /= w_sum2;
 
+			/**
+			 * eq 7
+			 */
 			dog.at<float>(i, j) = sum1 - rho * sum2;
 		}
 	}
