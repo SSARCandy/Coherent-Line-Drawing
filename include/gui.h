@@ -38,16 +38,12 @@ public:
 	MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
 	BasicDrawPane *drawPane;
 	wxPanel* dp;// drawpane Container
-	wxSlider *slider_sd;
-	wxSlider *slider_s;
-	wxSlider *slider_f;
-	wxSlider *slider_k;
-	wxSlider *slider_l;
-	wxStaticText *slider_sd_t;
-	wxStaticText *slider_s_t;
-	wxStaticText *slider_f_t;
-	wxStaticText *slider_k_t;
-	wxStaticText *slider_l_t;
+	wxSlider *slider_rho;
+	wxSlider *slider_sigma1;
+	wxSlider *slider_sigma2;
+	wxStaticText *slider_rho_t;
+	wxStaticText *slider_sigma1_t;
+	wxStaticText *slider_sigma2_t;
 	void addlog(wxString info, wxColour& color);
 	void activateRenderLoop(bool on);
 
@@ -69,11 +65,9 @@ protected:
 	//void OnSliderAddA(wxCommandEvent& event);
 	//void OnSliderAddB(wxCommandEvent& event);
 
-	void OnSliderS(wxCommandEvent& event);
-	void OnSliderSd(wxCommandEvent& event);
-	void OnSliderF(wxCommandEvent& event);
-	void OnSliderK(wxCommandEvent& event);
-	void OnSliderL(wxCommandEvent& event);
+	void OnSliderRho(wxCommandEvent& event);
+	void OnSliderSigma1(wxCommandEvent& event);
+	void OnSliderSigma2(wxCommandEvent& event);
 
 	void OnOpenSrc(wxCommandEvent& event);
 	void OnOpenVfb(wxCommandEvent& event);

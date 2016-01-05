@@ -29,14 +29,10 @@ wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	EVT_COMBOBOX(COMBOBOX_Processing, MyFrame::OnProcessingBox)
 
 	// Control Panel
-	//EVT_SLIDER(SLIDER_BRUSH_SIZE, MyFrame::OnSliderBrushSize)
-	//EVT_SLIDER(SLIDER_AddA, MyFrame::OnSliderAddA)
-	//EVT_SLIDER(SLIDER_AddB, MyFrame::OnSliderAddB)
+	EVT_SLIDER(SLIDER_BRUSH_SIZE, MyFrame::OnSliderRho)
+	EVT_SLIDER(SLIDER_AddA, MyFrame::OnSliderSigma1)
+	EVT_SLIDER(SLIDER_AddB, MyFrame::OnSliderSigma2)
 
-	EVT_SLIDER(SLIDER_S, MyFrame::OnSliderS)
-	EVT_SLIDER(SLIDER_sd, MyFrame::OnSliderSd)
-	EVT_SLIDER(SLIDER_F, MyFrame::OnSliderF)
-	EVT_SLIDER(SLIDER_K, MyFrame::OnSliderK)
-	EVT_SLIDER(SLIDER_L, MyFrame::OnSliderL)
+
 wxEND_EVENT_TABLE()
 wxIMPLEMENT_APP(MyApp);

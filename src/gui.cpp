@@ -5,7 +5,7 @@
 
 bool MyApp::OnInit() {
 	MyFrame *frame = new MyFrame("CRD", wxPoint(50, 50), wxSize(800, 730));
-	frame->Maximize(true);
+	//frame->Maximize(true);
 	frame->Show(true);
 
 	return true;
@@ -28,7 +28,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 	wxMenu *menuTool = new wxMenu;
 
-	menuTool->Append(ID_ONETF2GVF, "&GenGVF", "generate GVF using addB");
+	menuTool->Append(ID_ONETF2GVF, "&GenGVF", "generate GVF using sigma2");
 	menuTool->AppendSeparator();
 
 	menuTool->AppendSeparator();
@@ -114,10 +114,30 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 #pragma endregion
 
 #pragma region Paint Parameters
-	wxStaticBox *st_paint = new wxStaticBox(controlpanel, -1, wxT("Paint"), wxDefaultPosition, wxDefaultSize, wxTE_RICH2);
+	wxStaticBox *st_paint = new wxStaticBox(controlpanel, -1, wxT("Parameters"), wxDefaultPosition, wxDefaultSize, wxTE_RICH2);
 	wxStaticBoxSizer *st_paint_sizer = new wxStaticBoxSizer(st_paint, wxVERTICAL);
 
-	//solve = new wxButton(controlpanel, BUTTON_SolveIt, wxT("\nSolve It !!!\n"), wxDefaultPosition, wxDefaultSize, 0);
+	solve = new wxButton(controlpanel, BUTTON_SolveIt, wxT("\nApply !!!\n"), wxDefaultPosition, wxDefaultSize, 0);
+	rightside->Add(solve, 0, wxEXPAND | wxALL, 10);
+
+	s.Printf("noise : %.3f", drawPane->cld.rho);
+	slider_rho_t = new wxStaticText(controlpanel, SLIDER_BRUSH_SIZE_T, s, wxDefaultPosition, wxDefaultSize, 0);
+	st_paint_sizer->Add(slider_rho_t, 0, wxEXPAND | wxLEFT, 10);
+	slider_rho = new wxSlider(controlpanel, SLIDER_BRUSH_SIZE, int(drawPane->cld.rho*100), 80, 100, wxDefaultPosition, wxDefaultSize, 0);
+	st_paint_sizer->Add(slider_rho, 0, wxEXPAND | wxLEFT, 10);
+
+	s.Printf("sigma1 : %.3f", drawPane->cld.sigma1);
+	slider_sigma1_t = new wxStaticText(controlpanel, SLIDER_AddA_T, s, wxDefaultPosition, wxDefaultSize, 0);
+	st_paint_sizer->Add(slider_sigma1_t, 0, wxEXPAND | wxLEFT, 10);
+	slider_sigma1 = new wxSlider(controlpanel, SLIDER_AddA, int(drawPane->cld.sigma1 * 1000), 10, 2000, wxDefaultPosition, wxDefaultSize, 0);
+	st_paint_sizer->Add(slider_sigma1, 0, wxEXPAND | wxLEFT, 10);
+
+	s.Printf("sigma2 : %.3f", drawPane->cld.sigma2);
+	slider_sigma2_t = new wxStaticText(controlpanel, SLIDER_AddB_T, s, wxDefaultPosition, wxDefaultSize, 0);
+	st_paint_sizer->Add(slider_sigma2_t, 0, wxEXPAND | wxLEFT, 10);
+	slider_sigma2 = new wxSlider(controlpanel, SLIDER_AddB, int(drawPane->cld.sigma2 * 1000), 10, 10000, wxDefaultPosition, wxDefaultSize, 0);
+	st_paint_sizer->Add(slider_sigma2, 0, wxEXPAND | wxLEFT, 10);
+
 
 	rightside->Add(st_paint_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 3);
 #pragma endregion
@@ -273,7 +293,7 @@ void MyFrame::OnSaveResult(wxCommandEvent& event) {
 void MyFrame::OnGenGVF(wxCommandEvent& event) {
 	//drawPane->cld.GVF();
 	wxString s;
-	s.Printf("flowField: gen_by_addB ");
+	s.Printf("flowField: gen_by_sigma2 ");
 	SetStatusText(s, 1);
 
 }
@@ -301,7 +321,6 @@ void MyFrame::OnClean(wxCommandEvent& event) {
 
 void MyFrame::OnSolveIt(wxCommandEvent& event) {
 	drawPane->cld.genCLD();
-
 }
 
 
@@ -315,86 +334,30 @@ void MyFrame::OnProcessingBox(wxCommandEvent& event) {
 }
 
 //Slides: Pattern Parameter
-void MyFrame::OnSliderS(wxCommandEvent& event) {
-	//wxString s;
-	//if (Segmentation_cb->GetValue() && drawPane->regionSelected != 0)
-	//{
-	//	drawPane->cld.segmentation[drawPane->regionSelected - 1].size = slider_s->GetValue() / 1000.0;
-	//	s.Printf("Size : %.3f", drawPane->cld.segmentation[drawPane->regionSelected - 1].size);
-	//	drawPane->cld.UpdateControlMask();
-	//}
-	//else
-	//{
-	//	drawPane->cld.s = slider_s->GetValue() / 1000.0;
-	//	drawPane->cld.UpdateSizeMask();
-	//	s.Printf("Size : %.3f", drawPane->cld.s);
-	//}
-	//slider_s_t->SetLabel(s);
-}
-void MyFrame::OnSliderSd(wxCommandEvent& event) {
-	//wxString s;
-	//if (Segmentation_cb->GetValue() && drawPane->regionSelected != 0)
-	//{
-	//	drawPane->cld.segmentation[drawPane->regionSelected - 1].sd = slider_sd->GetValue() / 1000.0;
-	//	s.Printf("Spacing : %.3f", drawPane->cld.segmentation[drawPane->regionSelected - 1].sd);
-	//	drawPane->cld.UpdateControlMask();
-	//}
-	//else
-	//{
-	//	drawPane->cld.sd = slider_sd->GetValue() / 1000.0;
-	//	//drawPane->cld.UpdateSizeMask();
-	//	s.Printf("Spacing : %.3f", drawPane->cld.sd);
-	//}
-	//slider_sd_t->SetLabel(s);
+void MyFrame::OnSliderRho(wxCommandEvent& event) {
+	wxString s;
+	drawPane->cld.rho = slider_rho->GetValue() / 100.0;
+	s.Printf("noise : %.3f", drawPane->cld.rho);
+	slider_rho_t->SetLabel(s);
 
+	//drawPane->cld.genCLD();
 }
-void MyFrame::OnSliderF(wxCommandEvent& event) {
-	//wxString s;
-	//if (Segmentation_cb->GetValue() && drawPane->regionSelected != 0)
-	//{
-	//	drawPane->cld.segmentation[drawPane->regionSelected - 1].F = slider_f->GetValue() / 1000.0*0.06;
-	//	s.Printf("F : %.4f", drawPane->cld.segmentation[drawPane->regionSelected - 1].F);
-	//	drawPane->cld.UpdateControlMask();
-	//}
-	//else
-	//{
-	//	drawPane->cld.f = slider_f->GetValue() / 1000.0*0.06;
-	//	s.Printf("F : %.4f", drawPane->cld.f);
-	//}
-	//slider_f_t->SetLabel(s);
-}
-void MyFrame::OnSliderK(wxCommandEvent& event) {
-	//wxString s;
-	//if (Segmentation_cb->GetValue() && drawPane->regionSelected != 0)
-	//{
-	//	drawPane->cld.segmentation[drawPane->regionSelected - 1].k = slider_k->GetValue() / 1000.0*0.04 + 0.03;
-	//	s.Printf("k : %.4f", drawPane->cld.segmentation[drawPane->regionSelected - 1].k);
-	//	drawPane->cld.UpdateControlMask();
-	//}
-	//else
-	//{
-	//	drawPane->cld.k = slider_k->GetValue() / 1000.0*0.04 + 0.03;
-	//	s.Printf("k : %.4f", drawPane->cld.k);
-	//	drawPane->cld.UpdatekMask();
-	//}
-	//slider_k_t->SetLabel(s);
-}
-void MyFrame::OnSliderL(wxCommandEvent& event) {
-	//wxString s;
-	//if (Segmentation_cb->GetValue() && drawPane->regionSelected != 0)
-	//{
-	//	drawPane->cld.segmentation[drawPane->regionSelected - 1].l = slider_l->GetValue();
-	//	s.Printf("l : %d", drawPane->cld.segmentation[drawPane->regionSelected - 1].l);
-	//	drawPane->cld.UpdateControlMask();
-	//}
-	//else
-	//{
-	//	drawPane->cld.l = slider_l->GetValue();
-	//	s.Printf("l : %d", drawPane->cld.l);
-	//}
-	//slider_l_t->SetLabel(s);
-}
+void MyFrame::OnSliderSigma1(wxCommandEvent& event) {
+	wxString s;
+	drawPane->cld.sigma1 = slider_sigma1->GetValue() / 1000.0;
+	s.Printf("sigma1 : %.3f", drawPane->cld.sigma1);
+	slider_sigma1_t->SetLabel(s);
 
+	//drawPane->cld.genCLD();
+}
+void MyFrame::OnSliderSigma2(wxCommandEvent& event) {
+	wxString s;
+	drawPane->cld.sigma2 = slider_sigma2->GetValue() / 1000.0;
+	s.Printf("sigma2 : %.3f", drawPane->cld.sigma2);
+	slider_sigma2_t->SetLabel(s);
+
+	//drawPane->cld.genCLD();
+}
 
 
 void MyFrame::addlog(wxString info, wxColour& color) {
@@ -435,11 +398,7 @@ processing(s),
 cld(s),
 wxPanel(parent) {
 	activateDraw = false;
-
-
 }
-
-
 
 
 //first frame
@@ -462,18 +421,7 @@ void BasicDrawPane::paintNow(bool render_loop_on) {
 
 //Main Render(iteration) Section
 void BasicDrawPane::render(wxDC& dc, bool render_loop_on) {
-	if (render_loop_on) {
-		//if (customAnisotropicFunction){
-		//int steps = cld.FastGrayScott(mindegree, maxdegree, false, regionOn);
-		//((MyFrame *)GetParent())->SetStatusText(wxString::Format("%i", steps), 0); //preview does not have StatusText
-		//}
-		//else {
-		//	cld.FastGrayScott(0, 0, false, regionOn);
-		//}
 
-		////must read 500x500 input image first, and a flow field
-		//cld.GrayScottModel();
-	}
 
 	dis = cld.originalImg.clone();
 	cvtColor(dis, dis, CV_GRAY2BGR);

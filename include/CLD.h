@@ -10,6 +10,7 @@ using namespace std;
 #define SIGMA_RATIO 1.6 
 #define BINARIZATION_THRESHOLDING 200
 #define BIAS 200
+#define STEPSIZE 1.0
 
 class CLD
 {
@@ -30,7 +31,7 @@ public:
 
 	double sigma1;
 	double sigma2;
-	double tau;
+	double rho;
 	int black;
 
 private:

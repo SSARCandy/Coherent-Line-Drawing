@@ -42,22 +42,20 @@ void CLD::init(Size s) {
 
 	sigma1 = .4;
 	sigma2 = 3;
-	tau = .99;
+	rho = .99;
 	black = 0;
 }
 
 void CLD::readSrc(string file) {
 	originalImg = imread(file, CV_LOAD_IMAGE_GRAYSCALE);
 	//originalImg.convertTo(originalImg, CV_32FC1, 1.0);
-	imshow("lo;", originalImg);
+	//imshow("lo;", originalImg);
 
 	result = Mat::zeros(Size(originalImg.cols, originalImg.rows), CV_8UC1);
 	etf.gen_ETF(file, originalImg.size());
 }
 
 void CLD::genCLD() {
-	//GaussianBlur(originalImg, result, Size(91, 91), 0,0);
-
 	Vector<double> g1, g2, g3;
 	MakeGaussianVector(sigma1, g1);
 	MakeGaussianVector(sigma2*SIGMA_RATIO, g2);
@@ -72,7 +70,7 @@ void CLD::genCLD() {
 	Mat tmp(Size(originalImg.cols, originalImg.rows), CV_32FC1);
 	for (int r = 0; r < tmp.rows; r++) {
 		for (int c = 0; c < tmp.cols; c++) {
-			float v = originalImg.at<uchar>(r, c)/255.0;
+			float v = originalImg.at<uchar>(r, c) / 255.0;
 			tmp.at<float>(r, c) = v;
 		}
 	}
@@ -102,7 +100,6 @@ void CLD::genCLD() {
 
 
 
-
 /**
  * Private Functions
  */
@@ -115,20 +112,16 @@ void CLD::genFDoG(Mat& dog, Mat& tmp, Vector<double>& g3) {
 	int i_x, i_y, k;
 	int x1, y1;
 	double val;
-	int i, j;
 
 	int image_x = dog.rows;
 	int image_y = dog.cols;
 
-	int half_l;
-	half_l = g3.size() -1;
+	int half_l = g3.size() - 1;
 
 	int flow_DOG_sign = 0;
 
-	double step_size = 1.0;
-
-	for (i = 0; i < image_x; i++) {
-		for (j = 0; j < image_y; j++) {
+	for (int i = 0; i < image_x; i++) {
+		for (int j = 0; j < image_y; j++) {
 			sum1 = 0.0;
 			w_sum1 = 0.0;
 			weight1 = 0.0;
@@ -144,6 +137,7 @@ void CLD::genFDoG(Mat& dog, Mat& tmp, Vector<double>& g3) {
 			for (k = 0; k < half_l; k++) {
 				vt[0] = etf.flowField.at<Vec3f>(i_x, i_y)[0];
 				vt[1] = etf.flowField.at<Vec3f>(i_x, i_y)[1];
+
 				if (vt[0] == 0.0 && vt[1] == 0.0) {
 					break;
 				}
@@ -161,8 +155,8 @@ void CLD::genFDoG(Mat& dog, Mat& tmp, Vector<double>& g3) {
 				sum1 += val * weight1;
 				w_sum1 += weight1;
 				/////////////////////////////////////////
-				d_x += vt[0] * step_size;
-				d_y += vt[1] * step_size;
+				d_x += vt[0] * STEPSIZE;
+				d_y += vt[1] * STEPSIZE;
 				/////////////////////////////////////////
 				i_x = round(d_x);
 				i_y = round(d_y);
@@ -192,8 +186,8 @@ void CLD::genFDoG(Mat& dog, Mat& tmp, Vector<double>& g3) {
 				sum1 += val * weight1;
 				w_sum1 += weight1;
 				/////////////////////////////////////////
-				d_x += vt[0] * step_size;
-				d_y += vt[1] * step_size;
+				d_x += vt[0] * STEPSIZE;
+				d_y += vt[1] * STEPSIZE;
 				/////////////////////////////////////////
 				i_x = round(d_x);
 				i_y = round(d_y);
@@ -216,7 +210,6 @@ void CLD::genDDoG(Mat& image, Mat& dog, Vector<double>& g1, Vector<double>& g2) 
 
 	int s;
 	int x1, y1;
-	int i, j;
 	int dd;
 	double val;
 
@@ -230,11 +223,11 @@ void CLD::genDDoG(Mat& image, Mat& dog, Vector<double>& g1, Vector<double>& g2) 
 	image_x = originalImg.rows;
 	image_y = originalImg.cols;
 
-	for (i = 0; i < image_x; i++) {
-		for (j = 0; j < image_y; j++) {
-			if (j> 213) {
-				vn[0] = vn[0]; 
-			}
+	for (int i = 0; i < image_x; i++) {
+		for (int j = 0; j < image_y; j++) {
+			//if (j > 213) {
+			//	vn[0] = vn[0];
+			//}
 			sum1 = sum2 = 0.0;
 			w_sum1 = w_sum2 = 0.0;
 			weight1 = weight2 = 0.0;
@@ -245,39 +238,39 @@ void CLD::genDDoG(Mat& image, Mat& dog, Vector<double>& g1, Vector<double>& g2) 
 			if (vn[0] == 0.0 && vn[1] == 0.0) {
 				sum1 = 255.0;
 				sum2 = 255.0;
-				dog.at<double>(j, i) = sum1 - tau * sum2;
+				dog.at<double>(j, i) = sum1 - rho * sum2;
 				continue;
 			}
 			d_x = i; d_y = j;
-			////////////////////////////////////////
+
 			for (s = -half_w2; s <= half_w2; s++) {
-				////////////////////////
+
 				x = d_x + vn[0] * s;
 				y = d_y + vn[1] * s;
-				/////////////////////////////////////////////////////
+
 				if (x > (double)image_x - 1 || x < 0.0 || y >(double)image_y - 1 || y < 0.0)
 					continue;
 				x1 = round(x);	if (x1 < 0) x1 = 0; if (x1 > image_x - 1) x1 = image_x - 1;
 				y1 = round(y);	if (y1 < 0) y1 = 0; if (y1 > image_y - 1) y1 = image_y - 1;
 				//imshow("hyj",image);
 				val = image.at<float>(x1, y1);
-				/////////////////////////////////////////////////////////
+
 				dd = abs(s);
 				if (dd > half_w1) weight1 = 0.0;
 				else weight1 = g1[dd];
-				//////////////////////////////////
+
 				sum1 += val * weight1;
 				w_sum1 += weight1;
-				/////////////////////////////////////////////////////
+
 				weight2 = g2[dd];
 				sum2 += val * weight2;
 				w_sum2 += weight2;
 			}
-			/////////////////////////
+
 			sum1 /= w_sum1;
 			sum2 /= w_sum2;
-			//////////////////////////////////////
-			dog.at<float>(i, j) = sum1 - tau * sum2;
+
+			dog.at<float>(i, j) = sum1 - rho * sum2;
 		}
 	}
 
