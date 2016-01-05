@@ -20,9 +20,6 @@ public:
 	void init(Size);
 	void readSrc(string);
 	void genCLD();
-	//void genFDOG();
-
-
 
 	Mat originalImg;
 	Mat result;

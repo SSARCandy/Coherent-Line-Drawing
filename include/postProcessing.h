@@ -12,6 +12,4 @@ public:
 	void	Thresholding(Mat &src, Mat &dis);
 
 	float	thresholding;
-
-private:
 };
