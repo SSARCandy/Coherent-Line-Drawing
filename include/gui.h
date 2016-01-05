@@ -41,9 +41,11 @@ public:
 	wxSlider *slider_rho;
 	wxSlider *slider_sigma1;
 	wxSlider *slider_sigma2;
+	wxSlider *slider_t;
 	wxStaticText *slider_rho_t;
 	wxStaticText *slider_sigma1_t;
 	wxStaticText *slider_sigma2_t;
+	wxStaticText *slider_t_t;
 	void addlog(wxString info, wxColour& color);
 	void activateRenderLoop(bool on);
 
@@ -61,13 +63,11 @@ protected:
 
 	void OnProcessingBox(wxCommandEvent& event);
 
-	//void OnSliderBrushSize(wxCommandEvent& event);
-	//void OnSliderAddA(wxCommandEvent& event);
-	//void OnSliderAddB(wxCommandEvent& event);
 
 	void OnSliderRho(wxCommandEvent& event);
 	void OnSliderSigma1(wxCommandEvent& event);
 	void OnSliderSigma2(wxCommandEvent& event);
+	void OnSliderThresholding(wxCommandEvent& event);
 
 	void OnOpenSrc(wxCommandEvent& event);
 	void OnOpenVfb(wxCommandEvent& event);

@@ -63,8 +63,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	processingBox->Append("originalImg");
 	processingBox->Append("ETF");
 	processingBox->Append("CLD");
-
-
+	processingBox->Append("Thresholding");
 
 
 	toolbar1->AddControl(start);
@@ -141,6 +140,20 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 	rightside->Add(st_paint_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 3);
 #pragma endregion
+
+#pragma region Post Processing Parameters
+	wxStaticBox *st_pp = new wxStaticBox(controlpanel, -1, wxT("Post Processing"), wxDefaultPosition, wxDefaultSize, wxTE_RICH2);
+	wxStaticBoxSizer *st_pp_sizer = new wxStaticBoxSizer(st_pp, wxVERTICAL);
+
+	s.Printf("thresholding : %.3f", drawPane->processing.thresholding);
+	slider_t_t = new wxStaticText(controlpanel, SLIDER_Beta_T, s, wxDefaultPosition, wxDefaultSize, 0);
+	st_pp_sizer->Add(slider_t_t, 0, wxEXPAND | wxLEFT, 10);
+	slider_t = new wxSlider(controlpanel, SLIDER_Beta, int(drawPane->processing.thresholding * 1000), 0, 1000, wxDefaultPosition, wxDefaultSize, 0);
+	st_pp_sizer->Add(slider_t, 0, wxEXPAND | wxLEFT, 10);
+
+	rightside->Add(st_pp_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 3);
+#pragma endregion
+
 
 	//set portion of size: leftside & rightside(control)
 	drawpanel->SetSizer(leftside);
@@ -359,6 +372,13 @@ void MyFrame::OnSliderSigma2(wxCommandEvent& event) {
 	//drawPane->cld.genCLD();
 }
 
+void MyFrame::OnSliderThresholding(wxCommandEvent& event) {
+	drawPane->processing.thresholding = slider_t->GetValue() / 1000.0;
+	wxString s;
+	s.Printf("thresholding : %.3f", drawPane->processing.thresholding);
+	slider_t_t->SetLabel(s);
+	drawPane->paintNow(true); //execute action
+}
 
 void MyFrame::addlog(wxString info, wxColour& color) {
 	time_t currentTime;// for logging current time
@@ -436,6 +456,13 @@ void BasicDrawPane::render(wxDC& dc, bool render_loop_on) {
 	else if (processingS == "CLD") {
 		dis = cld.result.clone();
 		cvtColor(dis, dis, CV_GRAY2BGR);
+	}
+	else if (processingS == "Thresholding") {
+		dis = cld.result.clone();
+		processing.Thresholding(dis, dis);
+		dis.convertTo(dis, CV_8UC1, 255);
+
+		//cvtColor(dis, dis, CV_GRAY2BGR);
 	}
 
 	wxImage img(dis.cols, dis.rows, dis.data, true);

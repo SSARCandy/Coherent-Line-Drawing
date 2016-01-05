@@ -6,11 +6,9 @@ inline double gauss(double x, double mean, double sigma) {
 }
 
 void MakeGaussianVector(double sigma, Vector<double>& GAU) {
-	int i, j;
+	const double threshold = 0.001;
 
-	double threshold = 0.001;
-
-	i = 0;
+	int i = 0;
 	while (1) {
 		i++;
 		if (gauss((double)i, 0.0, sigma) < threshold)
@@ -19,8 +17,8 @@ void MakeGaussianVector(double sigma, Vector<double>& GAU) {
 	GAU.clear();
 	GAU.resize(i + 1);
 
-	GAU[0] = gauss((double)0.0, 0.0, sigma);
-	for (j = 1; j < GAU.size(); j++) {
+	GAU[0] = gauss(0.0, 0.0, sigma);
+	for (int j = 1; j < GAU.size(); j++) {
 		GAU[j] = gauss((double)j, 0.0, sigma);
 	}
 }
@@ -102,13 +100,12 @@ void CLD::genCLD() {
 /**
  * Private Functions
  */
-
 void CLD::genFDoG(Mat& dog, Mat& tmp, Vector<double>& g3) {
 	Vector<double> vt(2, 0);
 	double x, y, d_x, d_y;
 	double weight1, w_sum1, sum1;
 
-	int i_x, i_y, k;
+	int i_x, i_y;
 	int x1, y1;
 	double val;
 
@@ -132,7 +129,7 @@ void CLD::genFDoG(Mat& dog, Mat& tmp, Vector<double>& g3) {
 			d_y = (double)j;
 			i_x = i; 
 			i_y = j;
-			for (k = 0; k < half_l; k++) {
+			for (int k = 0; k < half_l; k++) {
 				vt[0] = etf.flowField.at<Vec3f>(i_x, i_y)[0];
 				vt[1] = etf.flowField.at<Vec3f>(i_x, i_y)[1];
 
@@ -166,7 +163,7 @@ void CLD::genFDoG(Mat& dog, Mat& tmp, Vector<double>& g3) {
 			d_y = (double)j;
 			i_x = i; 
 			i_y = j;
-			for (k = 0; k < half_l; k++) {
+			for (int k = 0; k < half_l; k++) {
 				vt[0] = -etf.flowField.at<Vec3f>(i_x, i_y)[0];
 				vt[1] = -etf.flowField.at<Vec3f>(i_x, i_y)[1];
 				if (vt[0] == 0.0 && vt[1] == 0.0) break;
