@@ -11,5 +11,5 @@ This is a GUI version of CLD.
  
 ### screenshot
 
-![demo](./demo/1.JPG)
-![demo](./demo/2.JPG)
+![demo](https://raw.githubusercontent.com/SSARCandy/Coherent-Line-Drawing/master/demo/1.JPG)
+![demo](https://raw.githubusercontent.com/SSARCandy/Coherent-Line-Drawing/master/demo/2.JPG)
