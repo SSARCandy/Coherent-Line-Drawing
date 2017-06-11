@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 
+
 bool MyApp::OnInit() {
 	MyFrame *frame = new MyFrame("CRD", wxPoint(50, 50), wxSize(800, 730));
 	//frame->Maximize(true);
@@ -99,7 +100,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	dp->SetSizer(dps);
 
 
-	drawPane = new BasicDrawPane(dp, Size(256, 256), true);
+	drawPane = new BasicDrawPane(dp, cv::Size(256, 256), true);
 	dps->Add(drawPane, 1, wxEXPAND);
 
 	// wxTextCtrl: http://docs.wxwidgets.org/trunk/classwx_text_ctrl.html
@@ -296,8 +297,8 @@ void MyFrame::OnSaveResult(wxCommandEvent& event) {
 		return;
 	}
 
-	cvtColor(drawPane->dis, drawPane->dis, CV_BGR2RGB);
-	imwrite((const char*)saveFileDialog.GetPath().mb_str(), drawPane->dis);
+	cv::cvtColor(drawPane->dis, drawPane->dis, CV_BGR2RGB);
+	cv::imwrite((const char*)saveFileDialog.GetPath().mb_str(), drawPane->dis);
 
 
 	//	drawPane->cld.SaveRD();
@@ -413,7 +414,7 @@ void MyFrame::onIdle(wxIdleEvent& evt) {
 #pragma endregion 
 
 #pragma region BasicDrawPane
-BasicDrawPane::BasicDrawPane(wxPanel* parent, Size s, bool canUndo) :
+BasicDrawPane::BasicDrawPane(wxPanel* parent, cv::Size s, bool canUndo) :
 processing(s),
 cld(s),
 wxPanel(parent) {
@@ -444,18 +445,18 @@ void BasicDrawPane::render(wxDC& dc, bool render_loop_on) {
 
 
 	dis = cld.originalImg.clone();
-	cvtColor(dis, dis, CV_GRAY2BGR);
+	cv::cvtColor(dis, dis, CV_GRAY2BGR);
 	//imshow("jik", dis);
 	//imshow("jik2", cld.originalImg);
 
 	if (processingS == "ETF") {
 		processing.ETF(cld.etf.flowField, dis);
 		dis.convertTo(dis, CV_8UC1, 255);
-		cvtColor(dis, dis, CV_GRAY2BGR);
+		cv::cvtColor(dis, dis, CV_GRAY2BGR);
 	}
 	else if (processingS == "CLD") {
 		dis = cld.result.clone();
-		cvtColor(dis, dis, CV_GRAY2BGR);
+		cv::cvtColor(dis, dis, CV_GRAY2BGR);
 	}
 	else if (processingS == "Thresholding") {
 		dis = cld.result.clone();

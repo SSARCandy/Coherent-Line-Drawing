@@ -17,12 +17,12 @@ class BasicDrawPane : public wxPanel
 {
 
 public:
-	BasicDrawPane(wxPanel* parent, Size, bool canUndo);
+	BasicDrawPane(wxPanel* parent, cv::Size, bool canUndo);
 
 	CLD cld;
 	PP processing;
-	Mat dis;
-	Mat temp;
+	cv::Mat dis;
+	cv::Mat temp;
 	string processingS;
 	void paintEvent(wxPaintEvent& evt);
 	void paintNow(bool);

@@ -3,7 +3,6 @@
 #include "ETF.h"
 
 
-using namespace cv;
 using namespace std;
 
 #define M_PI 3.14159265358979323846
@@ -16,13 +15,13 @@ class CLD
 {
 public:
 	CLD();
-	CLD(Size);
-	void init(Size);
+	CLD(cv::Size);
+	void init(cv::Size);
 	void readSrc(string);
 	void genCLD();
 
-	Mat originalImg;
-	Mat result;
+	cv::Mat originalImg;
+	cv::Mat result;
 	ETF etf;
 
 	double sigma1;
@@ -30,6 +29,6 @@ public:
 	double rho;
 
 private:
-	void genFDoG(Mat&, Mat&, Vector<double>&);
-	void genDDoG(Mat&, Mat&, Vector<double>&, Vector<double>&);
+	void genFDoG(cv::Mat&, cv::Mat&, vector<double>&);
+	void genDDoG(cv::Mat&, cv::Mat&, vector<double>&, vector<double>&);
 };

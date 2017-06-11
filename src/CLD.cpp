@@ -1,11 +1,12 @@
 #include "CLD.h"
 
+using namespace cv;
 
 inline double gauss(double x, double mean, double sigma) {
 	return (exp((-(x - mean)*(x - mean)) / (2 * sigma*sigma)) / sqrt(M_PI * 2.0 * sigma * sigma));
 }
 
-void MakeGaussianVector(double sigma, Vector<double>& GAU) {
+void MakeGaussianVector(double sigma, vector<double>& GAU) {
 	const double threshold = 0.001;
 
 	int i = 0;
@@ -53,7 +54,7 @@ void CLD::readSrc(string file) {
 }
 
 void CLD::genCLD() {
-	Vector<double> g1, g2, g3;
+	vector<double> g1, g2, g3;
 	MakeGaussianVector(sigma1, g1);
 	MakeGaussianVector(sigma2*SIGMA_RATIO, g2);
 
@@ -100,8 +101,8 @@ void CLD::genCLD() {
 /**
  * Private Functions
  */
-void CLD::genFDoG(Mat& dog, Mat& tmp, Vector<double>& g3) {
-	Vector<double> vt(2, 0);
+void CLD::genFDoG(Mat& dog, Mat& tmp, vector<double>& g3) {
+	vector<double> vt(2, 0);
 	double x, y, d_x, d_y;
 	double weight1, w_sum1, sum1;
 
@@ -200,8 +201,8 @@ void CLD::genFDoG(Mat& dog, Mat& tmp, Vector<double>& g3) {
 	}
 }
 
-void CLD::genDDoG(Mat& image, Mat& dog, Vector<double>& g1, Vector<double>& g2) {
-	Vector<double> vn(2, 0);
+void CLD::genDDoG(Mat& image, Mat& dog, vector<double>& g1, vector<double>& g2) {
+	vector<double> vn(2, 0);
 	int x1, y1;
 	double x, y, d_x, d_y;
 	double weight1, weight2, w_sum1, sum1, sum2, w_sum2;

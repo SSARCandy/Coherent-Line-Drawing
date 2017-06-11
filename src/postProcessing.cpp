@@ -1,5 +1,8 @@
 #include "postProcessing.h"
 
+using namespace cv;
+
+
 PP::PP(Size s) {
 	thresholding = 0.2;
 	//beta = 0.5;
