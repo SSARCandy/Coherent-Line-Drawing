@@ -16,6 +16,8 @@ ETF::ETF(Size s) {
 
 void ETF::Init(Size s) {
 	flowField = Mat::zeros(s, CV_32FC3);
+	GVF = Mat::zeros(s, CV_32FC3);
+	refinedETF = Mat::zeros(s, CV_32FC3);
 
 	halfw = 4;
 	smoothPasses = 2;
@@ -55,6 +57,8 @@ void ETF::ReadFlow(string file, Size s) {
 
 //Generate ETF of input image as flowfield
 void ETF::gen_ETF(string file, Size s) {
+	resizeMat(s);
+
 	Mat src = imread(file, 1);
 	Mat src_n;
 	Mat grad;
@@ -83,13 +87,19 @@ void ETF::gen_ETF(string file, Size s) {
 			flowField.at<cv::Vec3f>(i, j) = normalize(Vec3f(z, x - lambda1, 0.0));
 			//dis.at<cv::Vec3f>(i,j) = normalize( Vec3f(lambda1-x,z,0.0) );
 
-			if (flowField.at<cv::Vec3f>(i, j) == Vec3f(0.0, 0.0, 0.0)) {
-				flowField.at<cv::Vec3f>(i, j) = Vec3f(0.0, 1.0, 0.0);
-			}
+			//if (flowField.at<cv::Vec3f>(i, j) == Vec3f(0.0, 0.0, 0.0)) {
+			//	flowField.at<cv::Vec3f>(i, j) = Vec3f(0.0, 1.0, 0.0);
+			//}
 		}
 	}
 
-	resize(flowField, flowField, Size(src.cols, src.rows), 0, 0, CV_INTER_LINEAR);
+	// Construct GVF
+	rotateFlow(flowField, GVF, 90);
+
+}
+
+void ETF::refine_ETF(int kernel) {
+
 }
 
 //void ETF::GVF()
@@ -150,18 +160,25 @@ void ETF::gen_ETF(string file, Size s) {
 //
 //}
 
-void ETF::RotateFlow(float theta) {
+void ETF::rotateFlow(Mat& src, Mat& dst, float theta) {
 	theta = theta / 180.0 * M_PI;
-	for (int i = 0; i < flowField.rows; i++) {
-		for (int j = 0; j < flowField.cols; j++) {
-			Vec3f v = flowField.at<cv::Vec3f>(i, j);
+
+	for (int i = 0; i < src.rows; i++) {
+		for (int j = 0; j < src.cols; j++) {
+			Vec3f v = src.at<cv::Vec3f>(i, j);
 			// x' = x*cos(Theta) - y*sin(Theta)
 			// y' = y*cos(Theta) + x*sin(Theta)
 			float rx = v[0] * cos(theta) - v[1] * sin(theta);
 			float ry = v[1] * cos(theta) + v[0] * sin(theta);
-			flowField.at<cv::Vec3f>(i, j) = Vec3f(rx, ry, 0.0);
+			dst.at<cv::Vec3f>(i, j) = Vec3f(rx, ry, 0.0);
 		}
 	}
 
+}
+
+void ETF::resizeMat(Size s) {
+	resize(flowField, flowField, s, 0, 0, CV_INTER_LINEAR);
+	resize(GVF, GVF, s, 0, 0, CV_INTER_LINEAR);
+	resize(refinedETF, refinedETF, s, 0, 0, CV_INTER_LINEAR);
 }
 
