@@ -18,6 +18,7 @@ void ETF::Init(Size s) {
 	flowField = Mat::zeros(s, CV_32FC3);
 	GVF = Mat::zeros(s, CV_32FC3);
 	refinedETF = Mat::zeros(s, CV_32FC3);
+	gradientMag = Mat::zeros(s, CV_32FC3);
 
 	halfw = 4;
 	smoothPasses = 2;
@@ -63,14 +64,21 @@ void ETF::gen_ETF(string file, Size s) {
 	Mat src_n;
 	Mat grad;
 	normalize(src, src_n, 0.0, 1.0, NORM_MINMAX, CV_32FC3);
-	GaussianBlur(src_n, src_n, Size(71, 71), 0, 0);
+	//GaussianBlur(src_n, src_n, Size(5, 5), 0, 0);
 
-	/// Generate grad_x and grad_y
+	// Generate grad_x and grad_y
 	Mat grad_x, grad_y;
-	/// Gradient X
-	Sobel(src_n, grad_x, CV_32F, 1, 0, 3, 1, 0, 1);
-	/// Gradient Y
-	Sobel(src_n, grad_y, CV_32F, 0, 1, 3, 1, 0, 1);
+	Sobel(src_n, grad_x, CV_32F, 1, 0,5);
+	Sobel(src_n, grad_y, CV_32F, 0, 1,5);
+
+	//Compute gradient
+	Mat magn;
+	magnitude(grad_x, grad_y, gradientMag);
+	normalize(gradientMag, gradientMag, 0.0, 1.0, NORM_MINMAX);
+
+	//Show gradient
+	//imshow("Magnitude", gradientMag);
+	//waitKey();
 
 	flowField = Mat::zeros(src.size(), CV_32FC3);
 	for (int i = 0; i < src.rows; i++) {
@@ -85,7 +93,6 @@ void ETF::gen_ETF(string file, Size s) {
 			float lambda1 = 0;
 			lambda1 = 0.5 * (y + x + sqrt(temp));
 			flowField.at<cv::Vec3f>(i, j) = normalize(Vec3f(z, x - lambda1, 0.0));
-			//dis.at<cv::Vec3f>(i,j) = normalize( Vec3f(lambda1-x,z,0.0) );
 
 			//if (flowField.at<cv::Vec3f>(i, j) == Vec3f(0.0, 0.0, 0.0)) {
 			//	flowField.at<cv::Vec3f>(i, j) = Vec3f(0.0, 1.0, 0.0);
@@ -95,11 +102,73 @@ void ETF::gen_ETF(string file, Size s) {
 
 	// Construct GVF
 	rotateFlow(flowField, GVF, 90);
-
+	//refine_ETF(3);
+	//refine_ETF(3);
+	//refine_ETF(3);
 }
 
-void ETF::refine_ETF(int kernel) {
 
+void ETF::refine_ETF(int kernel) {
+	for (int r = 0; r < flowField.rows; r++) {
+		for (int c = 0; c < flowField.cols; c++) {
+			computeNewVector(c, r, kernel);
+		}
+	}
+
+	flowField = refinedETF.clone();
+}
+
+/*
+ * Paper's Eq(1)
+ */
+void ETF::computeNewVector(int x, int y, const int kernel) {
+	const Vec3f t_cur_x = flowField.at<Vec3f>(y, x);
+	Vec3f t_new = Vec3f(0, 0, 0);
+
+	for (int r = y - kernel; r <= y + kernel; r++) {
+		for (int c = x - kernel; c <= x + kernel; c++) {
+			if (r == y && c == x) continue;
+			if (r < 0 || r >= refinedETF.rows || c < 0 || c >= refinedETF.cols) continue;
+
+			const Vec3f t_cur_y = flowField.at<Vec3f>(r, c);
+			float phi = computePhi(t_cur_x, t_cur_y);
+			float w_s = computeWs(t_cur_x, t_cur_y, kernel);
+			float w_m = computeWm(t_cur_x, t_cur_y, gradientMag.at<float>(y, x), gradientMag.at<float>(r, c));
+			float w_d = computeWd(t_cur_x, t_cur_y);
+			t_new += phi*t_cur_y*w_s*w_m*w_d;
+			//printf("%f, %f, %f, %f, (%f, %f)\n", phi, w_s, w_m, w_d, t_cur_y[1], t_cur_y[1]);
+		}
+	}
+	refinedETF.at<Vec3f>(y, x) = normalize(t_new);
+}
+
+/*
+ * Paper's Eq(5)
+ */
+float ETF::computePhi(cv::Vec3f x, cv::Vec3f y) {
+	return x.dot(y) > 0 ? 1 : -1;
+}
+
+/*
+ * Paper's Eq(2)
+ */
+float ETF::computeWs(cv::Vec3f x, cv::Vec3f y, int r) {
+	return norm(x - y) < r ? 1 : 0;
+}
+
+/*
+ * Paper's Eq(3)
+ */
+float ETF::computeWm(cv::Vec3f x, cv::Vec3f y, float gradmag_x, float gradmag_y) {
+	float wm = (1 + tanh(gradmag_y - gradmag_x)) / 2;
+	return wm;
+}
+
+/*
+ * Paper's Eq(4)
+ */
+float ETF::computeWd(cv::Vec3f x, cv::Vec3f y) {
+	return abs(x.dot(y));
 }
 
 //void ETF::GVF()
@@ -180,5 +249,7 @@ void ETF::resizeMat(Size s) {
 	resize(flowField, flowField, s, 0, 0, CV_INTER_LINEAR);
 	resize(GVF, GVF, s, 0, 0, CV_INTER_LINEAR);
 	resize(refinedETF, refinedETF, s, 0, 0, CV_INTER_LINEAR);
+	resize(gradientMag, gradientMag, s, 0, 0, CV_INTER_LINEAR);
 }
+
 

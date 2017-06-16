@@ -63,6 +63,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 	processingBox->Append("originalImg");
 	processingBox->Append("ETF");
+	processingBox->Append("ETF_debug");
 	processingBox->Append("CLD");
 	processingBox->Append("Thresholding");
 
@@ -117,8 +118,11 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	wxStaticBox *st_paint = new wxStaticBox(controlpanel, -1, wxT("Parameters"), wxDefaultPosition, wxDefaultSize, wxTE_RICH2);
 	wxStaticBoxSizer *st_paint_sizer = new wxStaticBoxSizer(st_paint, wxVERTICAL);
 
-	solve = new wxButton(controlpanel, BUTTON_SolveIt, wxT("\nApply !!!\n"), wxDefaultPosition, wxDefaultSize, 0);
+	solve = new wxButton(controlpanel, BUTTON_SolveIt, wxT("Apply !!!"), wxDefaultPosition, wxDefaultSize, 0);
 	rightside->Add(solve, 0, wxEXPAND | wxALL, 10);
+
+	refineETF = new wxButton(controlpanel, BUTTON_RefineETF, wxT("Refine ETF"), wxDefaultPosition, wxDefaultSize, 0);
+	rightside->Add(refineETF, 0, wxEXPAND | wxALL, 10);
 
 	s.Printf("noise : %.3f", drawPane->cld.rho);
 	slider_rho_t = new wxStaticText(controlpanel, SLIDER_BRUSH_SIZE_T, s, wxDefaultPosition, wxDefaultSize, 0);
@@ -337,6 +341,11 @@ void MyFrame::OnSolveIt(wxCommandEvent& event) {
 	drawPane->cld.genCLD();
 }
 
+void MyFrame::OnRefineETF(wxCommandEvent& event) {
+	addlog("Start refining ETF", wxColour(*wxBLUE));
+	(drawPane->cld).etf.refine_ETF(5);
+	addlog("ETF refined", wxColour(*wxBLUE));
+}
 
 //Comboboxes
 void MyFrame::OnProcessingBox(wxCommandEvent& event) {
@@ -453,6 +462,10 @@ void BasicDrawPane::render(wxDC& dc, bool render_loop_on) {
 		processing.ETF(cld.etf.flowField, dis);
 		dis.convertTo(dis, CV_8UC1, 255);
 		cv::cvtColor(dis, dis, CV_GRAY2BGR);
+	}
+	else if (processingS == "ETF_debug") {
+		processing.FlowField(cld.etf.flowField, dis);
+		//cv::cvtColor(dis, dis, CV_GRAY2BGR);
 	}
 	else if (processingS == "CLD") {
 		dis = cld.result.clone();

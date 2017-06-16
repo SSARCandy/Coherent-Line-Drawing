@@ -17,6 +17,7 @@ public:
 	void rotateFlow(cv::Mat& src, cv::Mat& dst, float theta);
 
 	cv::Mat GVF;         // gradient vector flow
+	cv::Mat gradientMag; // Normalized gradient magnitude
 	cv::Mat flowField;   // edge tangent flow
 	cv::Mat refinedETF;  // ETF after refinement 
 	cv::Mat RotationMat;
@@ -26,5 +27,10 @@ public:
 
 private:
 	void resizeMat(cv::Size);
+	void computeNewVector(int x, int y, const int kernel);
+	float computePhi(cv::Vec3f x, cv::Vec3f y);
+	float computeWs(cv::Vec3f x, cv::Vec3f y, int r);
+	float computeWm(cv::Vec3f x, cv::Vec3f y, float gradmag_x, float gradmag_y);
+	float computeWd(cv::Vec3f x, cv::Vec3f y);
 
 };

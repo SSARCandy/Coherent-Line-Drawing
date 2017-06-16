@@ -55,11 +55,13 @@ protected:
 	wxButton *start;
 	wxButton *clean;
 	wxButton *solve;
+	wxButton *refineETF;
 	wxComboBox *processingBox;
 
 	void OnStart(wxCommandEvent& event);
 	void OnClean(wxCommandEvent& event);
 	void OnSolveIt(wxCommandEvent& event);
+	void OnRefineETF(wxCommandEvent& event);
 
 	void OnProcessingBox(wxCommandEvent& event);
 
@@ -87,6 +89,7 @@ enum
 {
 	ID_ONOPENSRC = 1,
 	BUTTON_SolveIt,
+	BUTTON_RefineETF,
 	ID_ONOPENVFB,
 	ID_ONOPENETF,
 	ID_ONOPENTEX,

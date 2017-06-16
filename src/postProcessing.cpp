@@ -54,6 +54,23 @@ void PP::ETF(Mat &flowfield, Mat &dis) {
 	}
 }
 
+void PP::FlowField(cv::Mat & flowfield, cv::Mat & dis) {
+	const int resolution = 10;
+	//dis = Mat::zeros(flowfield.size(), CV_32FC3);
+	
+	for (int i = 0; i < dis.rows; i += resolution) {
+		for (int j = 0; j < dis.cols; j += resolution) {
+			Vec3f v = flowfield.at<Vec3f>(i, j);
+			Point2f p(j, i);
+			Point2f p2(j+v[1]*5, i+v[0]*5);
+
+			arrowedLine(dis, p, p2, Scalar(255,0,  0), 1.5, 8, 0, 0.3);
+		}
+	}
+	//imshow("ol;p", dis);
+	//waitKey(0);
+}
+
 void PP::Thresholding(Mat &src, Mat &dis) {
 	vector<Mat> channels;
 	Mat r = Mat::zeros(src.size(), CV_32F);
