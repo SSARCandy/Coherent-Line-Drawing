@@ -75,6 +75,8 @@ void CLD::genCLD() {
 
 	Mat tmp(Size(originalImg.cols, originalImg.rows), CV_32FC1);
 	Mat dog(Size(originalImg.cols, originalImg.rows), CV_32FC1);
+	tmp = Mat::zeros(Size(originalImg.cols, originalImg.rows), CV_32FC1);
+	dog = Mat::zeros(Size(originalImg.cols, originalImg.rows), CV_32FC1);
 
 	genDDoG(original_converted, dog, g1, g2);
 	genFDoG(dog, tmp, g3);
@@ -228,7 +230,7 @@ void CLD::genDDoG(Mat& image, Mat& dog, vector<double>& g1, vector<double>& g2) 
 
 			if (vn[0] == 0.0 && vn[1] == 0.0) {
 				sum1 = sum2 = 255.0;
-				dog.at<double>(j, i) = sum1 - rho * sum2;
+				//dog.at<double>(j, i) = sum1 - rho * sum2;
 				continue;
 			}
 

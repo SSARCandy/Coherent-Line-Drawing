@@ -8,6 +8,7 @@ class PP
 public:
 	PP(cv::Size);
 	void	ETF(cv::Mat &flowfield, cv::Mat &dis);
+	void	FlowField(cv::Mat &flowfield, cv::Mat &dis);
 	void	Thresholding(cv::Mat &src, cv::Mat &dis);
 
 	float	thresholding;
