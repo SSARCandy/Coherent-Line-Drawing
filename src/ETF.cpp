@@ -94,9 +94,9 @@ void ETF::gen_ETF(string file, Size s) {
 			lambda1 = 0.5 * (y + x + sqrt(temp));
 			flowField.at<cv::Vec3f>(i, j) = normalize(Vec3f(z, x - lambda1, 0.0));
 
-			//if (flowField.at<cv::Vec3f>(i, j) == Vec3f(0.0, 0.0, 0.0)) {
-			//	flowField.at<cv::Vec3f>(i, j) = Vec3f(0.0, 1.0, 0.0);
-			//}
+			if (flowField.at<cv::Vec3f>(i, j) == Vec3f(0.0, 0.0, 0.0)) {
+				flowField.at<cv::Vec3f>(i, j) = Vec3f(0.0, 1.0, 0.0);
+			}
 		}
 	}
 
