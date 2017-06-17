@@ -2,6 +2,7 @@
 
 using namespace cv;
 
+// Eq.(8)
 inline double gauss(double x, double mean, double sigma) {
 	return (exp((-(x - mean)*(x - mean)) / (2 * sigma*sigma)) / sqrt(M_PI * 2.0 * sigma * sigma));
 }
@@ -41,7 +42,11 @@ void CLD::init(Size s) {
 
 	sigma1 = .4;
 	sigma2 = 3;
-	rho = .99;
+
+	sigma_m = 3.0;
+	sigma_c = 1.0;
+	rho = 0.99;
+	tau = 0.2;
 }
 
 void CLD::readSrc(string file) {
@@ -53,49 +58,20 @@ void CLD::readSrc(string file) {
 	etf.gen_ETF(file, originalImg.size());
 }
 
+
+
 void CLD::genCLD() {
-	vector<double> g1, g2, g3;
-	MakeGaussianVector(sigma1, g1);
-	MakeGaussianVector(sigma2*SIGMA_RATIO, g2);
+	Mat originalImg_32FC1 = Mat::zeros(Size(originalImg.cols, originalImg.rows), CV_32FC1);
+	Mat DoG = Mat::zeros(Size(originalImg.cols, originalImg.rows), CV_32FC1);
+	Mat FDoG = Mat::zeros(Size(originalImg.cols, originalImg.rows), CV_32FC1);
+	//Mat threshold = Mat::zeros(Size(originalImg.cols, originalImg.rows), CV_32FC1);
+	originalImg.convertTo(originalImg_32FC1, CV_32FC1, 1.0 / 255.0);
 
-	int half_w1, half_w2, half_l;
-	half_w1 = g1.size() - 1;
-	half_w2 = g2.size() - 1;
-
-	MakeGaussianVector(sigma2, g3);
-	half_l = g3.size() - 1;
-
-	Mat original_converted(Size(originalImg.cols, originalImg.rows), CV_32FC1);
-	for (int r = 0; r < originalImg.rows; r++) {
-		for (int c = 0; c < originalImg.cols; c++) {
-			float v = originalImg.at<uchar>(r, c) / 255.0;
-			original_converted.at<float>(r, c) = v;
-		}
-	}
-
-	Mat tmp(Size(originalImg.cols, originalImg.rows), CV_32FC1);
-	Mat dog(Size(originalImg.cols, originalImg.rows), CV_32FC1);
-	tmp = Mat::zeros(Size(originalImg.cols, originalImg.rows), CV_32FC1);
-	dog = Mat::zeros(Size(originalImg.cols, originalImg.rows), CV_32FC1);
-
-	genDDoG(original_converted, dog, g1, g2);
-	genFDoG(dog, tmp, g3);
-
-	for (int i = 0; i < originalImg.rows; i++) {
-		for (int j = 0; j < originalImg.cols; j++) {
-			float val = tmp.at<float>(i, j);
-			int val2 = val * 255 - BIAS;
-			result.at<uchar>(i, j) = max(val2, 0);// > 0 ? val2 - BIAS : 0;//< 255 - BINARIZATION_THRESHOLDING ? 0 : 255;
-		}
-	}
-	normalize(result, result, 0, 255, NORM_MINMAX, CV_8UC1);
-
-	//for (int i = 0; i < originalImg.rows; i++) {
-	//	for (int j = 0; j < originalImg.cols; j++) {
-	//		int val = result.at<uchar>(i, j);
-	//		result.at<uchar>(i, j) = val > BINARIZATION_THRESHOLDING ? 255 : 0;// > 0 ? val2 - BIAS : 0;//< 255 - BINARIZATION_THRESHOLDING ? 0 : 255;
-	//	}
-	//}
+	genDDoG(originalImg_32FC1, DoG, this->rho, this->sigma_c);
+	flowDoG(DoG, FDoG, this->sigma_m);
+	//flowDoG(DoG, FDoG, this->sigma_m);
+	
+	binaryThresholding(FDoG, result, this->tau);
 }
 
 
@@ -103,7 +79,10 @@ void CLD::genCLD() {
 /**
  * Private Functions
  */
-void CLD::genFDoG(Mat& dog, Mat& tmp, vector<double>& g3) {
+void CLD::flowDoG(Mat & src, Mat & dst, const double sigma_m) {
+	vector<double> gau_m;
+	MakeGaussianVector(sigma_m, gau_m);
+
 	vector<double> vt(2, 0);
 	double x, y, d_x, d_y;
 	double weight1, w_sum1, sum1;
@@ -112,10 +91,10 @@ void CLD::genFDoG(Mat& dog, Mat& tmp, vector<double>& g3) {
 	int x1, y1;
 	double val;
 
-	int image_x = dog.rows;
-	int image_y = dog.cols;
+	int image_x = src.rows;
+	int image_y = src.cols;
 
-	int half_l = g3.size() - 1;
+	int half_l = gau_m.size() - 1;
 
 	int flow_DOG_sign = 0;
 
@@ -123,8 +102,8 @@ void CLD::genFDoG(Mat& dog, Mat& tmp, vector<double>& g3) {
 		for (int j = 0; j < image_y; j++) {
 			sum1 = w_sum1 = weight1 = 0.0;
 
-			val = dog.at<float>(i, j);
-			weight1 = g3[0];
+			val = src.at<float>(i, j);
+			weight1 = gau_m[0];
 			sum1 = val * weight1;
 			w_sum1 += weight1;
 
@@ -146,9 +125,9 @@ void CLD::genFDoG(Mat& dog, Mat& tmp, vector<double>& g3) {
 				x1 = min(max((int)round(x), 0), image_x - 1);
 				y1 = min(max((int)round(y), 0), image_y - 1);
 
-				val = dog.at<float>(x1, y1);
+				val = src.at<float>(x1, y1);
 
-				weight1 = g3[k];
+				weight1 = gau_m[k];
 
 				sum1 += val * weight1;
 				w_sum1 += weight1;
@@ -179,9 +158,9 @@ void CLD::genFDoG(Mat& dog, Mat& tmp, vector<double>& g3) {
 				x1 = min(max((int)round(x), 0), image_x - 1);
 				y1 = min(max((int)round(y), 0), image_y - 1);
 
-				val = dog.at<float>(x1, y1);
+				val = src.at<float>(x1, y1);
 
-				weight1 = g3[k];
+				weight1 = gau_m[k];
 
 				sum1 += val * weight1;
 				w_sum1 += weight1;
@@ -198,12 +177,17 @@ void CLD::genFDoG(Mat& dog, Mat& tmp, vector<double>& g3) {
 			sum1 /= w_sum1;
 
 
-			tmp.at<float>(i, j) = (sum1 > 0) ? 1.0 : 1.0 + tanh(sum1);
+			dst.at<float>(i, j) = (sum1 > 0) ? 1.0 : 1.0 + tanh(sum1);
 		}
 	}
 }
 
-void CLD::genDDoG(Mat& image, Mat& dog, vector<double>& g1, vector<double>& g2) {
+void CLD::genDDoG(Mat & src, Mat & dst, const double rho, const double sigma_c) {
+	const double sigma_s = SIGMA_RATIO*sigma_c;
+	vector<double> gau_c, gau_s;
+	MakeGaussianVector(sigma_c, gau_c);
+	MakeGaussianVector(sigma_s, gau_s);
+
 	vector<double> vn(2, 0);
 	int x1, y1;
 	double x, y, d_x, d_y;
@@ -213,8 +197,8 @@ void CLD::genDDoG(Mat& image, Mat& dog, vector<double>& g1, vector<double>& g2) 
 	int half_w1, half_w2;
 	int image_x, image_y;
 
-	half_w1 = g1.size() - 1;
-	half_w2 = g2.size() - 1;
+	half_w1 = gau_c.size() - 1;
+	half_w2 = gau_s.size() - 1;
 
 	image_x = originalImg.rows;
 	image_y = originalImg.cols;
@@ -245,11 +229,11 @@ void CLD::genDDoG(Mat& image, Mat& dog, vector<double>& g1, vector<double>& g2) 
 				x1 = min(max((int)round(x), 0), image_x - 1);
 				y1 = min(max((int)round(y), 0), image_y - 1);
 
-				val = image.at<float>(x1, y1);
+				val = src.at<float>(x1, y1);
 
 				int dd = abs(s);
-				weight1 = (dd > half_w1) ? 0.0 : g1[dd];
-				weight2 = g2[dd];
+				weight1 = (dd > half_w1) ? 0.0 : gau_c[dd];
+				weight2 = gau_s[dd];
 
 				sum1 += val * weight1;
 				sum2 += val * weight2;
@@ -263,8 +247,106 @@ void CLD::genDDoG(Mat& image, Mat& dog, vector<double>& g1, vector<double>& g2) 
 			/**
 			 * eq 7
 			 */
-			dog.at<float>(i, j) = sum1 - rho * sum2;
+			dst.at<float>(i, j) = sum1 - rho * sum2;
 		}
 	}
 
+}
+
+void CLD::gradientDoG(Mat & src, Mat & dst, const double rho, const double sigma_c) {
+	const double sigma_s = SIGMA_RATIO*sigma_c;
+	vector<double> gau_c, gau_s;
+	MakeGaussianVector(sigma_c, gau_c);
+	MakeGaussianVector(sigma_s, gau_s);
+
+	const int kernel = gau_s.size() - 1;
+	for (int y = 0; y < dst.rows; y++) {
+		for (int x = 0; x < dst.cols; x++) {
+			double gau_c_acc = 0;
+			double gau_s_acc = 0;
+			double gau_c_weight_acc = 0;
+			double gau_s_weight_acc = 0;
+			Vec3f tmp = etf.flowField.at<Vec3f>(y, x);
+			Point2f gradient = Point2f(-tmp[1], tmp[0]);
+
+			if (gradient.x == 0 && gradient.y == 0) continue;
+			
+			for (int step = -kernel; step <= kernel; step++) {
+				double row, col;
+				col = x + gradient.x * step;
+				row = y + gradient.y * step;
+
+				if (col > (double)dst.cols - 1 || col < 0.0 || row > (double)dst.rows - 1 || row < 0.0) continue;
+
+				float value = src.at<float>((int)round(row), (int)round(col));
+
+				int gau_idx = abs(step);
+				double gau_c_weight = (gau_idx > gau_c.size() - 1) ? 0.0 : gau_c[gau_idx];
+				double gau_s_weight = gau_s[gau_idx];
+
+				gau_c_acc += value * gau_c_weight;
+				gau_s_acc += value * gau_s_weight;
+				gau_c_weight_acc += gau_c_weight;
+				gau_s_weight_acc += gau_s_weight;
+			}
+
+			double v_c = gau_c_acc / gau_c_weight_acc;
+			double v_s = gau_s_acc / gau_s_weight_acc;
+			dst.at<float>(y, x) = v_c - rho*v_s;
+		}
+	}
+	//normalize(dst, dst, 0.0, 1.0, NORM_MINMAX);
+
+	//imshow("konjil", dst);
+}
+/*
+void CLD::flowDoG(Mat & src, Mat & dst, const double sigma_m) {
+	vector<double> gau_m;
+	MakeGaussianVector(sigma_m, gau_m);
+
+	const int kernel = gau_m.size() - 1;
+	for (int y = 0; y < dst.rows; y++) {
+		for (int x = 0; x < dst.cols; x++) {
+			Point2f direction = Point2f(etf.flowField.at<Vec3f>(y, x)[0], etf.flowField.at<Vec3f>(y, x)[1]);
+			double gau_m_acc = 0;
+			double gau_m_weight_acc = 0;
+			
+			if (direction.x == 0 && direction.y == 0) continue;
+
+			for (int step = -kernel; step < kernel; step++) {
+				double row, col;
+				col = x + direction.x * step;
+				row = y + direction.y * step;
+
+				if (col > (double)dst.cols-1 || col < 0.0 || row > (double)dst.rows-1 || row < 0.0) continue;
+
+				float value = src.at<float>((int)round(row), (int)round(col));
+
+				int gau_idx = abs(step);
+
+				gau_m_acc += value * gau_m[gau_idx];
+				gau_m_weight_acc += gau_m[gau_idx];
+			}
+
+			double v = gau_m_acc / gau_m_weight_acc;
+			dst.at<float>(y, x) = v;//(v < 0) && (1 + tanh(v) < tau) ? 0.0 : 1.0;
+
+		}
+	}
+	normalize(dst, dst, 0.0, 1.0, NORM_MINMAX);
+
+	imshow("kol", dst);
+	waitKey(0);
+}
+*/
+void CLD::binaryThresholding(Mat & src, Mat & dst, const double tau) {
+	for (int y = 0; y < dst.rows; y++) {
+		for (int x = 0; x < dst.cols; x++) {
+			float H = src.at<float>(y, x);
+			//int v = (H > 0) && (1 + tanh(H) < tau) ? 0 : 255;
+			int v = H * 255;
+
+			dst.at<uchar>(y, x) = max(v, 0);
+		}
+	}
 }

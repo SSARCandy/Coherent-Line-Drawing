@@ -24,11 +24,34 @@ public:
 	cv::Mat result;
 	ETF etf;
 
-	double sigma1;
-	double sigma2;
+	double sigma1; //
+	double sigma2; //
+
+	double sigma_c;
+	double sigma_m;
 	double rho;
+	double tau;
 
 private:
-	void genFDoG(cv::Mat&, cv::Mat&, vector<double>&);
-	void genDDoG(cv::Mat&, cv::Mat&, vector<double>&, vector<double>&);
+
+	// Flow-based DoG filtering
+	//void genFDoG(cv::Mat&, cv::Mat&, vector<double>&);
+
+	// Direction DoG
+	void genDDoG(cv::Mat& src, cv::Mat& dst, const double rho, const double sigma_c);
+
+	/**
+	 * Perform eq.(6) on each pixel
+	 */
+	void gradientDoG(cv::Mat& src, cv::Mat& dst, const double rho, const double sigma_c);
+
+	/**
+	 * Perform eq.(9) on each pixel
+	 */
+	void flowDoG(cv::Mat& src, cv::Mat& dst, const double sigma_m);
+
+	/**
+ 	 * eq.(10)
+ 	 */
+	void binaryThresholding(cv::Mat& src, cv::Mat& dst, const double tau);
 };

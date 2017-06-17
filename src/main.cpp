@@ -31,6 +31,7 @@ wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
 
 	// Control Panel
 	EVT_SLIDER(SLIDER_BRUSH_SIZE, MyFrame::OnSliderRho)
+	EVT_SLIDER(SLIDER_ETF_KERNEL_SIZE, MyFrame::OnSliderETFkernel)
 	EVT_SLIDER(SLIDER_AddA, MyFrame::OnSliderSigma1)
 	EVT_SLIDER(SLIDER_AddB, MyFrame::OnSliderSigma2)
 	EVT_SLIDER(SLIDER_Beta, MyFrame::OnSliderThresholding)
