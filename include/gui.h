@@ -39,10 +39,12 @@ public:
 	BasicDrawPane *drawPane;
 	wxPanel* dp;// drawpane Container
 	wxSlider *slider_rho;
+	wxSlider *slider_ETFkernel;
 	wxSlider *slider_sigma1;
 	wxSlider *slider_sigma2;
 	wxSlider *slider_t;
 	wxStaticText *slider_rho_t;
+	wxStaticText *slider_ETFkernel_t;
 	wxStaticText *slider_sigma1_t;
 	wxStaticText *slider_sigma2_t;
 	wxStaticText *slider_t_t;
@@ -51,6 +53,7 @@ public:
 
 protected:
 	bool render_loop_on;
+	int ETF_kernel;
 	wxTextCtrl *log; // Show the log
 	wxButton *start;
 	wxButton *clean;
@@ -67,6 +70,7 @@ protected:
 
 
 	void OnSliderRho(wxCommandEvent& event);
+	void OnSliderETFkernel(wxCommandEvent& event);
 	void OnSliderSigma1(wxCommandEvent& event);
 	void OnSliderSigma2(wxCommandEvent& event);
 	void OnSliderThresholding(wxCommandEvent& event);
@@ -152,6 +156,8 @@ enum
 	CHECKBOX_SEGMENTATION,
 	COMBOBOX_Region,
 	CHECKBOX_DISPLAY_REGION,
+	SLIDER_ETF_KERNEL_SIZE,
+	SLIDER_ETF_KERNEL_T,
 
 	CHECKBOX_Colormapping_isAda,
 	COMBOBOX_ColormappingMode,

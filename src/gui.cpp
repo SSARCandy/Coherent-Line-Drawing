@@ -5,7 +5,7 @@
 
 
 bool MyApp::OnInit() {
-	MyFrame *frame = new MyFrame("CRD", wxPoint(50, 50), wxSize(800, 730));
+	MyFrame *frame = new MyFrame("CRD", wxPoint(50, 50), wxSize(1000, 730));
 	//frame->Maximize(true);
 	frame->Show(true);
 
@@ -15,6 +15,8 @@ bool MyApp::OnInit() {
 #pragma region MyFrame
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	: wxFrame(NULL, wxID_ANY, title, pos, size) {
+	ETF_kernel = 5;
+
 #pragma region MenuBar
 	wxMenu *menuFile = new wxMenu;
 	menuFile->Append(ID_ONOPENSRC, "&Open SrcImg\tCtrl-O", "Open source image");
@@ -85,7 +87,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	wxBoxSizer* rightside = new wxBoxSizer(wxVERTICAL);
 
 	wxPanel* controlpanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
-	controlpanel->SetMaxSize(wxSize(250, -1));
+	controlpanel->SetMaxSize(wxSize(300, -1));
 	controlpanel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_APPWORKSPACE));
 
 	wxString s;
@@ -118,25 +120,31 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	wxStaticBox *st_paint = new wxStaticBox(controlpanel, -1, wxT("Parameters"), wxDefaultPosition, wxDefaultSize, wxTE_RICH2);
 	wxStaticBoxSizer *st_paint_sizer = new wxStaticBoxSizer(st_paint, wxVERTICAL);
 
-	solve = new wxButton(controlpanel, BUTTON_SolveIt, wxT("Apply !!!"), wxDefaultPosition, wxDefaultSize, 0);
+	solve = new wxButton(controlpanel, BUTTON_SolveIt, wxT("Apply to CLD"), wxDefaultPosition, wxDefaultSize, 0);
 	rightside->Add(solve, 0, wxEXPAND | wxALL, 10);
 
 	refineETF = new wxButton(controlpanel, BUTTON_RefineETF, wxT("Refine ETF"), wxDefaultPosition, wxDefaultSize, 0);
 	rightside->Add(refineETF, 0, wxEXPAND | wxALL, 10);
 
-	s.Printf("noise(rho) : %.3f", drawPane->cld.rho);
+	s.Printf("ETF kernel size: %d", ETF_kernel);
+	slider_ETFkernel_t = new wxStaticText(controlpanel, SLIDER_ETF_KERNEL_T, s, wxDefaultPosition, wxDefaultSize, 0);
+	st_paint_sizer->Add(slider_ETFkernel_t, 0, wxEXPAND | wxLEFT, 10);
+	slider_ETFkernel = new wxSlider(controlpanel, SLIDER_ETF_KERNEL_SIZE, ETF_kernel, 3, 21, wxDefaultPosition, wxDefaultSize, 0);
+	st_paint_sizer->Add(slider_ETFkernel, 0, wxEXPAND | wxLEFT, 10);
+
+	s.Printf("Noise(rho) : %.3f", drawPane->cld.rho);
 	slider_rho_t = new wxStaticText(controlpanel, SLIDER_BRUSH_SIZE_T, s, wxDefaultPosition, wxDefaultSize, 0);
 	st_paint_sizer->Add(slider_rho_t, 0, wxEXPAND | wxLEFT, 10);
-	slider_rho = new wxSlider(controlpanel, SLIDER_BRUSH_SIZE, int(drawPane->cld.rho*100), 80, 100, wxDefaultPosition, wxDefaultSize, 0);
+	slider_rho = new wxSlider(controlpanel, SLIDER_BRUSH_SIZE, int(drawPane->cld.rho*10000), 9000, 10000, wxDefaultPosition, wxDefaultSize, 0);
 	st_paint_sizer->Add(slider_rho, 0, wxEXPAND | wxLEFT, 10);
 
-	s.Printf("sigma_m : %.3f", drawPane->cld.sigma_m);
+	s.Printf("Degree of coherence(sigma_m): %.3f", drawPane->cld.sigma_m);
 	slider_sigma1_t = new wxStaticText(controlpanel, SLIDER_AddA_T, s, wxDefaultPosition, wxDefaultSize, 0);
 	st_paint_sizer->Add(slider_sigma1_t, 0, wxEXPAND | wxLEFT, 10);
 	slider_sigma1 = new wxSlider(controlpanel, SLIDER_AddA, int(drawPane->cld.sigma_m * 1000), 10, 10000, wxDefaultPosition, wxDefaultSize, 0);
 	st_paint_sizer->Add(slider_sigma1, 0, wxEXPAND | wxLEFT, 10);
 
-	s.Printf("sigma_c : %.3f", drawPane->cld.sigma_c);
+	s.Printf("Line width(sigma_c): %.3f", drawPane->cld.sigma_c);
 	slider_sigma2_t = new wxStaticText(controlpanel, SLIDER_AddB_T, s, wxDefaultPosition, wxDefaultSize, 0);
 	st_paint_sizer->Add(slider_sigma2_t, 0, wxEXPAND | wxLEFT, 10);
 	slider_sigma2 = new wxSlider(controlpanel, SLIDER_AddB, int(drawPane->cld.sigma_c * 1000), 10, 10000, wxDefaultPosition, wxDefaultSize, 0);
@@ -150,7 +158,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	wxStaticBox *st_pp = new wxStaticBox(controlpanel, -1, wxT("Post Processing"), wxDefaultPosition, wxDefaultSize, wxTE_RICH2);
 	wxStaticBoxSizer *st_pp_sizer = new wxStaticBoxSizer(st_pp, wxVERTICAL);
 
-	s.Printf("thresholding(tau) : %.3f", drawPane->processing.thresholding);
+	s.Printf("Thresholding(tau) : %.3f", drawPane->processing.thresholding);
 	slider_t_t = new wxStaticText(controlpanel, SLIDER_Beta_T, s, wxDefaultPosition, wxDefaultSize, 0);
 	st_pp_sizer->Add(slider_t_t, 0, wxEXPAND | wxLEFT, 10);
 	slider_t = new wxSlider(controlpanel, SLIDER_Beta, int(drawPane->processing.thresholding * 1000), 0, 999, wxDefaultPosition, wxDefaultSize, 0);
@@ -343,7 +351,7 @@ void MyFrame::OnSolveIt(wxCommandEvent& event) {
 
 void MyFrame::OnRefineETF(wxCommandEvent& event) {
 	addlog("Start refining ETF", wxColour(*wxBLUE));
-	(drawPane->cld).etf.refine_ETF(5);
+	(drawPane->cld).etf.refine_ETF(ETF_kernel);
 	addlog("ETF refined", wxColour(*wxBLUE));
 }
 
@@ -357,10 +365,18 @@ void MyFrame::OnProcessingBox(wxCommandEvent& event) {
 }
 
 //Slides: Pattern Parameter
+void MyFrame::OnSliderETFkernel(wxCommandEvent& event) {
+	wxString s;
+	ETF_kernel = slider_ETFkernel->GetValue();
+	s.Printf("ETF kernel size : %d", ETF_kernel);
+	slider_ETFkernel_t->SetLabel(s);
+
+	//drawPane->cld.genCLD();
+}
 void MyFrame::OnSliderRho(wxCommandEvent& event) {
 	wxString s;
-	drawPane->cld.rho = slider_rho->GetValue() / 100.0;
-	s.Printf("noise(rho) : %.3f", drawPane->cld.rho);
+	drawPane->cld.rho = slider_rho->GetValue() / 10000.0;
+	s.Printf("Noise(rho) : %.3f", drawPane->cld.rho);
 	slider_rho_t->SetLabel(s);
 
 	//drawPane->cld.genCLD();
@@ -368,7 +384,7 @@ void MyFrame::OnSliderRho(wxCommandEvent& event) {
 void MyFrame::OnSliderSigma1(wxCommandEvent& event) {
 	wxString s;
 	drawPane->cld.sigma_m = slider_sigma1->GetValue() / 1000.0;
-	s.Printf("sigma_m : %.3f", drawPane->cld.sigma_m);
+	s.Printf("Degree of coherence(sigma_m): %.3f", drawPane->cld.sigma_m);
 	slider_sigma1_t->SetLabel(s);
 
 	//drawPane->cld.genCLD();
@@ -376,7 +392,7 @@ void MyFrame::OnSliderSigma1(wxCommandEvent& event) {
 void MyFrame::OnSliderSigma2(wxCommandEvent& event) {
 	wxString s;
 	drawPane->cld.sigma_c = slider_sigma2->GetValue() / 1000.0;
-	s.Printf("sigma_c : %.3f", drawPane->cld.sigma_c);
+	s.Printf("Line width(sigma_c): %.3f", drawPane->cld.sigma_c);
 	slider_sigma2_t->SetLabel(s);
 
 	//drawPane->cld.genCLD();
@@ -385,7 +401,7 @@ void MyFrame::OnSliderSigma2(wxCommandEvent& event) {
 void MyFrame::OnSliderThresholding(wxCommandEvent& event) {
 	drawPane->processing.thresholding = slider_t->GetValue() / 1000.0;
 	wxString s;
-	s.Printf("thresholding(Tau) : %.3f", drawPane->processing.thresholding);
+	s.Printf("Thresholding(Tau) : %.3f", drawPane->processing.thresholding);
 	slider_t_t->SetLabel(s);
 	drawPane->paintNow(true); //execute action
 }
