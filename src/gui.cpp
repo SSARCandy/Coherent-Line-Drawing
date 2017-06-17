@@ -266,7 +266,9 @@ void MyFrame::OnClean(wxCommandEvent& event) {
 }
 
 void MyFrame::OnSolveIt(wxCommandEvent& event) {
+	addlog("Computing CLD", wxColour(*wxBLUE));
 	drawPane->cld.genCLD();
+	addlog("CLD done", wxColour(*wxBLUE));
 }
 
 void MyFrame::OnRefineETF(wxCommandEvent& event) {
