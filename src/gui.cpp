@@ -20,31 +20,18 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 #pragma region MenuBar
 	wxMenu *menuFile = new wxMenu;
 	menuFile->Append(ID_ONOPENSRC, "&Open SrcImg\tCtrl-O", "Open source image");
-	menuFile->Append(ID_ONOPENVFB, "&Open Flow\tCtrl-F", "Open flowField file");
-	menuFile->Append(ID_ONOPENETF, "&Open ETF\tCtrl-E", "Open image file");
 
 	menuFile->Append(ID_ONSAVE, "&Save\tCtrl-E", "Save Result");
 	menuFile->AppendSeparator();
 
-	menuFile->AppendSeparator();
 	menuFile->Append(wxID_EXIT);
-
-	wxMenu *menuTool = new wxMenu;
-
-	menuTool->Append(ID_ONETF2GVF, "&GenGVF", "generate GVF using sigma2");
-	menuTool->AppendSeparator();
-
-	menuTool->AppendSeparator();
-
 
 	wxMenu *menuHelp = new wxMenu;
 	menuHelp->Append(wxID_ABOUT, "&About", "About the System");
 	menuHelp->Append(new wxMenuItem(menuHelp, wxID_TOGGLE_LOG, wxString(wxT("&Log\tCtrl-L")), "Show/Hide the Log", wxITEM_CHECK))->Check(true);
-	//menuHelp->Append(wxID_TOGGLE_LOG, "&Toggle Log\tCtrl-L", "Show/Hide the Log");
 
 	wxMenuBar *menuBar = new wxMenuBar;
 	menuBar->Append(menuFile, "&File");
-	menuBar->Append(menuTool, "&Tool");
 	menuBar->Append(menuHelp, "&Help");
 	SetMenuBar(menuBar);
 	CreateStatusBar(2);
@@ -129,25 +116,25 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	s.Printf("ETF kernel size: %d", ETF_kernel);
 	slider_ETFkernel_t = new wxStaticText(controlpanel, SLIDER_ETF_KERNEL_T, s, wxDefaultPosition, wxDefaultSize, 0);
 	st_paint_sizer->Add(slider_ETFkernel_t, 0, wxEXPAND | wxLEFT, 10);
-	slider_ETFkernel = new wxSlider(controlpanel, SLIDER_ETF_KERNEL_SIZE, ETF_kernel, 3, 21, wxDefaultPosition, wxDefaultSize, 0);
+	slider_ETFkernel = new wxSlider(controlpanel, SLIDER_ETF_KERNEL, ETF_kernel, 3, 21, wxDefaultPosition, wxDefaultSize, 0);
 	st_paint_sizer->Add(slider_ETFkernel, 0, wxEXPAND | wxLEFT, 10);
 
 	s.Printf("Noise(rho) : %.3f", drawPane->cld.rho);
-	slider_rho_t = new wxStaticText(controlpanel, SLIDER_BRUSH_SIZE_T, s, wxDefaultPosition, wxDefaultSize, 0);
+	slider_rho_t = new wxStaticText(controlpanel, SLIDER_RHO_T, s, wxDefaultPosition, wxDefaultSize, 0);
 	st_paint_sizer->Add(slider_rho_t, 0, wxEXPAND | wxLEFT, 10);
-	slider_rho = new wxSlider(controlpanel, SLIDER_BRUSH_SIZE, int(drawPane->cld.rho*10000), 9000, 10000, wxDefaultPosition, wxDefaultSize, 0);
+	slider_rho = new wxSlider(controlpanel, SLIDER_RHO, int(drawPane->cld.rho*10000), 9000, 10000, wxDefaultPosition, wxDefaultSize, 0);
 	st_paint_sizer->Add(slider_rho, 0, wxEXPAND | wxLEFT, 10);
 
 	s.Printf("Degree of coherence(sigma_m): %.3f", drawPane->cld.sigma_m);
-	slider_sigma1_t = new wxStaticText(controlpanel, SLIDER_AddA_T, s, wxDefaultPosition, wxDefaultSize, 0);
+	slider_sigma1_t = new wxStaticText(controlpanel, SLIDER_SIGMA_M_T, s, wxDefaultPosition, wxDefaultSize, 0);
 	st_paint_sizer->Add(slider_sigma1_t, 0, wxEXPAND | wxLEFT, 10);
-	slider_sigma1 = new wxSlider(controlpanel, SLIDER_AddA, int(drawPane->cld.sigma_m * 1000), 10, 10000, wxDefaultPosition, wxDefaultSize, 0);
+	slider_sigma1 = new wxSlider(controlpanel, SLIDER_SIGMA_M, int(drawPane->cld.sigma_m * 1000), 10, 10000, wxDefaultPosition, wxDefaultSize, 0);
 	st_paint_sizer->Add(slider_sigma1, 0, wxEXPAND | wxLEFT, 10);
 
 	s.Printf("Line width(sigma_c): %.3f", drawPane->cld.sigma_c);
-	slider_sigma2_t = new wxStaticText(controlpanel, SLIDER_AddB_T, s, wxDefaultPosition, wxDefaultSize, 0);
+	slider_sigma2_t = new wxStaticText(controlpanel, SLIDER_SIGMA_C_T, s, wxDefaultPosition, wxDefaultSize, 0);
 	st_paint_sizer->Add(slider_sigma2_t, 0, wxEXPAND | wxLEFT, 10);
-	slider_sigma2 = new wxSlider(controlpanel, SLIDER_AddB, int(drawPane->cld.sigma_c * 1000), 10, 10000, wxDefaultPosition, wxDefaultSize, 0);
+	slider_sigma2 = new wxSlider(controlpanel, SLIDER_SIGMA_C, int(drawPane->cld.sigma_c * 1000), 10, 10000, wxDefaultPosition, wxDefaultSize, 0);
 	st_paint_sizer->Add(slider_sigma2, 0, wxEXPAND | wxLEFT, 10);
 
 
@@ -159,9 +146,9 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	wxStaticBoxSizer *st_pp_sizer = new wxStaticBoxSizer(st_pp, wxVERTICAL);
 
 	s.Printf("Thresholding(tau) : %.3f", drawPane->processing.thresholding);
-	slider_t_t = new wxStaticText(controlpanel, SLIDER_Beta_T, s, wxDefaultPosition, wxDefaultSize, 0);
+	slider_t_t = new wxStaticText(controlpanel, SLIDER_TAU_T, s, wxDefaultPosition, wxDefaultSize, 0);
 	st_pp_sizer->Add(slider_t_t, 0, wxEXPAND | wxLEFT, 10);
-	slider_t = new wxSlider(controlpanel, SLIDER_Beta, int(drawPane->processing.thresholding * 1000), 0, 999, wxDefaultPosition, wxDefaultSize, 0);
+	slider_t = new wxSlider(controlpanel, SLIDER_TAU, int(drawPane->processing.thresholding * 1000), 0, 999, wxDefaultPosition, wxDefaultSize, 0);
 	st_pp_sizer->Add(slider_t, 0, wxEXPAND | wxLEFT, 10);
 
 	rightside->Add(st_pp_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 3);
@@ -189,9 +176,11 @@ void MyFrame::OnExit(wxCommandEvent& event) {
 	Close(true);
 }
 void MyFrame::OnAbout(wxCommandEvent& event) {
-	wxMessageBox("Shu-Hsuan Hsu\n\nComputer Science - National Chengchi University",
+	wxMessageBox(
+		"Shu-Hsuan Hsu\n\n National Taiwan University",
 		"About CLD",
-		wxOK | wxICON_INFORMATION);
+		wxOK | wxICON_INFORMATION
+	);
 }
 void MyFrame::OnToggleLog(wxCommandEvent& event) {
 	event.IsChecked() ? log->Show() : log->Hide();
@@ -232,67 +221,6 @@ void MyFrame::OnOpenSrc(wxCommandEvent& event) {
 	render_loop_on = true;
 	activateRenderLoop(render_loop_on);
 }
-void MyFrame::OnOpenVfb(wxCommandEvent& event) {
-	render_loop_on = false;
-	activateRenderLoop(render_loop_on);
-	wxFileDialog openFileDialog(this, _("Open vfb file"), "", "", "vfb files (*.vfb)|*.vfb", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-	if (openFileDialog.ShowModal() == wxID_CANCEL) {
-		addlog("Load Flow Canceled", wxColour(*wxBLACK));
-		return;     // the user changed idea...
-	}
-	else {
-		wxString s;
-		s.Printf("Load Flow(.vfb) - %s", openFileDialog.GetFilename());
-		addlog(s, wxColour(*wxBLUE));
-
-		s.Printf("flowField(vfb): %s", openFileDialog.GetFilename());
-		SetStatusText(s, 1);
-	}
-
-
-	// proceed loading the file chosen by the user;
-	// this can be done with e.g. wxWidgets input streams:
-	wxFileInputStream input_stream(openFileDialog.GetPath());
-	if (!input_stream.IsOk()) {
-		wxLogError("Cannot open file '%s'.", openFileDialog.GetPath());
-		return;
-	}
-	//drawPane->cld.ReadFlow((const char*)openFileDialog.GetPath().mb_str());
-
-	render_loop_on = true;
-	activateRenderLoop(render_loop_on);
-}
-void MyFrame::OnOpenETF(wxCommandEvent& event) {
-	render_loop_on = false;
-	activateRenderLoop(render_loop_on);
-	wxFileDialog openFileDialog(this, _("Open image file"), "", "", "image files (*.bmp;*.png;*.jpg)|*.bmp;*.png;*.jpg", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-	if (openFileDialog.ShowModal() == wxID_CANCEL) {
-		addlog("Load ETF Canceled", wxColour(*wxBLACK));
-		return;     // the user changed idea...
-	}
-	else {
-		wxString s;
-		s.Printf("Load ETF - %s", openFileDialog.GetFilename());
-		addlog(s, wxColour(*wxBLUE));
-
-		s.Printf("flowField(ETF): %s", openFileDialog.GetFilename());
-		SetStatusText(s, 1);
-	}
-
-
-	// proceed loading the file chosen by the user;
-	// this can be done with e.g. wxWidgets input streams:
-	wxFileInputStream input_stream(openFileDialog.GetPath());
-	if (!input_stream.IsOk()) {
-		wxLogError("Cannot open file '%s'.", openFileDialog.GetPath());
-		return;
-	}
-	//drawPane->cld.ETF((const char*)openFileDialog.GetPath().mb_str());
-
-	render_loop_on = true;
-	activateRenderLoop(render_loop_on);
-
-}
 
 void MyFrame::OnSaveResult(wxCommandEvent& event) {
 	wxFileDialog
@@ -314,14 +242,6 @@ void MyFrame::OnSaveResult(wxCommandEvent& event) {
 
 
 	//	drawPane->cld.SaveRD();
-}
-
-void MyFrame::OnGenGVF(wxCommandEvent& event) {
-	//drawPane->cld.GVF();
-	wxString s;
-	s.Printf("flowField: gen_by_sigma2 ");
-	SetStatusText(s, 1);
-
 }
 
 
@@ -381,7 +301,7 @@ void MyFrame::OnSliderRho(wxCommandEvent& event) {
 
 	//drawPane->cld.genCLD();
 }
-void MyFrame::OnSliderSigma1(wxCommandEvent& event) {
+void MyFrame::OnSliderSigmaM(wxCommandEvent& event) {
 	wxString s;
 	drawPane->cld.sigma_m = slider_sigma1->GetValue() / 1000.0;
 	s.Printf("Degree of coherence(sigma_m): %.3f", drawPane->cld.sigma_m);
@@ -389,7 +309,7 @@ void MyFrame::OnSliderSigma1(wxCommandEvent& event) {
 
 	//drawPane->cld.genCLD();
 }
-void MyFrame::OnSliderSigma2(wxCommandEvent& event) {
+void MyFrame::OnSliderSigmaC(wxCommandEvent& event) {
 	wxString s;
 	drawPane->cld.sigma_c = slider_sigma2->GetValue() / 1000.0;
 	s.Printf("Line width(sigma_c): %.3f", drawPane->cld.sigma_c);

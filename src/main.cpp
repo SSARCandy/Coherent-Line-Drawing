@@ -10,13 +10,8 @@ END_EVENT_TABLE()
 wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	// Menu - File
     EVT_MENU(ID_ONOPENSRC, MyFrame::OnOpenSrc)
-    EVT_MENU(ID_ONOPENVFB, MyFrame::OnOpenVfb)
-	EVT_MENU(ID_ONOPENETF, MyFrame::OnOpenETF)
 	EVT_MENU(ID_ONSAVE, MyFrame::OnSaveResult)
 	EVT_MENU(wxID_EXIT, MyFrame::OnExit)
-
-	// Menu - Tool
-	EVT_MENU(ID_ONETF2GVF, MyFrame::OnGenGVF)
 
 	// Menu - Help
 	EVT_MENU(wxID_ABOUT, MyFrame::OnAbout)
@@ -30,11 +25,11 @@ wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	EVT_COMBOBOX(COMBOBOX_Processing, MyFrame::OnProcessingBox)
 
 	// Control Panel
-	EVT_SLIDER(SLIDER_BRUSH_SIZE, MyFrame::OnSliderRho)
-	EVT_SLIDER(SLIDER_ETF_KERNEL_SIZE, MyFrame::OnSliderETFkernel)
-	EVT_SLIDER(SLIDER_AddA, MyFrame::OnSliderSigma1)
-	EVT_SLIDER(SLIDER_AddB, MyFrame::OnSliderSigma2)
-	EVT_SLIDER(SLIDER_Beta, MyFrame::OnSliderThresholding)
+	EVT_SLIDER(SLIDER_RHO, MyFrame::OnSliderRho)
+	EVT_SLIDER(SLIDER_ETF_KERNEL, MyFrame::OnSliderETFkernel)
+	EVT_SLIDER(SLIDER_SIGMA_M, MyFrame::OnSliderSigmaM)
+	EVT_SLIDER(SLIDER_SIGMA_C, MyFrame::OnSliderSigmaC)
+	EVT_SLIDER(SLIDER_TAU, MyFrame::OnSliderThresholding)
 
 
 wxEND_EVENT_TABLE()

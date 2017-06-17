@@ -71,17 +71,13 @@ protected:
 
 	void OnSliderRho(wxCommandEvent& event);
 	void OnSliderETFkernel(wxCommandEvent& event);
-	void OnSliderSigma1(wxCommandEvent& event);
-	void OnSliderSigma2(wxCommandEvent& event);
+	void OnSliderSigmaM(wxCommandEvent& event);
+	void OnSliderSigmaC(wxCommandEvent& event);
 	void OnSliderThresholding(wxCommandEvent& event);
 
 	void OnOpenSrc(wxCommandEvent& event);
-	void OnOpenVfb(wxCommandEvent& event);
-	void OnOpenETF(wxCommandEvent& event);
 	void OnSaveResult(wxCommandEvent& event);
 
-	void OnGenGVF(wxCommandEvent& event);
-	
 	void OnExit(wxCommandEvent& event);
 	void OnAbout(wxCommandEvent& event);
 	void OnToggleLog(wxCommandEvent& event);
@@ -91,80 +87,36 @@ protected:
 
 enum
 {
+	// Menu > File
 	ID_ONOPENSRC = 1,
-	BUTTON_SolveIt,
-	BUTTON_RefineETF,
-	ID_ONOPENVFB,
-	ID_ONOPENETF,
-	ID_ONOPENTEX,
-	ID_ONOPENCONTOLIMG,
-	ID_ONOPENSIZEIMG,
 	ID_ONSAVE,
-	ID_ONSAVERD,
-	ID_ONREADRD,
+
+	// Menu > Help
 	wxID_TOGGLE_LOG,
 
-	ID_ONEdge2AddA,
-	ID_ONEdge2AddB,
-	ID_ONMask2AddA,
-	ID_ONMask2AddB,
-	ID_ONETF2GVF,
-	ID_ONCLAHE,
-	ID_ONHISTOGRAM,
-	ID_ONSIZEMASK,
-	ID_ONOPEN_MASK,
-	ID_ONOPEN_MASK_S,
-	ID_ONOPEN_PATTERN_PICKER,
-
-	ID_WXEDIT1,
+	// Toolbar
 	BUTTON_Start,
-	BUTTON_Fill,
 	BUTTON_Clean,
-	BUTTON_UNDO,
-	BUTTON_REDO,
 	COMBOBOX_Processing,
-	COMBOBOX_Controlling,
-	BUTTON_subDegree,
-	BUTTON_addDegree,
 
-	SLIDER_S_PICKER,
-	SLIDER_S,
-	SLIDER_S_T,
-	SLIDER_sd,
-	SLIDER_sd_T,
-	COMBOBOX_GRADIENT_S_TYPE,
-	COMBOBOX_GRADIENT_k_TYPE,
-	SLIDER_F,
-	SLIDER_F_T,
-	SLIDER_K,
-	SLIDER_K_T,
-	SLIDER_L,
-	SLIDER_L_T,
-	SLIDER_Theta0,
-	SLIDER_Theta0_T,
-	SLIDER_BRUSH_SIZE,
-	SLIDER_BRUSH_SIZE_T,
-	SLIDER_AddA,
-	SLIDER_AddA_T,
-	SLIDER_AddB,
-	SLIDER_AddB_T,
-	CHECKBOX_MODIFY_FUNCTION,
-	SLIDER_MINDEGREE,
-	SLIDER_MINDEGREE_T,
-	SLIDER_MAXDEGREE,
-	SLIDER_MAXDEGREE_T,
-	CHECKBOX_SEGMENTATION,
-	COMBOBOX_Region,
-	CHECKBOX_DISPLAY_REGION,
-	SLIDER_ETF_KERNEL_SIZE,
+	// Log
+	ID_WXEDIT1,
+
+	// Control Panel > Button
+	BUTTON_SolveIt,
+	BUTTON_RefineETF,
+
+	// Control Panel > Slider
+	SLIDER_TAU,
+	SLIDER_RHO,
+	SLIDER_SIGMA_M,
+	SLIDER_SIGMA_C,
+	SLIDER_ETF_KERNEL,
+
+	// Control Panel > Slider Text
+	SLIDER_TAU_T,
+	SLIDER_RHO_T,
+	SLIDER_SIGMA_M_T,
+	SLIDER_SIGMA_C_T,
 	SLIDER_ETF_KERNEL_T,
-
-	CHECKBOX_Colormapping_isAda,
-	COMBOBOX_ColormappingMode,
-	SLIDER_Alpha,
-	SLIDER_Alpha_T,
-	SLIDER_Beta,
-	SLIDER_Beta_T,
-
-	BUTTON_Select //pattern picker
 };
