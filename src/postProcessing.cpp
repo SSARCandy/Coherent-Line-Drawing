@@ -7,7 +7,6 @@ PP::PP(Size s) {}
 
 // visualize the ETF
 void PP::ETF(Mat &flowfield, Mat &dis) {
-//	const float M_PI = 3.14159265358979323846;
 	Mat noise = Mat::zeros(cv::Size(flowfield.cols / 2, flowfield.rows / 2), CV_32F);
 	dis = Mat::zeros(flowfield.size(), CV_32F);
 	randu(noise, 0, 1.0f);

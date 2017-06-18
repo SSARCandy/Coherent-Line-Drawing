@@ -44,7 +44,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 #pragma endregion
 
 #pragma region ToolBar: Buttons(Start, Fill Ink, Clean), Combobox(processingBox)
-    wxToolBar *toolbar1 = CreateToolBar();
+	wxToolBar *toolbar1 = CreateToolBar();
 	start = new wxButton(toolbar1, BUTTON_Start, _T("Start"), wxDefaultPosition, wxSize(100, 40), 0);
 	clean = new wxButton(toolbar1, BUTTON_Clean, _T("Clean"), wxDefaultPosition, wxSize(100, 40), 0);
 
@@ -214,8 +214,8 @@ void MyFrame::OnOpenSrc(wxCommandEvent& event) {
 	dp->SetMinSize(img);
 	this->Layout();
 
-    render_loop_on = true;
-    activateRenderLoop(render_loop_on);
+	render_loop_on = true;
+	activateRenderLoop(render_loop_on);
 }
 
 void MyFrame::OnSaveResult(wxCommandEvent& event) {
