@@ -19,12 +19,13 @@ wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
 
 	// Toolbar
 	EVT_BUTTON(BUTTON_Start, MyFrame::OnStart)
-	EVT_BUTTON(BUTTON_RefineETF, MyFrame::OnRefineETF)
-	EVT_BUTTON(BUTTON_SolveIt, MyFrame::OnSolveIt)
 	EVT_BUTTON(BUTTON_Clean, MyFrame::OnClean)
 	EVT_COMBOBOX(COMBOBOX_Processing, MyFrame::OnProcessingBox)
 
 	// Control Panel
+	EVT_BUTTON(BUTTON_RefineETF, MyFrame::OnRefineETF)
+	EVT_BUTTON(BUTTON_SolveIt, MyFrame::OnSolveIt)
+	EVT_BUTTON(BUTTON_IterativeFDoG, MyFrame::OnIterativeFDoG)
 	EVT_SLIDER(SLIDER_RHO, MyFrame::OnSliderRho)
 	EVT_SLIDER(SLIDER_ETF_KERNEL, MyFrame::OnSliderETFkernel)
 	EVT_SLIDER(SLIDER_SIGMA_M, MyFrame::OnSliderSigmaM)

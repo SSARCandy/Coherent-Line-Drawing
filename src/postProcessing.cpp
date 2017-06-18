@@ -68,6 +68,6 @@ void PP::FlowField(cv::Mat & flowfield, cv::Mat & dis) {
 void PP::AntiAlias(cv::Mat & src, cv::Mat & dst) {
 	const int BLUR_SIZE = 3;
 
-	normalize(src, dst, 50, 255, NORM_MINMAX);
+	normalize(src, dst, 60, 255, NORM_MINMAX);
 	GaussianBlur(dst, dst, Size(BLUR_SIZE, BLUR_SIZE), 0, 0);
 }

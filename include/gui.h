@@ -59,12 +59,14 @@ protected:
 	wxButton *clean;
 	wxButton *solve;
 	wxButton *refineETF;
+	wxButton *iterativeFDoG;
 	wxComboBox *processingBox;
 
 	void OnStart(wxCommandEvent& event);
 	void OnClean(wxCommandEvent& event);
 	void OnSolveIt(wxCommandEvent& event);
 	void OnRefineETF(wxCommandEvent& event);
+	void OnIterativeFDoG(wxCommandEvent& event);
 
 	void OnProcessingBox(wxCommandEvent& event);
 
@@ -105,6 +107,7 @@ enum
 	// Control Panel > Button
 	BUTTON_SolveIt,
 	BUTTON_RefineETF,
+	BUTTON_IterativeFDoG,
 
 	// Control Panel > Slider
 	SLIDER_TAU,

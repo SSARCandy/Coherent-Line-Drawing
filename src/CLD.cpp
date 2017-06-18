@@ -45,8 +45,8 @@ void CLD::init(Size s) {
 
 	sigma_m = 3.0;
 	sigma_c = 1.0;
-	rho = 0.99;
-	tau = 1.0;
+	rho = 0.997;
+	tau = 0.8;
 }
 
 void CLD::readSrc(string file) {
@@ -57,7 +57,7 @@ void CLD::readSrc(string file) {
 	FDoG = Mat::zeros(Size(originalImg.cols, originalImg.rows), CV_32FC1);
 
 	etf.gen_ETF(file, originalImg.size());
-	genCLD();
+	//genCLD();
 }
 
 
@@ -176,9 +176,11 @@ void CLD::flowDoG(Mat & src, Mat & dst, const double sigma_m) {
 			sum1 /= w_sum1;
 
 
-			dst.at<float>(i, j) = sum1;// (sum1 > 0) ? 1.0 : 1.0 + tanh(sum1);
+			dst.at<float>(i, j) = (sum1 > 0) ? 1.0 : 1.0 + tanh(sum1);
 		}
 	}
+
+	normalize(dst, dst, 0, 1, NORM_MINMAX);
 }
 
 void CLD::gradientDoG(Mat & src, Mat & dst, const double rho, const double sigma_c) {
@@ -223,55 +225,28 @@ void CLD::gradientDoG(Mat & src, Mat & dst, const double rho, const double sigma
 		}
 	}
 }
-/*
-void CLD::flowDoG(Mat & src, Mat & dst, const double sigma_m) {
-	vector<double> gau_m;
-	MakeGaussianVector(sigma_m, gau_m);
 
-	const int kernel = gau_m.size() - 1;
-	for (int y = 0; y < dst.rows; y++) {
-		for (int x = 0; x < dst.cols; x++) {
-			Point2f direction = Point2f(etf.flowField.at<Vec3f>(y, x)[0], etf.flowField.at<Vec3f>(y, x)[1]);
-			double gau_m_acc = 0;
-			double gau_m_weight_acc = 0;
-			
-			if (direction.x == 0 && direction.y == 0) continue;
-
-			for (int step = -kernel; step < kernel; step++) {
-				double row, col;
-				col = x + direction.x * step;
-				row = y + direction.y * step;
-
-				if (col > (double)dst.cols-1 || col < 0.0 || row > (double)dst.rows-1 || row < 0.0) continue;
-
-				float value = src.at<float>((int)round(row), (int)round(col));
-
-				int gau_idx = abs(step);
-
-				gau_m_acc += value * gau_m[gau_idx];
-				gau_m_weight_acc += gau_m[gau_idx];
-			}
-
-			double v = gau_m_acc / gau_m_weight_acc;
-			dst.at<float>(y, x) = v;//(v < 0) && (1 + tanh(v) < tau) ? 0.0 : 1.0;
-
-		}
-	}
-	normalize(dst, dst, 0.0, 1.0, NORM_MINMAX);
-
-	imshow("kol", dst);
-	waitKey(0);
-}
-*/
 void CLD::binaryThresholding(Mat & src, Mat & dst, const double tau) {
 	for (int y = 0; y < dst.rows; y++) {
 		for (int x = 0; x < dst.cols; x++) {
 			float H = src.at<float>(y, x);
-			int v = (H < 0) && (1 + tanh(H)) < tau ? 0 : 255;
+			int v = H < tau ? 0 : 255;
 
-			dst.at<uchar>(y, x) = max(v, 0);
+			dst.at<uchar>(y, x) = v;
+		}
+	}
+}
+
+void CLD::combineImage() {
+	for (int y = 0; y < originalImg.rows; y++) {
+		for (int x = 0; x < originalImg.cols; x++) {
+			float H = result.at<uchar>(y, x);
+			
+			if (H == 0) {
+				originalImg.at<uchar>(y, x) = 0;
+			}
 		}
 	}
 
-	normalize(dst, dst, 0, 255, NORM_MINMAX);
+	GaussianBlur(originalImg, originalImg, Size(3, 3), 0, 0);
 }

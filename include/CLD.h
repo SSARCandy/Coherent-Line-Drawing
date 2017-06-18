@@ -29,6 +29,9 @@ public:
 	// eq.(10)
 	void binaryThresholding(cv::Mat& src, cv::Mat& dst, const double tau);
 
+	// re-initialize the filter input by superimposing the black edge pixels of the previous binary output upon the original image I
+	void combineImage();
+
 	cv::Mat originalImg;
 	cv::Mat DoG;
 	cv::Mat FDoG;
@@ -39,6 +42,5 @@ public:
 	double sigma_m;
 	double rho;
 	double tau;
-
 
 };

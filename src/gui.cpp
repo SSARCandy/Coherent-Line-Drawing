@@ -106,6 +106,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 #pragma region Paint Parameters
 	//solve = new wxButton(controlpanel, BUTTON_SolveIt, wxT("Apply to CLD"), wxDefaultPosition, wxDefaultSize, 0);
 	refineETF = new wxButton(controlpanel, BUTTON_RefineETF, wxT("Smooth ETF"), wxDefaultPosition, wxDefaultSize, 0);
+	iterativeFDoG = new wxButton(controlpanel, BUTTON_IterativeFDoG, wxT("Iterative FDoG"), wxDefaultPosition, wxDefaultSize, 0);
 
 	wxStaticBox *st_etf = new wxStaticBox(controlpanel, -1, wxT("ETF Parameters"), wxDefaultPosition, wxDefaultSize, wxTE_RICH2);
 	wxStaticBoxSizer *st_etf_sizer = new wxStaticBoxSizer(st_etf, wxVERTICAL);
@@ -140,7 +141,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	s.Printf("Thresholding(tau) : %.3f", drawPane->cld.tau);
 	slider_t_t = new wxStaticText(controlpanel, SLIDER_TAU_T, s, wxDefaultPosition, wxDefaultSize, 0);
 	st_paint_sizer->Add(slider_t_t, 0, wxEXPAND | wxLEFT, 10);
-	slider_t = new wxSlider(controlpanel, SLIDER_TAU, int(drawPane->cld.tau * 10000), 9000, 10000, wxDefaultPosition, wxDefaultSize, 0);
+	slider_t = new wxSlider(controlpanel, SLIDER_TAU, int(drawPane->cld.tau * 10000), 4000, 10000, wxDefaultPosition, wxDefaultSize, 0);
 	st_paint_sizer->Add(slider_t, 0, wxEXPAND | wxLEFT, 10);
 
 
@@ -149,6 +150,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	rightside->Add(refineETF, 0, wxEXPAND | wxALL, 10);
 
 	rightside->Add(st_paint_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 3);
+	rightside->Add(iterativeFDoG, 0, wxEXPAND | wxALL, 10);
 	//rightside->Add(solve, 0, wxEXPAND | wxALL, 10);
 #pragma endregion
 
@@ -271,6 +273,14 @@ void MyFrame::OnRefineETF(wxCommandEvent& event) {
 	addlog("[ETF] Done", wxColour(*wxBLUE));
 }
 
+void MyFrame::OnIterativeFDoG(wxCommandEvent& event) {
+	addlog("[CLD] Iterative FDoG...", wxColour(*wxBLUE));
+	(drawPane->cld).combineImage();
+	(drawPane->cld).genCLD();
+	addlog("[CLD] Done", wxColour(*wxBLUE));
+	drawPane->paintNow(true);
+}
+
 //Comboboxes
 void MyFrame::OnProcessingBox(wxCommandEvent& event) {
 	string s = processingBox->GetValue();
@@ -280,10 +290,12 @@ void MyFrame::OnProcessingBox(wxCommandEvent& event) {
 		render_loop_on = true;
 	} else {
 		render_loop_on = false;
-		drawPane->paintNow(true);
 	}
 
+	if (s == "CLD") drawPane->cld.genCLD();
+
 	addlog("[Mode Changed] " + s, wxColour(*wxBLACK));
+	drawPane->paintNow(true);
 	activateRenderLoop(render_loop_on);
 }
 
