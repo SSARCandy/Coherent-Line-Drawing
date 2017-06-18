@@ -44,9 +44,9 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 #pragma endregion
 
 #pragma region ToolBar: Buttons(Start, Fill Ink, Clean), Combobox(processingBox)
-	wxToolBar *toolbar1 = new wxToolBar(this, wxID_ANY);
-	start = new wxButton(toolbar1, BUTTON_Start, _T("Start"), wxDefaultPosition, wxDefaultSize, 0);
-	clean = new wxButton(toolbar1, BUTTON_Clean, _T("Clean"), wxDefaultPosition, wxDefaultSize, 0);
+    wxToolBar *toolbar1 = CreateToolBar();
+	start = new wxButton(toolbar1, BUTTON_Start, _T("Start"), wxDefaultPosition, wxSize(100, 40), 0);
+	clean = new wxButton(toolbar1, BUTTON_Clean, _T("Clean"), wxDefaultPosition, wxSize(100, 40), 0);
 
 	processingBox = new wxComboBox(toolbar1, COMBOBOX_Processing, "Original Image", wxDefaultPosition, wxSize(200, 20), 0);
 	processingBox->Append("Original Image");
@@ -214,7 +214,8 @@ void MyFrame::OnOpenSrc(wxCommandEvent& event) {
 	dp->SetMinSize(img);
 	this->Layout();
 
-	drawPane->paintNow(true);
+    render_loop_on = true;
+    activateRenderLoop(render_loop_on);
 }
 
 void MyFrame::OnSaveResult(wxCommandEvent& event) {
@@ -288,7 +289,7 @@ void MyFrame::OnIterativeFDoG(wxCommandEvent& event) {
 
 //Comboboxes
 void MyFrame::OnProcessingBox(wxCommandEvent& event) {
-	string s = processingBox->GetValue();
+	wxString s = processingBox->GetValue();
 	drawPane->processingS = s;
 
 	if (s == "ETF" || s=="ETF-debug") {
@@ -359,7 +360,7 @@ void MyFrame::OnSliderTau(wxCommandEvent& event) {
 	drawPane->paintNow(true); //execute action
 }
 
-void MyFrame::addlog(wxString info, wxColour& color) {
+void MyFrame::addlog(wxString info, const wxColour& color) {
 	time_t currentTime;// for logging current time
 	struct tm *localTime;// for logging current time
 	time(&currentTime);                   // Get the current time

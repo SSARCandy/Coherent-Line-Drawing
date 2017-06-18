@@ -45,7 +45,7 @@ public:
 	wxStaticText *slider_sigma1_t;
 	wxStaticText *slider_sigma2_t;
 	wxStaticText *slider_t_t;
-	void addlog(wxString info, wxColour& color);
+	void addlog(wxString info, const wxColour& color);
 	void activateRenderLoop(bool on);
 
 protected:
