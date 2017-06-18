@@ -37,9 +37,6 @@ private:
 	// Flow-based DoG filtering
 	//void genFDoG(cv::Mat&, cv::Mat&, vector<double>&);
 
-	// Direction DoG
-	void genDDoG(cv::Mat& src, cv::Mat& dst, const double rho, const double sigma_c);
-
 	/**
 	 * Perform eq.(6) on each pixel
 	 */
