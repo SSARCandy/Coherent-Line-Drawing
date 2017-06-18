@@ -23,7 +23,7 @@ But I only tested it in Windows and macOS.
 ### Pre-Build Version
 
 You can download pre-build version at [here](https://github.com/SSARCandy/Coherent-Line-Drawing/releases).  
-Includeing Windows and macOS versions.
+Including Windows and macOS versions.
 
 ## Screenshot
 
