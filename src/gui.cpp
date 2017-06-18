@@ -54,7 +54,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	processingBox->Append("ETF");
 	processingBox->Append("ETF_debug");
 	processingBox->Append("CLD");
-	processingBox->Append("Thresholding");
+	processingBox->Append("Anti-Aliasing");
 
 
 	toolbar1->AddControl(start);
@@ -104,20 +104,20 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 #pragma endregion
 
 #pragma region Paint Parameters
-	wxStaticBox *st_paint = new wxStaticBox(controlpanel, -1, wxT("Parameters"), wxDefaultPosition, wxDefaultSize, wxTE_RICH2);
-	wxStaticBoxSizer *st_paint_sizer = new wxStaticBoxSizer(st_paint, wxVERTICAL);
+	//solve = new wxButton(controlpanel, BUTTON_SolveIt, wxT("Apply to CLD"), wxDefaultPosition, wxDefaultSize, 0);
+	refineETF = new wxButton(controlpanel, BUTTON_RefineETF, wxT("Smooth ETF"), wxDefaultPosition, wxDefaultSize, 0);
 
-	solve = new wxButton(controlpanel, BUTTON_SolveIt, wxT("Apply to CLD"), wxDefaultPosition, wxDefaultSize, 0);
-	rightside->Add(solve, 0, wxEXPAND | wxALL, 10);
-
-	refineETF = new wxButton(controlpanel, BUTTON_RefineETF, wxT("Refine ETF"), wxDefaultPosition, wxDefaultSize, 0);
-	rightside->Add(refineETF, 0, wxEXPAND | wxALL, 10);
+	wxStaticBox *st_etf = new wxStaticBox(controlpanel, -1, wxT("ETF Parameters"), wxDefaultPosition, wxDefaultSize, wxTE_RICH2);
+	wxStaticBoxSizer *st_etf_sizer = new wxStaticBoxSizer(st_etf, wxVERTICAL);
 
 	s.Printf("ETF kernel size: %d", ETF_kernel);
 	slider_ETFkernel_t = new wxStaticText(controlpanel, SLIDER_ETF_KERNEL_T, s, wxDefaultPosition, wxDefaultSize, 0);
-	st_paint_sizer->Add(slider_ETFkernel_t, 0, wxEXPAND | wxLEFT, 10);
+	st_etf_sizer->Add(slider_ETFkernel_t, 0, wxEXPAND | wxLEFT, 10);
 	slider_ETFkernel = new wxSlider(controlpanel, SLIDER_ETF_KERNEL, ETF_kernel, 3, 21, wxDefaultPosition, wxDefaultSize, 0);
-	st_paint_sizer->Add(slider_ETFkernel, 0, wxEXPAND | wxLEFT, 10);
+	st_etf_sizer->Add(slider_ETFkernel, 0, wxEXPAND | wxLEFT, 10);
+
+	wxStaticBox *st_paint = new wxStaticBox(controlpanel, -1, wxT("Line Parameters"), wxDefaultPosition, wxDefaultSize, wxTE_RICH2);
+	wxStaticBoxSizer *st_paint_sizer = new wxStaticBoxSizer(st_paint, wxVERTICAL);
 
 	s.Printf("Noise(rho) : %.3f", drawPane->cld.rho);
 	slider_rho_t = new wxStaticText(controlpanel, SLIDER_RHO_T, s, wxDefaultPosition, wxDefaultSize, 0);
@@ -136,22 +136,20 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	st_paint_sizer->Add(slider_sigma2_t, 0, wxEXPAND | wxLEFT, 10);
 	slider_sigma2 = new wxSlider(controlpanel, SLIDER_SIGMA_C, int(drawPane->cld.sigma_c * 1000), 10, 10000, wxDefaultPosition, wxDefaultSize, 0);
 	st_paint_sizer->Add(slider_sigma2, 0, wxEXPAND | wxLEFT, 10);
+	
+	s.Printf("Thresholding(tau) : %.3f", drawPane->cld.tau);
+	slider_t_t = new wxStaticText(controlpanel, SLIDER_TAU_T, s, wxDefaultPosition, wxDefaultSize, 0);
+	st_paint_sizer->Add(slider_t_t, 0, wxEXPAND | wxLEFT, 10);
+	slider_t = new wxSlider(controlpanel, SLIDER_TAU, int(drawPane->cld.tau * 10000), 9000, 10000, wxDefaultPosition, wxDefaultSize, 0);
+	st_paint_sizer->Add(slider_t, 0, wxEXPAND | wxLEFT, 10);
 
+
+
+	rightside->Add(st_etf_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 3);
+	rightside->Add(refineETF, 0, wxEXPAND | wxALL, 10);
 
 	rightside->Add(st_paint_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 3);
-#pragma endregion
-
-#pragma region Post Processing Parameters
-	wxStaticBox *st_pp = new wxStaticBox(controlpanel, -1, wxT("Post Processing"), wxDefaultPosition, wxDefaultSize, wxTE_RICH2);
-	wxStaticBoxSizer *st_pp_sizer = new wxStaticBoxSizer(st_pp, wxVERTICAL);
-
-	s.Printf("Thresholding(tau) : %.3f", drawPane->processing.thresholding);
-	slider_t_t = new wxStaticText(controlpanel, SLIDER_TAU_T, s, wxDefaultPosition, wxDefaultSize, 0);
-	st_pp_sizer->Add(slider_t_t, 0, wxEXPAND | wxLEFT, 10);
-	slider_t = new wxSlider(controlpanel, SLIDER_TAU, int(drawPane->processing.thresholding * 1000), 0, 999, wxDefaultPosition, wxDefaultSize, 0);
-	st_pp_sizer->Add(slider_t, 0, wxEXPAND | wxLEFT, 10);
-
-	rightside->Add(st_pp_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 3);
+	//rightside->Add(solve, 0, wxEXPAND | wxALL, 10);
 #pragma endregion
 
 
@@ -217,9 +215,7 @@ void MyFrame::OnOpenSrc(wxCommandEvent& event) {
 	dp->SetMinSize(img);
 	this->Layout();
 
-
-	render_loop_on = true;
-	activateRenderLoop(render_loop_on);
+	drawPane->paintNow(true);
 }
 
 void MyFrame::OnSaveResult(wxCommandEvent& event) {
@@ -249,10 +245,8 @@ void MyFrame::OnSaveResult(wxCommandEvent& event) {
 void MyFrame::OnStart(wxCommandEvent& event) {
 	render_loop_on = !render_loop_on;
 	activateRenderLoop(render_loop_on);
-
-	//if (render_loop_on) fill->Enable();
-	//else fill->Disable();
 }
+
 void MyFrame::OnClean(wxCommandEvent& event) {
 	//*drawPane->cld.c_A = Mat::ones(drawPane->cld.Mask.size(), CV_32F);
 	//*drawPane->cld.c_B = Mat::zeros(drawPane->cld.Mask.size(), CV_32F);
@@ -266,24 +260,31 @@ void MyFrame::OnClean(wxCommandEvent& event) {
 }
 
 void MyFrame::OnSolveIt(wxCommandEvent& event) {
-	addlog("Computing CLD", wxColour(*wxBLUE));
+	addlog("[CLD] Computing CLD...", wxColour(*wxBLUE));
 	drawPane->cld.genCLD();
-	addlog("CLD done", wxColour(*wxBLUE));
+	addlog("[CLD] done", wxColour(*wxBLUE));
 }
 
 void MyFrame::OnRefineETF(wxCommandEvent& event) {
-	addlog("Start refining ETF", wxColour(*wxBLUE));
+	addlog("[ETF] Refining ETF...", wxColour(*wxBLUE));
 	(drawPane->cld).etf.refine_ETF(ETF_kernel);
-	addlog("ETF refined", wxColour(*wxBLUE));
+	addlog("[ETF] Done", wxColour(*wxBLUE));
 }
 
 //Comboboxes
 void MyFrame::OnProcessingBox(wxCommandEvent& event) {
-	drawPane->processingS = processingBox->GetValue();
-	if (processingBox->GetValue() == "CLD") {
-		drawPane->cld.genCLD();
+	string s = processingBox->GetValue();
+	drawPane->processingS = s;
+
+	if (s == "ETF" || s=="ETF_debug") {
+		render_loop_on = true;
+	} else {
+		render_loop_on = false;
+		drawPane->paintNow(true);
 	}
-	drawPane->paintNow(true); //execute action
+
+	addlog("[Mode Changed] " + s, wxColour(*wxBLACK));
+	activateRenderLoop(render_loop_on);
 }
 
 //Slides: Pattern Parameter
@@ -295,36 +296,44 @@ void MyFrame::OnSliderETFkernel(wxCommandEvent& event) {
 
 	//drawPane->cld.genCLD();
 }
+
 void MyFrame::OnSliderRho(wxCommandEvent& event) {
 	wxString s;
 	drawPane->cld.rho = slider_rho->GetValue() / 10000.0;
 	s.Printf("Noise(rho) : %.3f", drawPane->cld.rho);
 	slider_rho_t->SetLabel(s);
 
-	//drawPane->cld.genCLD();
+	drawPane->cld.genCLD();
+	drawPane->paintNow(true); //execute action
 }
+
 void MyFrame::OnSliderSigmaM(wxCommandEvent& event) {
 	wxString s;
 	drawPane->cld.sigma_m = slider_sigma1->GetValue() / 1000.0;
 	s.Printf("Degree of coherence(sigma_m): %.3f", drawPane->cld.sigma_m);
 	slider_sigma1_t->SetLabel(s);
 
-	//drawPane->cld.genCLD();
+	drawPane->cld.genCLD();
+	drawPane->paintNow(true); //execute action
 }
+
 void MyFrame::OnSliderSigmaC(wxCommandEvent& event) {
 	wxString s;
 	drawPane->cld.sigma_c = slider_sigma2->GetValue() / 1000.0;
 	s.Printf("Line width(sigma_c): %.3f", drawPane->cld.sigma_c);
 	slider_sigma2_t->SetLabel(s);
 
-	//drawPane->cld.genCLD();
+	drawPane->cld.genCLD();
+	drawPane->paintNow(true); //execute action
 }
 
-void MyFrame::OnSliderThresholding(wxCommandEvent& event) {
-	drawPane->processing.thresholding = slider_t->GetValue() / 1000.0;
+void MyFrame::OnSliderTau(wxCommandEvent& event) {
+	drawPane->cld.tau = slider_t->GetValue() / 10000.0;
 	wxString s;
-	s.Printf("Thresholding(Tau) : %.3f", drawPane->processing.thresholding);
+	s.Printf("Thresholding(Tau) : %.3f", drawPane->cld.tau);
 	slider_t_t->SetLabel(s);
+
+	drawPane->cld.binaryThresholding(drawPane->cld.FDoG, drawPane->cld.result, drawPane->cld.tau);
 	drawPane->paintNow(true); //execute action
 }
 
@@ -389,12 +398,8 @@ void BasicDrawPane::paintNow(bool render_loop_on) {
 
 //Main Render(iteration) Section
 void BasicDrawPane::render(wxDC& dc, bool render_loop_on) {
-
-
 	dis = cld.originalImg.clone();
 	cv::cvtColor(dis, dis, CV_GRAY2BGR);
-	//imshow("jik", dis);
-	//imshow("jik2", cld.originalImg);
 
 	if (processingS == "ETF") {
 		processing.ETF(cld.etf.flowField, dis);
@@ -403,18 +408,15 @@ void BasicDrawPane::render(wxDC& dc, bool render_loop_on) {
 	}
 	else if (processingS == "ETF_debug") {
 		processing.FlowField(cld.etf.flowField, dis);
-		//cv::cvtColor(dis, dis, CV_GRAY2BGR);
 	}
 	else if (processingS == "CLD") {
 		dis = cld.result.clone();
 		cv::cvtColor(dis, dis, CV_GRAY2BGR);
 	}
-	else if (processingS == "Thresholding") {
+	else if (processingS == "Anti-Aliasing") {
 		dis = cld.result.clone();
-		processing.Thresholding(dis, dis);
-		dis.convertTo(dis, CV_8UC1, 255);
-
-		//cvtColor(dis, dis, CV_GRAY2BGR);
+		processing.AntiAlias(dis, dis);
+		cv::cvtColor(dis, dis, CV_GRAY2BGR);
 	}
 
 	wxImage img(dis.cols, dis.rows, dis.data, true);

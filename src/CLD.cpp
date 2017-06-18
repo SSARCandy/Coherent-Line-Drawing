@@ -38,33 +38,32 @@ CLD::CLD(Size s) {
 void CLD::init(Size s) {
 	originalImg = Mat::zeros(s, CV_8UC1);
 	result = Mat::zeros(s, CV_8UC1);
-	etf.Init(s);
+	DoG = Mat::zeros(s, CV_32FC1);
+	FDoG = Mat::zeros(s, CV_32FC1);
 
-	sigma1 = .4;
-	sigma2 = 3;
+	etf.Init(s);
 
 	sigma_m = 3.0;
 	sigma_c = 1.0;
 	rho = 0.99;
-	tau = 0.2;
+	tau = 1.0;
 }
 
 void CLD::readSrc(string file) {
 	originalImg = imread(file, CV_LOAD_IMAGE_GRAYSCALE);
-	//originalImg.convertTo(originalImg, CV_32FC1, 1.0);
-	//imshow("lo;", originalImg);
 
 	result = Mat::zeros(Size(originalImg.cols, originalImg.rows), CV_8UC1);
+	DoG = Mat::zeros(Size(originalImg.cols, originalImg.rows), CV_32FC1);
+	FDoG = Mat::zeros(Size(originalImg.cols, originalImg.rows), CV_32FC1);
+
 	etf.gen_ETF(file, originalImg.size());
+	genCLD();
 }
 
 
 
 void CLD::genCLD() {
 	Mat originalImg_32FC1 = Mat::zeros(Size(originalImg.cols, originalImg.rows), CV_32FC1);
-	Mat DoG = Mat::zeros(Size(originalImg.cols, originalImg.rows), CV_32FC1);
-	Mat FDoG = Mat::zeros(Size(originalImg.cols, originalImg.rows), CV_32FC1);
-	//Mat threshold = Mat::zeros(Size(originalImg.cols, originalImg.rows), CV_32FC1);
 	originalImg.convertTo(originalImg_32FC1, CV_32FC1, 1.0 / 255.0);
 
 	gradientDoG(originalImg_32FC1, DoG, this->rho, this->sigma_c);
@@ -177,7 +176,7 @@ void CLD::flowDoG(Mat & src, Mat & dst, const double sigma_m) {
 			sum1 /= w_sum1;
 
 
-			dst.at<float>(i, j) = (sum1 > 0) ? 1.0 : 1.0 + tanh(sum1);
+			dst.at<float>(i, j) = sum1;// (sum1 > 0) ? 1.0 : 1.0 + tanh(sum1);
 		}
 	}
 }
@@ -268,10 +267,9 @@ void CLD::binaryThresholding(Mat & src, Mat & dst, const double tau) {
 	for (int y = 0; y < dst.rows; y++) {
 		for (int x = 0; x < dst.cols; x++) {
 			float H = src.at<float>(y, x);
-			int v = (H > 0) ? 1 : (1 + tanh(H));
-			//int v = H * 255;
+			int v = (H < 0) && (1 + tanh(H)) < tau ? 0 : 255;
 
-			dst.at<uchar>(y, x) = max(v*255, 0);
+			dst.at<uchar>(y, x) = max(v, 0);
 		}
 	}
 

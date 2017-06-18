@@ -29,7 +29,7 @@ wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	EVT_SLIDER(SLIDER_ETF_KERNEL, MyFrame::OnSliderETFkernel)
 	EVT_SLIDER(SLIDER_SIGMA_M, MyFrame::OnSliderSigmaM)
 	EVT_SLIDER(SLIDER_SIGMA_C, MyFrame::OnSliderSigmaC)
-	EVT_SLIDER(SLIDER_TAU, MyFrame::OnSliderThresholding)
+	EVT_SLIDER(SLIDER_TAU, MyFrame::OnSliderTau)
 
 
 wxEND_EVENT_TABLE()

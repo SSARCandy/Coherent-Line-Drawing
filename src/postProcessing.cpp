@@ -3,10 +3,7 @@
 using namespace cv;
 
 
-PP::PP(Size s) {
-	thresholding = 0.2;
-	//beta = 0.5;
-}
+PP::PP(Size s) {}
 
 void PP::ETF(Mat &flowfield, Mat &dis) {
 	const float M_PI = 3.14159265358979323846;
@@ -56,7 +53,6 @@ void PP::ETF(Mat &flowfield, Mat &dis) {
 
 void PP::FlowField(cv::Mat & flowfield, cv::Mat & dis) {
 	const int resolution = 10;
-	//dis = Mat::zeros(flowfield.size(), CV_32FC3);
 	
 	for (int i = 0; i < dis.rows; i += resolution) {
 		for (int j = 0; j < dis.cols; j += resolution) {
@@ -67,32 +63,11 @@ void PP::FlowField(cv::Mat & flowfield, cv::Mat & dis) {
 			arrowedLine(dis, p, p2, Scalar(255,0,  0), 1.5, 8, 0, 0.3);
 		}
 	}
-	//imshow("ol;p", dis);
-	//waitKey(0);
 }
 
-void PP::Thresholding(Mat &src, Mat &dis) {
-	vector<Mat> channels;
-	Mat r = Mat::zeros(src.size(), CV_32F);
-	Mat b = Mat::zeros(src.size(), CV_32F);
-	Mat g = Mat::zeros(src.size(), CV_32F);
+void PP::AntiAlias(cv::Mat & src, cv::Mat & dst) {
+	const int BLUR_SIZE = 3;
 
-	for (int i = 0; i < src.rows; i++) {
-		for (int j = 0; j < src.cols; j++) {
-			if (src.at<uchar>(i, j) > thresholding * 255) {
-				r.at<float>(i, j) = 1.0;
-				g.at<float>(i, j) = 1.0;
-				b.at<float>(i, j) = 1.0;
-			}
-			else {
-				r.at<float>(i, j) = 0.0;
-				g.at<float>(i, j) = 0.0;
-				b.at<float>(i, j) = 0.0;
-			}
-		}
-	}
-	channels.push_back(b);
-	channels.push_back(g);
-	channels.push_back(r);
-	merge(channels, dis);
-};
+	normalize(src, dst, 50, 255, NORM_MINMAX);
+	GaussianBlur(dst, dst, Size(BLUR_SIZE, BLUR_SIZE), 0, 0);
+}

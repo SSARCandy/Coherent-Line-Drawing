@@ -73,7 +73,7 @@ protected:
 	void OnSliderETFkernel(wxCommandEvent& event);
 	void OnSliderSigmaM(wxCommandEvent& event);
 	void OnSliderSigmaC(wxCommandEvent& event);
-	void OnSliderThresholding(wxCommandEvent& event);
+	void OnSliderTau(wxCommandEvent& event);
 
 	void OnOpenSrc(wxCommandEvent& event);
 	void OnSaveResult(wxCommandEvent& event);
