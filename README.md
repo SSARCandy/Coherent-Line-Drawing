@@ -18,12 +18,12 @@ automatically generates a line drawing from a photograph.
 ### Enviroment
 
 It should work fine in Windows/Linux/MacOS.  
-But I only tested it in Windows enviroment.
+But I only tested it in Windows and macOS.
 
 ### Pre-Build Version
 
-You can download pre-build version at [here](https://github.com/SSARCandy/Coherent-Line-Drawing/releases/download/1.0.0/release-windows.zip).  
-Please note that this pre-build is for Windows, you can build Mac/Linux version from source.
+You can download pre-build version at [here](https://github.com/SSARCandy/Coherent-Line-Drawing/releases).  
+Includeing Windows and macOS versions.
 
 ## Screenshot
 
