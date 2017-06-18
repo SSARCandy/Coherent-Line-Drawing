@@ -6,7 +6,6 @@ BEGIN_EVENT_TABLE(BasicDrawPane, wxPanel)
 END_EVENT_TABLE()
 
 
-
 wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	// Menu - File
     EVT_MENU(ID_ONOPENSRC, MyFrame::OnOpenSrc)

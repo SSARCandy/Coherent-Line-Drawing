@@ -164,13 +164,8 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	leftside->Fit(drawpanel);
 	SetSizer(sizer);
 
-
-
 	this->GetSizer()->Layout();
-
-
 	render_loop_on = false;
-
 }
 void MyFrame::OnExit(wxCommandEvent& event) {
 	Close(true);

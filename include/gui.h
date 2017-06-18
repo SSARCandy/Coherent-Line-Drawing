@@ -7,14 +7,12 @@
 #include <wx/filedlg.h>
 #include <wx/wfstream.h>
 
-class MyApp: public wxApp
-{
+class MyApp : public wxApp {
 public:
 	virtual bool OnInit();
 };
 
-class BasicDrawPane : public wxPanel
-{
+class BasicDrawPane : public wxPanel {
 
 public:
 	BasicDrawPane(wxPanel* parent, cv::Size, bool canUndo);
@@ -26,14 +24,13 @@ public:
 	string processingS;
 	void paintEvent(wxPaintEvent& evt);
 	void paintNow(bool);
-	void render( wxDC& dc,bool );
+	void render(wxDC& dc, bool);
 	DECLARE_EVENT_TABLE()
 private:
 	bool activateDraw;
 };
 
-class MyFrame: public wxFrame
-{
+class MyFrame : public wxFrame {
 public:
 	MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
 	BasicDrawPane *drawPane;
@@ -87,8 +84,7 @@ protected:
 	wxDECLARE_EVENT_TABLE();
 };
 
-enum
-{
+enum {
 	// Menu > File
 	ID_ONOPENSRC = 1,
 	ID_ONSAVE,

@@ -5,6 +5,7 @@ using namespace cv;
 
 PP::PP(Size s) {}
 
+// visualize the ETF
 void PP::ETF(Mat &flowfield, Mat &dis) {
 	const float M_PI = 3.14159265358979323846;
 	Mat noise = Mat::zeros(cv::Size(flowfield.cols / 2, flowfield.rows / 2), CV_32F);
@@ -51,6 +52,7 @@ void PP::ETF(Mat &flowfield, Mat &dis) {
 	}
 }
 
+// visualize ETF by drawing red arrowline
 void PP::FlowField(cv::Mat & flowfield, cv::Mat & dis) {
 	const int resolution = 10;
 	

@@ -56,7 +56,7 @@ void CLD::readSrc(string file) {
 	DoG = Mat::zeros(Size(originalImg.cols, originalImg.rows), CV_32FC1);
 	FDoG = Mat::zeros(Size(originalImg.cols, originalImg.rows), CV_32FC1);
 
-	etf.gen_ETF(file, originalImg.size());
+	etf.initial_ETF(file, originalImg.size());
 	//genCLD();
 }
 
@@ -193,6 +193,10 @@ void CLD::binaryThresholding(Mat & src, Mat & dst, const double tau) {
 	}
 }
 
+/**
+ * re-initialize the filter input 
+ * by superimposing the black edge pixels of the previous binary output upon the original image
+ */
 void CLD::combineImage() {
 	for (int y = 0; y < originalImg.rows; y++) {
 		for (int x = 0; x < originalImg.cols; x++) {
@@ -204,5 +208,6 @@ void CLD::combineImage() {
 		}
 	}
 
+	// Blur a little-bit to let image more smooth
 	GaussianBlur(originalImg, originalImg, Size(3, 3), 0, 0);
 }

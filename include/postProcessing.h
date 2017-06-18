@@ -3,8 +3,7 @@
 
 using namespace std;
 
-class PP
-{
+class PP {
 public:
 	PP(cv::Size);
 	void ETF(cv::Mat &flowfield, cv::Mat &dis);
