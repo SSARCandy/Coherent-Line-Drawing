@@ -51,6 +51,8 @@ public:
 protected:
 	bool render_loop_on;
 	int ETF_kernel;
+	int ETF_iteration;
+	int FDoG_iteration;
 	wxTextCtrl *log; // Show the log
 	wxButton *start;
 	wxButton *clean;

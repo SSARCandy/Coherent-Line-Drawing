@@ -16,6 +16,8 @@ bool MyApp::OnInit() {
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	: wxFrame(NULL, wxID_ANY, title, pos, size) {
 	ETF_kernel = 5;
+	ETF_iteration = 0;
+	FDoG_iteration = 0;
 
 #pragma region MenuBar
 	wxMenu *menuFile = new wxMenu;
@@ -34,26 +36,23 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	menuBar->Append(menuFile, "&File");
 	menuBar->Append(menuHelp, "&Help");
 	SetMenuBar(menuBar);
-	CreateStatusBar(2);
+	CreateStatusBar(3);
 	SetStatusText("SrcImg: None", 0);
-	SetStatusText("flowField: None", 1);
+	SetStatusText("ETF: None", 1);
+	SetStatusText("FDoG: None", 2);
 
 #pragma endregion
 
 #pragma region ToolBar: Buttons(Start, Fill Ink, Clean), Combobox(processingBox)
 	wxToolBar *toolbar1 = new wxToolBar(this, wxID_ANY);
 	start = new wxButton(toolbar1, BUTTON_Start, _T("Start"), wxDefaultPosition, wxDefaultSize, 0);
-
 	clean = new wxButton(toolbar1, BUTTON_Clean, _T("Clean"), wxDefaultPosition, wxDefaultSize, 0);
 
-
-	processingBox = new wxComboBox(toolbar1, COMBOBOX_Processing, "originalImg", wxDefaultPosition, wxDefaultSize, 0);
-	//processingBox = new wxComboBox(toolbar1, COMBOBOX_Processing, "ETF", wxDefaultPosition, wxDefaultSize, 0);
-
-	processingBox->Append("originalImg");
+	processingBox = new wxComboBox(toolbar1, COMBOBOX_Processing, "Original Image", wxDefaultPosition, wxSize(200, 20), 0);
+	processingBox->Append("Original Image");
 	processingBox->Append("ETF");
-	processingBox->Append("ETF_debug");
-	processingBox->Append("CLD");
+	processingBox->Append("ETF-debug");
+	processingBox->Append("Coherent Line Drawing");
 	processingBox->Append("Anti-Aliasing");
 
 
@@ -95,7 +94,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 	// wxTextCtrl: http://docs.wxwidgets.org/trunk/classwx_text_ctrl.html
 	log = new wxTextCtrl(drawpanel, ID_WXEDIT1, wxT(""), wxPoint(91, 43), wxSize(121, 21), wxTE_RICH2 | wxTE_MULTILINE | wxTE_READONLY, wxDefaultValidator, wxT("WxEdit1"));
-	addlog("Hello CLD!", wxColour(*wxBLACK));
+	addlog("Hello Coherent Line Drawing!", wxColour(*wxBLACK));
 
 	leftside->AddStretchSpacer(3);
 	leftside->Add(dp, 0, wxCENTER);
@@ -172,8 +171,8 @@ void MyFrame::OnExit(wxCommandEvent& event) {
 }
 void MyFrame::OnAbout(wxCommandEvent& event) {
 	wxMessageBox(
-		"Shu-Hsuan Hsu\n\n National Taiwan University",
-		"About CLD",
+		"Coherent Line Drawing\n\nProgram by HSU,SHU-HSUAN(National Taiwan University)\n\nThis is an implementation of 'Coherent Line Drawing' by Kang et al, Proc. NPAR 2007 .",
+		"About Coherent Line Drawing",
 		wxOK | wxICON_INFORMATION
 	);
 }
@@ -198,6 +197,9 @@ void MyFrame::OnOpenSrc(wxCommandEvent& event) {
 
 		s.Printf("SrcImg: %s", openFileDialog.GetFilename());
 		SetStatusText(s, 0);
+
+		s.Printf("ETF: %d iterations", ETF_iteration);
+		SetStatusText(s, 1);
 	}
 
 	// proceed loading the file chosen by the user, this can be done with e.g. wxWidgets input streams:
@@ -266,6 +268,10 @@ void MyFrame::OnRefineETF(wxCommandEvent& event) {
 	addlog("[ETF] Refining ETF...", wxColour(*wxBLUE));
 	(drawPane->cld).etf.refine_ETF(ETF_kernel);
 	addlog("[ETF] Done", wxColour(*wxBLUE));
+
+	wxString s;
+	s.Printf("ETF: %d iterations", ++ETF_iteration);
+	SetStatusText(s, 1);
 }
 
 void MyFrame::OnIterativeFDoG(wxCommandEvent& event) {
@@ -273,6 +279,10 @@ void MyFrame::OnIterativeFDoG(wxCommandEvent& event) {
 	(drawPane->cld).combineImage();
 	(drawPane->cld).genCLD();
 	addlog("[CLD] Done", wxColour(*wxBLUE));
+
+	wxString s;
+	s.Printf("FDoG: %d iterations", ++FDoG_iteration);
+	SetStatusText(s, 2);
 	drawPane->paintNow(true);
 }
 
@@ -281,13 +291,18 @@ void MyFrame::OnProcessingBox(wxCommandEvent& event) {
 	string s = processingBox->GetValue();
 	drawPane->processingS = s;
 
-	if (s == "ETF" || s=="ETF_debug") {
+	if (s == "ETF" || s=="ETF-debug") {
 		render_loop_on = true;
 	} else {
 		render_loop_on = false;
 	}
 
-	if (s == "CLD") drawPane->cld.genCLD();
+	if (s == "Coherent Line Drawing") {
+		drawPane->cld.genCLD();
+		wxString s;
+		s.Printf("FDoG: %d iterations", FDoG_iteration);
+		SetStatusText(s, 2);
+	}
 
 	addlog("[Mode Changed] " + s, wxColour(*wxBLACK));
 	drawPane->paintNow(true);
@@ -413,10 +428,10 @@ void BasicDrawPane::render(wxDC& dc, bool render_loop_on) {
 		dis.convertTo(dis, CV_8UC1, 255);
 		cv::cvtColor(dis, dis, CV_GRAY2BGR);
 	}
-	else if (processingS == "ETF_debug") {
+	else if (processingS == "ETF-debug") {
 		processing.FlowField(cld.etf.flowField, dis);
 	}
-	else if (processingS == "CLD") {
+	else if (processingS == "Coherent Line Drawing") {
 		dis = cld.result.clone();
 		cv::cvtColor(dis, dis, CV_GRAY2BGR);
 	}
