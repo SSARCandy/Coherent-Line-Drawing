@@ -73,110 +73,66 @@ void CLD::genCLD() {
 	binaryThresholding(FDoG, result, this->tau);
 }
 
-
-
 /**
- * Private Functions
+ * Flow-based DoG filtering
  */
 void CLD::flowDoG(Mat & src, Mat & dst, const double sigma_m) {
 	vector<double> gau_m;
 	MakeGaussianVector(sigma_m, gau_m);
 
-	vector<double> vt(2, 0);
-	double x, y, d_x, d_y;
-	double weight1, w_sum1, sum1;
+	const int img_w = src.cols;
+	const int img_h = src.rows;
+	const int kernel_half = gau_m.size() - 1;
 
-	int i_x, i_y;
-	int x1, y1;
-	double val;
+	for (int y = 0; y < img_h; y++) {
+		for (int x = 0; x < img_w; x++) {
+			double gau_m_acc = -gau_m[0] * src.at<float>(y, x);
+			double gau_m_weight_acc = -gau_m[0];
+				
+			// Intergral alone ETF
+			Point2f pos(x, y);
+			for (int step = 0; step < kernel_half; step++) {
+				Vec3f tmp = etf.flowField.at<Vec3f>((int)round(pos.y), (int)round(pos.x));
+				Point2f direction = Point2f(tmp[1], tmp[0]);
 
-	int image_x = src.rows;
-	int image_y = src.cols;
+				if (direction.x == 0 && direction.y == 0) break;
+				if (pos.x > (double)img_w - 1 || pos.x < 0.0 || pos.y >(double)img_h - 1 || pos.y < 0.0) break;
 
-	int half_l = gau_m.size() - 1;
+				float value = src.at<float>((int)round(pos.y), (int)round(pos.x));
+				float weight = gau_m[step];
 
-	int flow_DOG_sign = 0;
+				gau_m_acc += value*weight;
+				gau_m_weight_acc += weight;
 
-	for (int i = 0; i < image_x; i++) {
-		for (int j = 0; j < image_y; j++) {
-			sum1 = w_sum1 = weight1 = 0.0;
-
-			val = src.at<float>(i, j);
-			weight1 = gau_m[0];
-			sum1 = val * weight1;
-			w_sum1 += weight1;
-
-			d_x = (double)i;
-			d_y = (double)j;
-			i_x = i; 
-			i_y = j;
-			for (int k = 0; k < half_l; k++) {
-				vt[0] = etf.flowField.at<Vec3f>(i_x, i_y)[0];
-				vt[1] = etf.flowField.at<Vec3f>(i_x, i_y)[1];
-
-				if (vt[0] == 0.0 && vt[1] == 0.0) break;
-
-				x = d_x;
-				y = d_y;
-
-				if (x >(double)image_x - 1 || x < 0.0 || y >(double)image_y - 1 || y < 0.0)	break;
-
-				x1 = min(max((int)round(x), 0), image_x - 1);
-				y1 = min(max((int)round(y), 0), image_y - 1);
-
-				val = src.at<float>(x1, y1);
-
-				weight1 = gau_m[k];
-
-				sum1 += val * weight1;
-				w_sum1 += weight1;
-
-				d_x += vt[0] * STEPSIZE;
-				d_y += vt[1] * STEPSIZE;
-
-				i_x = round(d_x);
-				i_y = round(d_y);
-
-				if (d_x < 0 || d_x > image_x - 1 || d_y < 0 || d_y > image_y - 1) break;
+				// move alone ETF direction 
+				pos += direction;
+				
+				if ((int)round(pos.x) < 0 || (int)round(pos.x) > img_w - 1 || (int)round(pos.y) < 0 || (int)round(pos.y) > img_h - 1) break;
 			}
 
-			d_x = (double)i;
-			d_y = (double)j;
-			i_x = i; 
-			i_y = j;
-			for (int k = 0; k < half_l; k++) {
-				vt[0] = -etf.flowField.at<Vec3f>(i_x, i_y)[0];
-				vt[1] = -etf.flowField.at<Vec3f>(i_x, i_y)[1];
-				if (vt[0] == 0.0 && vt[1] == 0.0) break;
+			// Intergral alone inverse ETF
+			pos = Point2f(x, y);
+			for (int step = 0; step < kernel_half; step++) {
+				Vec3f tmp = -etf.flowField.at<Vec3f>((int)round(pos.y), (int)round(pos.x));
+				Point2f direction = Point2f(tmp[1], tmp[0]);
 
-				x = d_x;
-				y = d_y;
+				if (direction.x == 0 && direction.y == 0) break;
+				if (pos.x >(double)img_w - 1 || pos.x < 0.0 || pos.y >(double)img_h - 1 || pos.y < 0.0) break;
 
-				if (x >(double)image_x - 1 || x < 0.0 || y >(double)image_y - 1 || y < 0.0)	break;
+				float value = src.at<float>((int)round(pos.y), (int)round(pos.x));
+				float weight = gau_m[step];
 
-				x1 = min(max((int)round(x), 0), image_x - 1);
-				y1 = min(max((int)round(y), 0), image_y - 1);
+				gau_m_acc += value*weight;
+				gau_m_weight_acc += weight;
 
-				val = src.at<float>(x1, y1);
+				// move alone ETF direction 
+				pos += direction;
 
-				weight1 = gau_m[k];
-
-				sum1 += val * weight1;
-				w_sum1 += weight1;
-
-				d_x += vt[0] * STEPSIZE;
-				d_y += vt[1] * STEPSIZE;
-
-				i_x = round(d_x);
-				i_y = round(d_y);
-
-				if (d_x < 0 || d_x > image_x - 1 || d_y < 0 || d_y > image_y - 1) break;
+				if ((int)round(pos.x) < 0 || (int)round(pos.x) > img_w - 1 || (int)round(pos.y) < 0 || (int)round(pos.y) > img_h - 1) break;
 			}
 
-			sum1 /= w_sum1;
-
-
-			dst.at<float>(i, j) = (sum1 > 0) ? 1.0 : 1.0 + tanh(sum1);
+			
+			dst.at<float>(y, x) = (gau_m_acc / gau_m_weight_acc) > 0 ? 1.0 : 1 + tanh(gau_m_acc / gau_m_weight_acc);
 		}
 	}
 
