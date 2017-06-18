@@ -5,7 +5,7 @@
 
 
 bool MyApp::OnInit() {
-	MyFrame *frame = new MyFrame("CRD", wxPoint(50, 50), wxSize(1000, 730));
+	MyFrame *frame = new MyFrame("Coherent Line Drawing | SSARCandy", wxPoint(50, 50), wxSize(1000, 730));
 	//frame->Maximize(true);
 	frame->Show(true);
 
