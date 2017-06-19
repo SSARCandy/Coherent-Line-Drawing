@@ -171,7 +171,7 @@ void MyFrame::OnExit(wxCommandEvent& event) {
 }
 void MyFrame::OnAbout(wxCommandEvent& event) {
 	wxMessageBox(
-		"Coherent Line Drawing\n\nProgram by HSU,SHU-HSUAN(National Taiwan University)\n\nThis is an implementation of 'Coherent Line Drawing' by Kang et al, Proc. NPAR 2007 .",
+		"Coherent Line Drawing\n\nProgramed by HSU,SHU-HSUAN(National Taiwan University)\n\nThis is an implementation of 'Coherent Line Drawing' by Kang et al, Proc. NPAR 2007 .",
 		"About Coherent Line Drawing",
 		wxOK | wxICON_INFORMATION
 	);
@@ -186,20 +186,18 @@ void MyFrame::OnOpenSrc(wxCommandEvent& event) {
 	render_loop_on = false;
 	activateRenderLoop(render_loop_on);
 	wxFileDialog openFileDialog(this, _("Open image file"), "", "", "image files (*.bmp;*.png;*.jpg)|*.bmp;*.png;*.jpg", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+	wxString s;
+
 	if (openFileDialog.ShowModal() == wxID_CANCEL) {
 		addlog("Load Img Canceled", wxColour(*wxBLACK));
 		return;     // the user changed idea...
 	}
 	else {
-		wxString s;
 		s.Printf("Load Img - %s", openFileDialog.GetFilename());
 		addlog(s, wxColour(*wxBLUE));
 
 		s.Printf("SrcImg: %s", openFileDialog.GetFilename());
 		SetStatusText(s, 0);
-
-		s.Printf("ETF: %d iterations", ETF_iteration);
-		SetStatusText(s, 1);
 	}
 
 	// proceed loading the file chosen by the user, this can be done with e.g. wxWidgets input streams:
@@ -216,6 +214,9 @@ void MyFrame::OnOpenSrc(wxCommandEvent& event) {
 
 	render_loop_on = true;
 	activateRenderLoop(render_loop_on);
+	ETF_iteration = FDoG_iteration = 0;
+	s.Printf("ETF: %d iterations", ETF_iteration);
+	SetStatusText(s, 1);
 }
 
 void MyFrame::OnSaveResult(wxCommandEvent& event) {
@@ -235,9 +236,6 @@ void MyFrame::OnSaveResult(wxCommandEvent& event) {
 
 	cv::cvtColor(drawPane->dis, drawPane->dis, CV_BGR2RGB);
 	cv::imwrite((const char*)saveFileDialog.GetPath().mb_str(), drawPane->dis);
-
-
-	//	drawPane->cld.SaveRD();
 }
 
 
@@ -248,15 +246,23 @@ void MyFrame::OnStart(wxCommandEvent& event) {
 }
 
 void MyFrame::OnClean(wxCommandEvent& event) {
-	//*drawPane->cld.c_A = Mat::ones(drawPane->cld.Mask.size(), CV_32F);
-	//*drawPane->cld.c_B = Mat::zeros(drawPane->cld.Mask.size(), CV_32F);
-	//*drawPane->cld.p_A = Mat::ones(drawPane->cld.Mask.size(), CV_32F);
-	//*drawPane->cld.p_B = Mat::zeros(drawPane->cld.Mask.size(), CV_32F);
-	//drawPane->cld.Addition_A = Mat::zeros(drawPane->cld.Mask.size(), CV_32F);
-	//drawPane->cld.Addition_B = Mat::zeros(drawPane->cld.Mask.size(), CV_32F);
+	drawPane->cld.init(cv::Size(300, 300));
+	ETF_iteration = FDoG_iteration = 0;
+	drawPane->paintNow(true); //execute clean action
 
-	//drawPane->paintNow(true); //execute clean action
-	//addlog("Draw Panel Cleaned.", wxColour(*wxBLACK));
+	wxSize img(drawPane->cld.originalImg.cols, drawPane->cld.originalImg.rows);
+	dp->SetMinSize(img);
+	this->Layout();
+
+	addlog("Draw Panel Cleaned.", wxColour(*wxRED));
+	
+	wxString s;
+	s.Printf("SrcImg: None");
+	SetStatusText(s, 0);
+	s.Printf("ETF: None");
+	SetStatusText(s, 1);
+	s.Printf("FDoG: None");
+	SetStatusText(s, 2);
 }
 
 void MyFrame::OnSolveIt(wxCommandEvent& event) {
