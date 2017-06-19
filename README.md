@@ -11,7 +11,7 @@ automatically generates a line drawing from a photograph.
 
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=48fTXKUTM-8
 " target="_blank"><img src="http://img.youtube.com/vi/48fTXKUTM-8/0.jpg" 
-alt="IMAGE ALT TEXT HERE" width="800" height="600" border="10" /></a>
+alt="IMAGE ALT TEXT HERE" width="800" border="10" /></a>
 
 
 ## Build
