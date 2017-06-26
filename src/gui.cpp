@@ -28,7 +28,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	wxMenu *menuFile = new wxMenu;
 	menuFile->Append(ID_ONOPENSRC, "&Open SrcImg\tCtrl-O", "Open source image");
 
-	menuFile->Append(ID_ONSAVE, "&Save\tCtrl-E", "Save Result");
+	menuFile->Append(ID_ONSAVE, "&Save\tCtrl-S", "Save Result");
 	menuFile->AppendSeparator();
 
 	menuFile->Append(wxID_EXIT);
@@ -50,10 +50,10 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 #pragma region ToolBar: Buttons(Start, Fill Ink, Clean), Combobox(processingBox)
 	wxToolBar *toolbar1 = CreateToolBar();
-	start = new wxButton(toolbar1, BUTTON_Start, _T("Start"), wxDefaultPosition, wxSize(100, 20), 0);
-	clean = new wxButton(toolbar1, BUTTON_Clean, _T("Clean"), wxDefaultPosition, wxSize(100, 20), 0);
+	start = new wxButton(toolbar1, BUTTON_Start, _T("Start"), wxDefaultPosition, wxSize(100, 30), 0);
+	clean = new wxButton(toolbar1, BUTTON_Clean, _T("Clean"), wxDefaultPosition, wxSize(100, 30), 0);
 
-	processingBox = new wxComboBox(toolbar1, COMBOBOX_Processing, MODE_ORIGINIAL_IMAGE, wxDefaultPosition, wxSize(200, 20), 0);
+	processingBox = new wxComboBox(toolbar1, COMBOBOX_Processing, MODE_ORIGINIAL_IMAGE, wxDefaultPosition, wxSize(200, 30), 0);
 	processingBox->Append(MODE_ORIGINIAL_IMAGE);
 	processingBox->Append(MODE_ETF);
 	processingBox->Append(MODE_ETF_DEBUG);
