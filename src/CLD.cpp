@@ -84,6 +84,7 @@ void CLD::flowDoG(Mat & src, Mat & dst, const double sigma_m) {
 	const int img_h = src.rows;
 	const int kernel_half = gau_m.size() - 1;
 
+#pragma omp parallel for
 	for (int y = 0; y < img_h; y++) {
 		for (int x = 0; x < img_w; x++) {
 			double gau_m_acc = -gau_m[0] * src.at<float>(y, x);
@@ -146,6 +147,8 @@ void CLD::gradientDoG(Mat & src, Mat & dst, const double rho, const double sigma
 	MakeGaussianVector(sigma_s, gau_s);
 
 	const int kernel = gau_s.size() - 1;
+
+#pragma omp parallel for
 	for (int y = 0; y < dst.rows; y++) {
 		for (int x = 0; x < dst.cols; x++) {
 			double gau_c_acc = 0;
@@ -183,6 +186,7 @@ void CLD::gradientDoG(Mat & src, Mat & dst, const double rho, const double sigma
 }
 
 void CLD::binaryThresholding(Mat & src, Mat & dst, const double tau) {
+#pragma omp parallel for
 	for (int y = 0; y < dst.rows; y++) {
 		for (int x = 0; x < dst.cols; x++) {
 			float H = src.at<float>(y, x);
@@ -198,6 +202,7 @@ void CLD::binaryThresholding(Mat & src, Mat & dst, const double tau) {
  * by superimposing the black edge pixels of the previous binary output upon the original image
  */
 void CLD::combineImage() {
+#pragma omp parallel for
 	for (int y = 0; y < originalImg.rows; y++) {
 		for (int x = 0; x < originalImg.cols; x++) {
 			float H = result.at<uchar>(y, x);

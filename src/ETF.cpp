@@ -43,6 +43,8 @@ void ETF::initial_ETF(string file, Size s) {
 	normalize(gradientMag, gradientMag, 0.0, 1.0, NORM_MINMAX);
 
 	flowField = Mat::zeros(src.size(), CV_32FC3);
+
+#pragma omp parallel for
 	for (int i = 0; i < src.rows; i++) {
 		for (int j = 0; j < src.cols; j++) {
 			Vec3f u = grad_x.at<Vec3f>(i, j);
@@ -57,6 +59,7 @@ void ETF::initial_ETF(string file, Size s) {
 
 
 void ETF::refine_ETF(int kernel) {
+#pragma omp parallel for
 	for (int r = 0; r < flowField.rows; r++) {
 		for (int c = 0; c < flowField.cols; c++) {
 			computeNewVector(c, r, kernel);

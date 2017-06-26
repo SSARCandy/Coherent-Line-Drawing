@@ -17,6 +17,8 @@ void PP::ETF(Mat &flowfield, Mat &dis) {
 	int nCols = noise.cols;
 	float sigma = 2 * s*s;
 
+
+#pragma omp parallel for
 	for (int i = 0; i < nRows; i++) {
 		for (int j = 0; j < nCols; j++) {
 			float w_sum = 0.0;
