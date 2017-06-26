@@ -3,6 +3,11 @@
 #include <fstream>
 #include <iostream>
 
+#define MODE_ORIGINIAL_IMAGE "Original Image"
+#define MODE_ETF "ETF"
+#define MODE_ETF_DEBUG "ETF-debug"
+#define MODE_CLD "Coherent Line Drawing"
+#define MODE_ANTI_ALIASING "Anti-Aliasing"
 
 bool MyApp::OnInit() {
 	MyFrame *frame = new MyFrame("Coherent Line Drawing | SSARCandy", wxPoint(50, 50), wxSize(1000, 730));
@@ -45,15 +50,15 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 #pragma region ToolBar: Buttons(Start, Fill Ink, Clean), Combobox(processingBox)
 	wxToolBar *toolbar1 = CreateToolBar();
-	start = new wxButton(toolbar1, BUTTON_Start, _T("Start"), wxDefaultPosition, wxSize(100, 40), 0);
-	clean = new wxButton(toolbar1, BUTTON_Clean, _T("Clean"), wxDefaultPosition, wxSize(100, 40), 0);
+	start = new wxButton(toolbar1, BUTTON_Start, _T("Start"), wxDefaultPosition, wxSize(100, 20), 0);
+	clean = new wxButton(toolbar1, BUTTON_Clean, _T("Clean"), wxDefaultPosition, wxSize(100, 20), 0);
 
-	processingBox = new wxComboBox(toolbar1, COMBOBOX_Processing, "Original Image", wxDefaultPosition, wxSize(200, 20), 0);
-	processingBox->Append("Original Image");
-	processingBox->Append("ETF");
-	processingBox->Append("ETF-debug");
-	processingBox->Append("Coherent Line Drawing");
-	processingBox->Append("Anti-Aliasing");
+	processingBox = new wxComboBox(toolbar1, COMBOBOX_Processing, MODE_ORIGINIAL_IMAGE, wxDefaultPosition, wxSize(200, 20), 0);
+	processingBox->Append(MODE_ORIGINIAL_IMAGE);
+	processingBox->Append(MODE_ETF);
+	processingBox->Append(MODE_ETF_DEBUG);
+	processingBox->Append(MODE_CLD);
+	processingBox->Append(MODE_ANTI_ALIASING);
 
 
 	toolbar1->AddControl(start);
@@ -193,6 +198,9 @@ void MyFrame::OnOpenSrc(wxCommandEvent& event) {
 		return;     // the user changed idea...
 	}
 	else {
+		processingBox->SetValue(MODE_ORIGINIAL_IMAGE);
+		drawPane->processingS = MODE_ORIGINIAL_IMAGE;
+
 		s.Printf("Load Img - %s", openFileDialog.GetFilename());
 		addlog(s, wxColour(*wxBLUE));
 
@@ -298,13 +306,13 @@ void MyFrame::OnProcessingBox(wxCommandEvent& event) {
 	wxString s = processingBox->GetValue();
 	drawPane->processingS = s;
 
-	if (s == "ETF" || s=="ETF-debug") {
+	if (s == MODE_ETF || s == MODE_ETF_DEBUG) {
 		render_loop_on = true;
 	} else {
 		render_loop_on = false;
 	}
 
-	if (s == "Coherent Line Drawing") {
+	if (s == MODE_CLD) {
 		drawPane->cld.genCLD();
 		wxString s;
 		s.Printf("FDoG: %d iterations", FDoG_iteration);
@@ -430,19 +438,19 @@ void BasicDrawPane::render(wxDC& dc, bool render_loop_on) {
 	dis = cld.originalImg.clone();
 	cv::cvtColor(dis, dis, CV_GRAY2BGR);
 
-	if (processingS == "ETF") {
+	if (processingS == MODE_ETF) {
 		processing.ETF(cld.etf.flowField, dis);
 		dis.convertTo(dis, CV_8UC1, 255);
 		cv::cvtColor(dis, dis, CV_GRAY2BGR);
 	}
-	else if (processingS == "ETF-debug") {
+	else if (processingS == MODE_ETF_DEBUG) {
 		processing.FlowField(cld.etf.flowField, dis);
 	}
-	else if (processingS == "Coherent Line Drawing") {
+	else if (processingS == MODE_CLD) {
 		dis = cld.result.clone();
 		cv::cvtColor(dis, dis, CV_GRAY2BGR);
 	}
-	else if (processingS == "Anti-Aliasing") {
+	else if (processingS == MODE_ANTI_ALIASING) {
 		dis = cld.result.clone();
 		processing.AntiAlias(dis, dis);
 		cv::cvtColor(dis, dis, CV_GRAY2BGR);
