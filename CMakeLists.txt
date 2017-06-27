@@ -1,16 +1,14 @@
-cmake_minimum_required(VERSION 3.0)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
 
-project( Coherent-Line-Drawing )
+PROJECT(Coherent-Line-Drawing)
 
-find_package( OpenCV REQUIRED )
-
-
+FIND_PACKAGE(OpenCV REQUIRED)
 FIND_PACKAGE(wxWidgets REQUIRED)
+
 INCLUDE(${wxWidgets_USE_FILE})
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/include)
 
-include_directories(${PROJECT_SOURCE_DIR}/include)
-
-add_executable( Coherent-Line-Drawing
+ADD_EXECUTABLE(Coherent-Line-Drawing
 "${PROJECT_SOURCE_DIR}/src/main.cpp" 
 "${PROJECT_SOURCE_DIR}/src/ETF.cpp" 
 "${PROJECT_SOURCE_DIR}/src/CLD.cpp" 
@@ -22,4 +20,4 @@ add_executable( Coherent-Line-Drawing
 "${PROJECT_SOURCE_DIR}/include/gui.h" 
 )
 
-target_link_libraries( Coherent-Line-Drawing ${OpenCV_LIBS} ${wxWidgets_LIBRARIES} )
+TARGET_LINK_LIBRARIES(Coherent-Line-Drawing ${OpenCV_LIBS} ${wxWidgets_LIBRARIES})
