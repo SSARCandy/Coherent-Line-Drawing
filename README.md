@@ -1,6 +1,9 @@
 # Coherent Line Drawing
 
-An implementation of 'Coherent Line Drawing' by Kang et al, Proc. NPAR 2007 .
+An implementation of 'Coherent Line Drawing' by Kang et al, Proc. NPAR 2007 . 
+
+- [Original academic paper](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.108.559&rep=rep1&type=pdf)
+- [Introduction in Chinese](https://ssarcandy.tw/2017/06/26/Coherent-Line-Drawing/)
 
 > This paper presents a non-photorealistic rendering technique that
 automatically generates a line drawing from a photograph.
