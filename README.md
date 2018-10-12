@@ -25,7 +25,7 @@ alt="IMAGE ALT TEXT HERE" width="800" border="10" /></a>
 - wxwidget (prefer 3.0 or higher)
 - cmake
 
-### Enviroment
+### Environment
 
 It should work fine in Windows/Linux/MacOS.  
 But I only tested it in Windows and macOS.
