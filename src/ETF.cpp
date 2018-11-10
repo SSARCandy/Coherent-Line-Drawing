@@ -83,7 +83,7 @@ void ETF::computeNewVector(int x, int y, const int kernel) {
 			const Vec3f t_cur_y = flowField.at<Vec3f>(r, c);
 			float phi = computePhi(t_cur_x, t_cur_y);
 			float w_s = computeWs(Point2f(x, y), Point2f(c, r), kernel);
-			float w_m = computeWm(gradientMag.at<float>(y, x), gradientMag.at<float>(r, c));
+			float w_m = computeWm(norm(gradientMag.at<Vec3f>(y, x)), norm(gradientMag.at<float>(r, c)));
 			float w_d = computeWd(t_cur_x, t_cur_y);
 			t_new += phi*t_cur_y*w_s*w_m*w_d;
 		}
