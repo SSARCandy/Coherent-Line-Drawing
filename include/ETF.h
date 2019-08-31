@@ -1,3 +1,6 @@
+#ifndef ETF_H_
+#define ETF_H_
+
 #include <stdio.h>
 #include <opencv2/opencv.hpp>
 
@@ -24,3 +27,5 @@ private:
 	float computeWm(float gradmag_x, float gradmag_y);
 	float computeWd(cv::Vec3f x, cv::Vec3f y);
 };
+
+#endif // ETF_H_

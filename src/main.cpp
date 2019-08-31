@@ -1,6 +1,5 @@
 #include "gui.h"
 
-
 BEGIN_EVENT_TABLE(BasicDrawPane, wxPanel)
 
 END_EVENT_TABLE()

@@ -1,7 +1,7 @@
-#include "gui.h"
 #include <ctime>
 #include <fstream>
 #include <iostream>
+#include "gui.h"
 
 #define MODE_ORIGINIAL_IMAGE "Original Image"
 #define MODE_ETF "ETF"

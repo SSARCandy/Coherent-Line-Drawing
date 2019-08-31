@@ -1,3 +1,6 @@
+#ifndef GUI_H_
+#define GUI_H_
+
 #include "CLD.h"
 #include "postProcessing.h"
 #include <wx/wxprec.h>
@@ -121,3 +124,5 @@ enum {
 	SLIDER_SIGMA_C_T,
 	SLIDER_ETF_KERNEL_T,
 };
+
+#endif // GUI_H_

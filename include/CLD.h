@@ -1,3 +1,6 @@
+#ifndef CLD_H_
+#define CLD_H_
+
 #include <stdio.h>
 #include <opencv2/opencv.hpp>
 #include "ETF.h"
@@ -34,3 +37,5 @@ public:
 	double rho;
 	double tau;
 };
+
+#endif // !CLD_H_
