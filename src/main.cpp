@@ -1,5 +1,6 @@
 #include "gui.h"
 
+// clang-format off
 BEGIN_EVENT_TABLE(BasicDrawPane, wxPanel)
 
 END_EVENT_TABLE()
@@ -33,3 +34,4 @@ wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
 
 wxEND_EVENT_TABLE()
 wxIMPLEMENT_APP(MyApp);
+// clang-format on
