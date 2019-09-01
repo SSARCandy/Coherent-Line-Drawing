@@ -4,15 +4,13 @@
 #include <stdio.h>
 #include <opencv2/opencv.hpp>
 
-using namespace std;
-
 class ETF
 {
 public:
     ETF();
     ETF(cv::Size);
     void Init(cv::Size);
-    void initial_ETF(string, cv::Size);
+    void initial_ETF(std::string, cv::Size);
     void refine_ETF(int kernel);
     void rotateFlow(cv::Mat &src, cv::Mat &dst, float theta);
 

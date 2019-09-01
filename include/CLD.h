@@ -5,8 +5,6 @@
 #include <opencv2/opencv.hpp>
 #include "ETF.h"
 
-using namespace std;
-
 #define M_PI 3.14159265358979323846
 #define SIGMA_RATIO 1.6
 #define STEPSIZE 1.0
@@ -17,7 +15,7 @@ public:
     CLD();
     CLD(cv::Size);
     void init(cv::Size);
-    void readSrc(string);
+    void readSrc(std::string);
     void genCLD();
     void combineImage();
     // Perform eq.(6) on each pixel

@@ -26,7 +26,7 @@ public:
     PP processing;
     cv::Mat dis;
     cv::Mat temp;
-    string processingS;
+    std::string processingS;
     void paintEvent(wxPaintEvent &evt);
     void paintNow(bool);
     void render(wxDC &dc, bool);

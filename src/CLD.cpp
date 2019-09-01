@@ -1,14 +1,12 @@
 #include "CLD.h"
 
-using namespace cv;
-
 // Eq.(8)
 inline double gauss(double x, double mean, double sigma)
 {
     return (exp((-(x - mean) * (x - mean)) / (2 * sigma * sigma)) / sqrt(M_PI * 2.0 * sigma * sigma));
 }
 
-void MakeGaussianVector(double sigma, vector<double> &GAU)
+void MakeGaussianVector(double sigma, std::vector<double> &GAU)
 {
     const double threshold = 0.001;
 
@@ -30,19 +28,19 @@ void MakeGaussianVector(double sigma, vector<double> &GAU)
 
 CLD::CLD()
 {
-    Size s(300, 300);
+    cv::Size s(300, 300);
 
     init(s);
 }
 
-CLD::CLD(Size s) { init(s); }
+CLD::CLD(cv::Size s) { init(s); }
 
-void CLD::init(Size s)
+void CLD::init(cv::Size s)
 {
-    originalImg = Mat::zeros(s, CV_8UC1);
-    result      = Mat::zeros(s, CV_8UC1);
-    DoG         = Mat::zeros(s, CV_32FC1);
-    FDoG        = Mat::zeros(s, CV_32FC1);
+    originalImg = cv::Mat::zeros(s, CV_8UC1);
+    result      = cv::Mat::zeros(s, CV_8UC1);
+    DoG         = cv::Mat::zeros(s, CV_32FC1);
+    FDoG        = cv::Mat::zeros(s, CV_32FC1);
 
     etf.Init(s);
 
@@ -52,13 +50,13 @@ void CLD::init(Size s)
     tau     = 0.8;
 }
 
-void CLD::readSrc(string file)
+void CLD::readSrc(std::string file)
 {
-    originalImg = imread(file, CV_LOAD_IMAGE_GRAYSCALE);
+    originalImg = cv::imread(file, CV_LOAD_IMAGE_GRAYSCALE);
 
-    result = Mat::zeros(Size(originalImg.cols, originalImg.rows), CV_8UC1);
-    DoG    = Mat::zeros(Size(originalImg.cols, originalImg.rows), CV_32FC1);
-    FDoG   = Mat::zeros(Size(originalImg.cols, originalImg.rows), CV_32FC1);
+    result = cv::Mat::zeros(cv::Size(originalImg.cols, originalImg.rows), CV_8UC1);
+    DoG    = cv::Mat::zeros(cv::Size(originalImg.cols, originalImg.rows), CV_32FC1);
+    FDoG   = cv::Mat::zeros(cv::Size(originalImg.cols, originalImg.rows), CV_32FC1);
 
     etf.initial_ETF(file, originalImg.size());
     //genCLD();
@@ -67,7 +65,7 @@ void CLD::readSrc(string file)
 
 void CLD::genCLD()
 {
-    Mat originalImg_32FC1 = Mat::zeros(Size(originalImg.cols, originalImg.rows), CV_32FC1);
+    cv::Mat originalImg_32FC1 = cv::Mat::zeros(cv::Size(originalImg.cols, originalImg.rows), CV_32FC1);
     originalImg.convertTo(originalImg_32FC1, CV_32FC1, 1.0 / 255.0);
 
     gradientDoG(originalImg_32FC1, DoG, this->rho, this->sigma_c);
@@ -80,9 +78,9 @@ void CLD::genCLD()
 /**
  * Flow-based DoG filtering
  */
-void CLD::flowDoG(Mat &src, Mat &dst, const double sigma_m)
+void CLD::flowDoG(cv::Mat &src, cv::Mat &dst, const double sigma_m)
 {
-    vector<double> gau_m;
+    std::vector<double> gau_m;
     MakeGaussianVector(sigma_m, gau_m);
 
     const int img_w       = src.cols;
@@ -98,11 +96,11 @@ void CLD::flowDoG(Mat &src, Mat &dst, const double sigma_m)
             double gau_m_weight_acc = -gau_m[0];
 
             // Intergral alone ETF
-            Point2f pos(x, y);
+            cv::Point2f pos(x, y);
             for (int step = 0; step < kernel_half; step++)
             {
-                Vec3f tmp         = etf.flowField.at<Vec3f>((int)round(pos.y), (int)round(pos.x));
-                Point2f direction = Point2f(tmp[1], tmp[0]);
+                cv::Vec3f tmp         = etf.flowField.at<cv::Vec3f>((int)round(pos.y), (int)round(pos.x));
+                cv::Point2f direction = cv::Point2f(tmp[1], tmp[0]);
 
                 if (direction.x == 0 && direction.y == 0) break;
                 if (pos.x > (double)img_w - 1 || pos.x < 0.0 || pos.y > (double)img_h - 1 || pos.y < 0.0) break;
@@ -122,11 +120,11 @@ void CLD::flowDoG(Mat &src, Mat &dst, const double sigma_m)
             }
 
             // Intergral alone inverse ETF
-            pos = Point2f(x, y);
+            pos = cv::Point2f(x, y);
             for (int step = 0; step < kernel_half; step++)
             {
-                Vec3f tmp         = -etf.flowField.at<Vec3f>((int)round(pos.y), (int)round(pos.x));
-                Point2f direction = Point2f(tmp[1], tmp[0]);
+                cv::Vec3f tmp         = -etf.flowField.at<cv::Vec3f>((int)round(pos.y), (int)round(pos.x));
+                cv::Point2f direction = cv::Point2f(tmp[1], tmp[0]);
 
                 if (direction.x == 0 && direction.y == 0) break;
                 if (pos.x > (double)img_w - 1 || pos.x < 0.0 || pos.y > (double)img_h - 1 || pos.y < 0.0) break;
@@ -150,13 +148,13 @@ void CLD::flowDoG(Mat &src, Mat &dst, const double sigma_m)
         }
     }
 
-    normalize(dst, dst, 0, 1, NORM_MINMAX);
+    cv::normalize(dst, dst, 0, 1, cv::NORM_MINMAX);
 }
 
-void CLD::gradientDoG(Mat &src, Mat &dst, const double rho, const double sigma_c)
+void CLD::gradientDoG(cv::Mat &src, cv::Mat &dst, const double rho, const double sigma_c)
 {
     const double sigma_s = SIGMA_RATIO * sigma_c;
-    vector<double> gau_c, gau_s;
+    std::vector<double> gau_c, gau_s;
     MakeGaussianVector(sigma_c, gau_c);
     MakeGaussianVector(sigma_s, gau_s);
 
@@ -171,8 +169,8 @@ void CLD::gradientDoG(Mat &src, Mat &dst, const double rho, const double sigma_c
             double gau_s_acc        = 0;
             double gau_c_weight_acc = 0;
             double gau_s_weight_acc = 0;
-            Vec3f tmp               = etf.flowField.at<Vec3f>(y, x);
-            Point2f gradient        = Point2f(-tmp[0], tmp[1]);
+            cv::Vec3f tmp           = etf.flowField.at<cv::Vec3f>(y, x);
+            cv::Point2f gradient    = cv::Point2f(-tmp[0], tmp[1]);
 
             if (gradient.x == 0 && gradient.y == 0) continue;
 
@@ -202,7 +200,7 @@ void CLD::gradientDoG(Mat &src, Mat &dst, const double rho, const double sigma_c
     }
 }
 
-void CLD::binaryThresholding(Mat &src, Mat &dst, const double tau)
+void CLD::binaryThresholding(cv::Mat &src, cv::Mat &dst, const double tau)
 {
 #pragma omp parallel for
     for (int y = 0; y < dst.rows; y++)
@@ -238,5 +236,5 @@ void CLD::combineImage()
     }
 
     // Blur a little-bit to let image more smooth
-    GaussianBlur(originalImg, originalImg, Size(3, 3), 0, 0);
+    cv::GaussianBlur(originalImg, originalImg, cv::Size(3, 3), 0, 0);
 }

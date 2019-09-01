@@ -4,8 +4,6 @@
 #include <stdio.h>
 #include <opencv2/opencv.hpp>
 
-using namespace std;
-
 #define M_PI 3.14159265358979323846
 
 class PP
