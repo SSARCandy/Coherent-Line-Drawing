@@ -1,0 +1,65 @@
+#!/bin/bash
+
+PROGNAME=${0##*/}
+
+CURDIR="$( cd "$(dirname "$0")" ; pwd -P )"
+BUILD_TYPE="Release"
+BUILD_DIR="build"
+CORES="$(nproc --all)"
+JOBS=$(( CORES / 2 ))
+
+usage() {
+
+cat <<EOF
+
+  Usage: $PROGNAME [options]
+
+  Options:
+
+    -h, --help        Display this help and exit
+    -c, --clean       Clean build
+    -d, --debug       Build with debug mode
+    -j, --jobs        Allow N jobs at once
+
+EOF
+}
+
+clean() {
+    rm -rf "$BUILD_DIR"
+}
+
+
+while (( "$#" )); do
+    case "$1" in
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        -j|--jobs)
+            JOBS="$2"
+            shift 2
+            ;;
+        -d|--debug)
+            BUILD_TYPE="Debug"
+            shift
+            ;;
+        -c|--clean)
+            clean
+            shift
+            ;;
+        -*|--*=)
+            echo "Invalid arguments"
+            exit 1
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+BUILD_OPTIONS="-DCMAKE_BUILD_TYPE=${BUILD_TYPE}"
+mkdir -p "${BUILD_DIR}" && cd "${BUILD_DIR}"
+cmake .. ${BUILD_OPTIONS}
+make -j "${JOBS}"
+
+cd "$CURDIR"
