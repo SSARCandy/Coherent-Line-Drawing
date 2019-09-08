@@ -19,7 +19,7 @@ cat <<EOF
     -h, --help        Display this help and exit
     -c, --clean       Clean build
     -d, --debug       Build with debug mode
-    -j, --jobs        Allow N jobs at once
+    -j, --jobs        Use N cores to build
 
 EOF
 }
