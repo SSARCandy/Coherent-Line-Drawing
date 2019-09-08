@@ -16,10 +16,10 @@ elif command -v diff > /dev/null; then
 	DIFF_EXE=$(command -v diff)
 fi
 
-if command -v clang-format-3.8 > /dev/null; then
-	CLANG_FORMATTER=$(command -v clang-format-3.8)
+if command -v clang-format > /dev/null; then
+	CLANG_FORMATTER=$(command -v clang-format)
 else
-	echo -e "Missing clang-format, please install it with: \n    ${COLOR_BLUE}sudo apt-get install clang-format-3.8${COLOR_REST}"
+	echo -e "Missing clang-format, please install it with: \n    ${COLOR_BLUE}sudo apt-get install clang-format${COLOR_REST}"
 	exit 1
 fi
 

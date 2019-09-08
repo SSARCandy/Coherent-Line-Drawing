@@ -26,13 +26,13 @@ void PP::ETF(cv::Mat &flowfield, cv::Mat &dis)
             float y     = j;
             for (int k = 0; k < s; k++)
             {
-                cv::Vec3f v      = normalize(flowfield.at<cv::Vec3f>(int(x + nRows) % nRows, int(y + nCols) % nCols));
+                cv::Vec3f v = normalize(flowfield.at<cv::Vec3f>(int(x + nRows) % nRows, int(y + nCols) % nCols));
                 if (v[0] != 0) x = x + (abs(v[0]) / float(abs(v[0]) + abs(v[1]))) * (abs(v[0]) / v[0]);
                 if (v[1] != 0) y = y + (abs(v[1]) / float(abs(v[0]) + abs(v[1]))) * (abs(v[1]) / v[1]);
-                float r2         = k * k;
-                float w          = (1 / (M_PI * sigma)) * exp(-(r2) / sigma);
-                int xx           = (int(x) + nRows) % nRows;
-                int yy           = (int(y) + nCols) % nCols;
+                float r2 = k * k;
+                float w  = (1 / (M_PI * sigma)) * exp(-(r2) / sigma);
+                int xx   = (int(x) + nRows) % nRows;
+                int yy   = (int(y) + nCols) % nCols;
                 dis.at<float>(i, j) += w * noise.at<float>(xx, yy);
                 w_sum += w;
             }
@@ -41,7 +41,7 @@ void PP::ETF(cv::Mat &flowfield, cv::Mat &dis)
             y = j;
             for (int k = 0; k < s; k++)
             {
-                cv::Vec3f v      = -normalize(flowfield.at<cv::Vec3f>(int(x + nRows) % nRows, int(y + nCols) % nCols));
+                cv::Vec3f v = -normalize(flowfield.at<cv::Vec3f>(int(x + nRows) % nRows, int(y + nCols) % nCols));
                 if (v[0] != 0) x = x + (abs(v[0]) / float(abs(v[0]) + abs(v[1]))) * (abs(v[0]) / v[0]);
                 if (v[1] != 0) y = y + (abs(v[1]) / float(abs(v[0]) + abs(v[1]))) * (abs(v[1]) / v[1]);
 

@@ -129,9 +129,9 @@ void ETF::rotateFlow(cv::Mat &src, cv::Mat &dst, float theta)
     {
         for (int j = 0; j < src.cols; j++)
         {
-            cv::Vec3f v = src.at<cv::Vec3f>(i, j);
-            float rx    = v[0] * cos(theta) - v[1] * sin(theta);
-            float ry    = v[1] * cos(theta) + v[0] * sin(theta);
+            cv::Vec3f v             = src.at<cv::Vec3f>(i, j);
+            float rx                = v[0] * cos(theta) - v[1] * sin(theta);
+            float ry                = v[1] * cos(theta) + v[0] * sin(theta);
             dst.at<cv::Vec3f>(i, j) = cv::Vec3f(rx, ry, 0.0);
         }
     }

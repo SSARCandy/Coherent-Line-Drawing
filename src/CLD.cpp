@@ -193,8 +193,8 @@ void CLD::gradientDoG(cv::Mat &src, cv::Mat &dst, const double rho, const double
                 gau_s_weight_acc += gau_s_weight;
             }
 
-            double v_c = gau_c_acc / gau_c_weight_acc;
-            double v_s = gau_s_acc / gau_s_weight_acc;
+            double v_c          = gau_c_acc / gau_c_weight_acc;
+            double v_s          = gau_s_acc / gau_s_weight_acc;
             dst.at<float>(y, x) = v_c - rho * v_s;
         }
     }
