@@ -5,8 +5,8 @@ sudo: true
 
 install:
   - sudo apt-get install libopencv-dev
-  - sudo apt-cache search libwxgt*
-  - sudo apt-get install clang-format
+  - sudo apt install libwxgtk3.0-dev libwxgtk3.0-dbg
+  - sudo apt-get install clang-format colordiff
 
 script:
   - ./linter.sh
