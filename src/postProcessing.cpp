@@ -1,3 +1,4 @@
+#include <opencv2/opencv.hpp>
 #include "postProcessing.h"
 
 PP::PP(cv::Size s) {}
@@ -10,10 +11,10 @@ void PP::ETF(cv::Mat &flowfield, cv::Mat &dis)
     randu(noise, 0, 1.0f);
     resize(noise, noise, flowfield.size(), 0, 0, cv::INTER_NEAREST);
 
-    int s       = 10;
-    int nRows   = noise.rows;
-    int nCols   = noise.cols;
-    float sigma = 2 * s * s;
+    constexpr int s       = 10;
+    constexpr float sigma = 2 * s * s;
+    const int nRows       = noise.rows;
+    const int nCols       = noise.cols;
 
 
 #pragma omp parallel for
@@ -29,10 +30,10 @@ void PP::ETF(cv::Mat &flowfield, cv::Mat &dis)
                 cv::Vec3f v = cv::normalize(flowfield.at<cv::Vec3f>(int(x + nRows) % nRows, int(y + nCols) % nCols));
                 if (v[0] != 0) x = x + (abs(v[0]) / float(abs(v[0]) + abs(v[1]))) * (abs(v[0]) / v[0]);
                 if (v[1] != 0) y = y + (abs(v[1]) / float(abs(v[0]) + abs(v[1]))) * (abs(v[1]) / v[1]);
-                float r2 = k * k;
-                float w  = (1 / (M_PI * sigma)) * exp(-(r2) / sigma);
-                int xx   = (int(x) + nRows) % nRows;
-                int yy   = (int(y) + nCols) % nCols;
+                const float r2 = k * k;
+                const float w  = (1 / (M_PI * sigma)) * exp(-(r2) / sigma);
+                int xx         = (int(x) + nRows) % nRows;
+                int yy         = (int(y) + nCols) % nCols;
                 dis.at<float>(i, j) += w * noise.at<float>(xx, yy);
                 w_sum += w;
             }
@@ -41,12 +42,12 @@ void PP::ETF(cv::Mat &flowfield, cv::Mat &dis)
             y = j;
             for (int k = 0; k < s; k++)
             {
-                cv::Vec3f v = -normalize(flowfield.at<cv::Vec3f>(int(x + nRows) % nRows, int(y + nCols) % nCols));
+                cv::Vec3f v = -cv::normalize(flowfield.at<cv::Vec3f>(int(x + nRows) % nRows, int(y + nCols) % nCols));
                 if (v[0] != 0) x = x + (abs(v[0]) / float(abs(v[0]) + abs(v[1]))) * (abs(v[0]) / v[0]);
                 if (v[1] != 0) y = y + (abs(v[1]) / float(abs(v[0]) + abs(v[1]))) * (abs(v[1]) / v[1]);
 
-                float r2 = k * k;
-                float w  = (1 / (M_PI * sigma)) * exp(-(r2) / sigma);
+                const float r2 = k * k;
+                const float w  = (1 / (M_PI * sigma)) * exp(-(r2) / sigma);
                 dis.at<float>(i, j) += w * noise.at<float>(int(x + nRows) % nRows, int(y + nCols) % nCols);
                 w_sum += w;
             }
@@ -58,7 +59,7 @@ void PP::ETF(cv::Mat &flowfield, cv::Mat &dis)
 // visualize ETF by drawing red arrowline
 void PP::FlowField(cv::Mat &flowfield, cv::Mat &dis)
 {
-    const int resolution = 10;
+    constexpr int resolution = 10;
 
     for (int i = 0; i < dis.rows; i += resolution)
     {
@@ -75,7 +76,7 @@ void PP::FlowField(cv::Mat &flowfield, cv::Mat &dis)
 
 void PP::AntiAlias(cv::Mat &src, cv::Mat &dst)
 {
-    const int BLUR_SIZE = 3;
+    constexpr int BLUR_SIZE = 3;
 
     normalize(src, dst, 60, 255, cv::NORM_MINMAX);
     GaussianBlur(dst, dst, cv::Size(BLUR_SIZE, BLUR_SIZE), 0, 0);

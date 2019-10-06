@@ -1,7 +1,6 @@
 #ifndef CLD_H_
 #define CLD_H_
 
-#include <stdio.h>
 #include <opencv2/opencv.hpp>
 #include "ETF.h"
 
@@ -35,6 +34,9 @@ public:
     double sigma_m;
     double rho;
     double tau;
+
+private:
+    cv::Size s;
 };
 
 #endif // !CLD_H_

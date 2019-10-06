@@ -1,20 +1,24 @@
-﻿#include "ETF.h"
+﻿#include <opencv2/opencv.hpp>
+#include "ETF.h"
+
 #define M_PI 3.14159265358979323846
 
 ETF::ETF()
+    : s{cv::Size(300, 300)}
+    , flowField{cv::Mat::zeros(s, CV_32FC3)}
+    , refinedETF{cv::Mat::zeros(s, CV_32FC3)}
+    , gradientMag{cv::Mat::zeros(s, CV_32FC3)}
 {
-    cv::Size s(300, 300);
-
-    Init(s);
+    ;
 }
 
-ETF::ETF(cv::Size s) { Init(s); }
-
-void ETF::Init(cv::Size s)
+ETF::ETF(cv::Size s)
+    : s{s}
+    , flowField{cv::Mat::zeros(s, CV_32FC3)}
+    , refinedETF{cv::Mat::zeros(s, CV_32FC3)}
+    , gradientMag{cv::Mat::zeros(s, CV_32FC3)}
 {
-    flowField   = cv::Mat::zeros(s, CV_32FC3);
-    refinedETF  = cv::Mat::zeros(s, CV_32FC3);
-    gradientMag = cv::Mat::zeros(s, CV_32FC3);
+    ;
 }
 
 /**

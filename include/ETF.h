@@ -1,7 +1,6 @@
 #ifndef ETF_H_
 #define ETF_H_
 
-#include <stdio.h>
 #include <opencv2/opencv.hpp>
 
 class ETF
@@ -9,7 +8,6 @@ class ETF
 public:
     ETF();
     ETF(cv::Size);
-    void Init(cv::Size);
     void initial_ETF(std::string, cv::Size);
     void refine_ETF(int kernel);
     void rotateFlow(cv::Mat &src, cv::Mat &dst, float theta);
@@ -25,6 +23,8 @@ private:
     float computeWs(cv::Point2f x, cv::Point2f y, int r);
     float computeWm(float gradmag_x, float gradmag_y);
     float computeWd(cv::Vec3f x, cv::Vec3f y);
+
+    cv::Size s;
 };
 
 #endif // ETF_H_
