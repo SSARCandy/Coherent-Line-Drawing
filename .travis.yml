@@ -1,11 +1,13 @@
 language: cpp
 compiler: gcc
 dist: bionic
+sudo: true
 
 install:
-  - apt-get install libopencv-dev
+  - sudo apt-get install libopencv-dev
   - sudo apt-cache search libwxgt*
-  
+  - sudo apt-get install clang-format
 
 script:
-- ./build.sh
+  - ./linter.sh
+  - ./build.sh
