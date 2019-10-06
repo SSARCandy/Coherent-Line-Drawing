@@ -25,10 +25,18 @@ alt="IMAGE ALT TEXT HERE" width="800" border="10" /></a>
 - wxwidget (prefer 3.0 or higher)
 - cmake
 
-### Environment
-
 It should work fine in Windows/Linux/MacOS.  
-But I only tested it in Windows and macOS.
+I provided a build script that can use in Linux:
+
+```sh
+#   Usage: build.sh [options]
+#   Options:
+#     -h, --help        Display this help and exit
+#     -c, --clean       Clean build
+#     -d, --debug       Build with debug mode
+#     -j, --jobs        Use N cores to build
+$ ./build.sh
+```
 
 ### Pre-Build Version
 
