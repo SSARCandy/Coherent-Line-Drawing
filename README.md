@@ -1,5 +1,7 @@
 # Coherent Line Drawing
 
+[![Build Status](https://travis-ci.org/SSARCandy/Coherent-Line-Drawing.svg?branch=master)](https://travis-ci.org/SSARCandy/Coherent-Line-Drawing)
+
 An implementation of 'Coherent Line Drawing' by Kang et al, Proc. NPAR 2007 . 
 
 - [Original academic paper](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.108.559&rep=rep1&type=pdf)
