@@ -4,13 +4,11 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/SSARCandy/Coherent-Line-Drawing/blob/master/LICENSE)
 
 
-An implementation of 'Coherent Line Drawing' by Kang et al, Proc. NPAR 2007 . 
+This project implemented a non-photorealistic rendering technique presented by Kang et al, that can automatically generates a line drawing from a photograph. This project provide an easy-to-use, real-time interactive graphic user interface system.
+
 
 - [Original academic paper](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.108.559&rep=rep1&type=pdf)
 - [Introduction in Chinese](https://ssarcandy.tw/2017/06/26/Coherent-Line-Drawing/)
-
-> This paper presents a non-photorealistic rendering technique that
-automatically generates a line drawing from a photograph.
 
 ![demo](./demo/4.JPG)
 
