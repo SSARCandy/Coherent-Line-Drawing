@@ -59,7 +59,9 @@ done
 
 BUILD_OPTIONS="-DCMAKE_BUILD_TYPE=${BUILD_TYPE}"
 mkdir -p "${BUILD_DIR}" && cd "${BUILD_DIR}"
-cmake .. ${BUILD_OPTIONS}
-make -j "${JOBS}"
-
-cd "$CURDIR"
+if cmake .. ${BUILD_OPTIONS}; then
+    make -j "${JOBS}" && cd "$CURDIR"
+else
+    cd "$CURDIR"
+    exit 1
+fi

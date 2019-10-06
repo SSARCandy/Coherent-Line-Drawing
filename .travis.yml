@@ -1,0 +1,13 @@
+language: cpp
+compiler: gcc
+dist: bionic
+sudo: true
+
+install:
+  - sudo apt-get install libopencv-dev
+  - sudo apt install libwxgtk3.0-dev
+  - sudo apt-get install clang-format colordiff
+
+script:
+  - ./linter.sh
+  - ./build.sh
