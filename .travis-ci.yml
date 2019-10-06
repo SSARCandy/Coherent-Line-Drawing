@@ -1,0 +1,5 @@
+language: cpp
+compiler: gcc
+
+script:
+- ./build.sh
