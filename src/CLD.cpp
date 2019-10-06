@@ -1,3 +1,4 @@
+#include <opencv2/opencv.hpp>
 #include "CLD.h"
 
 // Eq.(8)
@@ -8,10 +9,10 @@ inline double gauss(double x, double mean, double sigma)
 
 void MakeGaussianVector(double sigma, std::vector<double> &GAU)
 {
-    const double threshold = 0.001;
+    constexpr double threshold = 0.001;
 
     int i = 0;
-    while (1)
+    while (true)
     {
         i++;
         if (gauss((double)i, 0.0, sigma) < threshold) break;
@@ -29,7 +30,6 @@ void MakeGaussianVector(double sigma, std::vector<double> &GAU)
 CLD::CLD()
 {
     cv::Size s(300, 300);
-
     init(s);
 }
 
@@ -41,8 +41,7 @@ void CLD::init(cv::Size s)
     result      = cv::Mat::zeros(s, CV_8UC1);
     DoG         = cv::Mat::zeros(s, CV_32FC1);
     FDoG        = cv::Mat::zeros(s, CV_32FC1);
-
-    etf.Init(s);
+    etf         = ETF(s);
 
     sigma_m = 3.0;
     sigma_c = 1.0;
@@ -207,8 +206,8 @@ void CLD::binaryThresholding(cv::Mat &src, cv::Mat &dst, const double tau)
     {
         for (int x = 0; x < dst.cols; x++)
         {
-            float H = src.at<float>(y, x);
-            int v   = H < tau ? 0 : 255;
+            const float H = src.at<float>(y, x);
+            const int v   = H < tau ? 0 : 255;
 
             dst.at<uchar>(y, x) = v;
         }
@@ -226,7 +225,7 @@ void CLD::combineImage()
     {
         for (int x = 0; x < originalImg.cols; x++)
         {
-            float H = result.at<uchar>(y, x);
+            const float H = result.at<uchar>(y, x);
 
             if (H == 0)
             {
