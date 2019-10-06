@@ -1,6 +1,8 @@
 # Coherent Line Drawing
 
 [![Build Status](https://travis-ci.org/SSARCandy/Coherent-Line-Drawing.svg?branch=master)](https://travis-ci.org/SSARCandy/Coherent-Line-Drawing)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/SSARCandy/Coherent-Line-Drawing/blob/master/LICENSE)
+
 
 An implementation of 'Coherent Line Drawing' by Kang et al, Proc. NPAR 2007 . 
 
@@ -28,16 +30,21 @@ alt="IMAGE ALT TEXT HERE" width="800" border="10" /></a>
 - cmake
 
 It should work fine in Windows/Linux/MacOS.  
-I provided a build script that can use in Linux:
+I provided some scripts that can use in Linux:
 
 ```sh
-#   Usage: build.sh [options]
-#   Options:
-#     -h, --help        Display this help and exit
-#     -c, --clean       Clean build
-#     -d, --debug       Build with debug mode
-#     -j, --jobs        Use N cores to build
+# Usage: build.sh [options]
+# Options:
+#   -c, --clean       Clean build
+#   -d, --debug       Build with debug mode
+#   -j, --jobs        Use N cores to build
 $ ./build.sh
+
+# Usage: linter.sh [options]
+# Check code style
+# Options:
+#   -i                In-place format
+$ ./linter.sh
 ```
 
 ### Pre-Build Version
