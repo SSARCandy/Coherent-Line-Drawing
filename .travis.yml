@@ -5,7 +5,7 @@ sudo: true
 
 install:
   - sudo apt-get install libopencv-dev
-  - sudo apt install libwxgtk3.0-dev libwxgtk3.0-dbg
+  - sudo apt install libwxgtk3.0-dev
   - sudo apt-get install clang-format colordiff
 
 script:
