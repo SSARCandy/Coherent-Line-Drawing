@@ -1,5 +1,11 @@
 language: cpp
 compiler: gcc
+dist: bionic
+
+install:
+  - apt-get install libopencv-dev
+  - sudo apt-cache search libwxgt*
+  
 
 script:
 - ./build.sh
