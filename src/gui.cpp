@@ -135,28 +135,28 @@ MyFrame::MyFrame(const wxString &title, const wxPoint &pos, const wxSize &size)
         new wxStaticBox(controlpanel, -1, wxT("Line Parameters"), wxDefaultPosition, wxDefaultSize, wxTE_RICH2);
     wxStaticBoxSizer *st_paint_sizer = new wxStaticBoxSizer(st_paint, wxVERTICAL);
 
-    s.Printf("Noise(rho) : %.3f", drawPane->cld.rho);
+    s.Printf("Noise (rho) : %.3f", drawPane->cld.rho);
     slider_rho_t = new wxStaticText(controlpanel, SLIDER_RHO_T, s, wxDefaultPosition, wxDefaultSize, 0);
     st_paint_sizer->Add(slider_rho_t, 0, wxEXPAND | wxLEFT, 10);
     slider_rho = new wxSlider(
         controlpanel, SLIDER_RHO, int(drawPane->cld.rho * 10000), 9000, 10000, wxDefaultPosition, wxDefaultSize, 0);
     st_paint_sizer->Add(slider_rho, 0, wxEXPAND | wxLEFT, 10);
 
-    s.Printf("Degree of coherence(sigma_m): %.3f", drawPane->cld.sigma_m);
+    s.Printf("Degree of coherence (sigma_m): %.3f", drawPane->cld.sigma_m);
     slider_sigma1_t = new wxStaticText(controlpanel, SLIDER_SIGMA_M_T, s, wxDefaultPosition, wxDefaultSize, 0);
     st_paint_sizer->Add(slider_sigma1_t, 0, wxEXPAND | wxLEFT, 10);
     slider_sigma1 = new wxSlider(controlpanel, SLIDER_SIGMA_M, int(drawPane->cld.sigma_m * 1000), 10, 10000,
         wxDefaultPosition, wxDefaultSize, 0);
     st_paint_sizer->Add(slider_sigma1, 0, wxEXPAND | wxLEFT, 10);
 
-    s.Printf("Line width(sigma_c): %.3f", drawPane->cld.sigma_c);
+    s.Printf("Line width (sigma_c): %.3f", drawPane->cld.sigma_c);
     slider_sigma2_t = new wxStaticText(controlpanel, SLIDER_SIGMA_C_T, s, wxDefaultPosition, wxDefaultSize, 0);
     st_paint_sizer->Add(slider_sigma2_t, 0, wxEXPAND | wxLEFT, 10);
     slider_sigma2 = new wxSlider(controlpanel, SLIDER_SIGMA_C, int(drawPane->cld.sigma_c * 1000), 10, 10000,
         wxDefaultPosition, wxDefaultSize, 0);
     st_paint_sizer->Add(slider_sigma2, 0, wxEXPAND | wxLEFT, 10);
 
-    s.Printf("Thresholding(tau) : %.3f", drawPane->cld.tau);
+    s.Printf("Thresholding (tau) : %.3f", drawPane->cld.tau);
     slider_t_t = new wxStaticText(controlpanel, SLIDER_TAU_T, s, wxDefaultPosition, wxDefaultSize, 0);
     st_paint_sizer->Add(slider_t_t, 0, wxEXPAND | wxLEFT, 10);
     slider_t = new wxSlider(
@@ -188,8 +188,8 @@ MyFrame::MyFrame(const wxString &title, const wxPoint &pos, const wxSize &size)
 void MyFrame::OnExit(wxCommandEvent &event) { Close(true); }
 void MyFrame::OnAbout(wxCommandEvent &event)
 {
-    wxMessageBox("Coherent Line Drawing\n\nProgramed by HSU,SHU-HSUAN(National Taiwan University)\n\nThis is an "
-                 "implementation of 'Coherent Line Drawing' by Kang et al, Proc. NPAR 2007 .",
+    wxMessageBox("Coherent Line Drawing\n\nProgramed by HSU,SHU-HSUAN (https://ssarcandy.tw/)\n\n"
+                 "This is an implementation of 'Coherent Line Drawing' by Kang et al, Proc. NPAR 2007 .",
         "About Coherent Line Drawing", wxOK | wxICON_INFORMATION);
 }
 void MyFrame::OnToggleLog(wxCommandEvent &event)

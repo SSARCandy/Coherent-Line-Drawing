@@ -3,10 +3,32 @@
 #include "CLD.h"
 #include "postProcessing.h"
 
+void print_parameters(const boost::program_options::variables_map &vm)
+{
+    // clang-format off
+    std::cout << "Source image path = " << vm["src"].as<std::string>() << std::endl;
+    std::cout << "Output image path = " << vm["output"].as<std::string>() << std::endl;
+
+    std::cout << "[ETF] Parameters\n"
+              << "  kernel size = " << vm["ETF_kernel"].as<int>() << "\n"
+              << "  iteration = " << vm["ETF_iter"].as<int>() << "\n"
+              << std::endl;
+
+    std::cout << "[CLD] Parameters\n"
+              << "  iteration = " << vm["CLD_iter"].as<int>() << "\n"
+              << "  sigma_c = " << vm["sigma_c"].as<float>() << "\n"
+              << "  sigma_m = " << vm["sigma_m"].as<float>() << "\n"
+              << "  rho = " << vm["rho"].as<float>() << "\n"
+              << "  tau = " << vm["tau"].as<float>() << "\n"
+              << std::endl;
+    // clang-format on
+}
+
 int main(int argc, char *argv[])
 {
     std::string src_path, output_path;
-    int ETF_iter = 1, CLD_iter = 1, ETF_kernel = 5;
+    int ETF_iter, CLD_iter, ETF_kernel;
+    float sigma_c, sigma_m, rho, tau;
 
     // clang-format off
     boost::program_options::options_description description("Coherent-Line-Drawing Options");
@@ -14,9 +36,13 @@ int main(int argc, char *argv[])
         ("help,h", "Help message")
         ("src,s", boost::program_options::value<std::string>(&src_path)->required(), "Source image path")
         ("output,o", boost::program_options::value<std::string>(&output_path)->required(), "Output image path")
-        ("ETF_kernel", boost::program_options::value<int>(&ETF_kernel), "ETF kernel size, default kernel size = 5")
-        ("ETF_iter", boost::program_options::value<int>(&ETF_iter), "Refining n times ETF, default is 1 iteration")
-        ("CLD_iter", boost::program_options::value<int>(&CLD_iter), "Iterate n times FDoG, default is 1 iteration");
+        ("ETF_kernel", boost::program_options::value<int>(&ETF_kernel)->default_value(5), "ETF kernel size")
+        ("ETF_iter", boost::program_options::value<int>(&ETF_iter)->default_value(1), "Refining n times ETF")
+        ("CLD_iter", boost::program_options::value<int>(&CLD_iter)->default_value(1), "Iterate n times FDoG")
+        ("sigma_c", boost::program_options::value<float>(&sigma_c)->default_value(1.0), "Line width")
+        ("sigma_m", boost::program_options::value<float>(&sigma_m)->default_value(3.0), "Degree of coherence")
+        ("rho", boost::program_options::value<float>(&rho)->default_value(0.997), "Noise")
+        ("tau", boost::program_options::value<float>(&tau)->default_value(0.8), "Thresholding");
     // clang-format on
 
     try {
@@ -28,18 +54,17 @@ int main(int argc, char *argv[])
             return 0;
         }
         boost::program_options::notify(vm);
+        print_parameters(vm);
     } catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
         return 1;
     }
 
-    std::cout << "Source image path = " << src_path << std::endl;
-    std::cout << "Output image path = " << output_path << std::endl;
-    std::cout << "ETF kernel size = " << ETF_kernel << std::endl;
-    std::cout << "ETF iteration = " << ETF_iter << std::endl;
-    std::cout << "CLD iteration = " << CLD_iter << std::endl;
-
     CLD cld;
+    cld.sigma_c = sigma_c;
+    cld.sigma_m = sigma_m;
+    cld.tau     = tau;
+    cld.rho     = rho;
     cld.readSrc(src_path);
 
     // Performing ETF refinement
@@ -58,4 +83,7 @@ int main(int argc, char *argv[])
 
     cv::cvtColor(cld.result, cld.result, CV_GRAY2RGB);
     cv::imwrite(output_path, cld.result);
+    std::cout << "Result image save at " << output_path << std::endl;
+
+    return 0;
 }
