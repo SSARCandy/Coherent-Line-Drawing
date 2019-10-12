@@ -12,17 +12,13 @@ class CLD
 {
 public:
     CLD();
-    CLD(cv::Size);
-    void init(cv::Size);
-    void readSrc(std::string);
+    CLD(const cv::Size);
+    void init(const cv::Size);
+    void readSrc(const std::string);
     void genCLD();
     void combineImage();
-    // Perform eq.(6) on each pixel
-    void gradientDoG(cv::Mat &src, cv::Mat &dst, const double rho, const double sigma_c);
-    // Perform eq.(9) on each pixel
-    void flowDoG(cv::Mat &src, cv::Mat &dst, const double sigma_m);
     // eq.(10)
-    void binaryThresholding(cv::Mat &src, cv::Mat &dst, const double tau);
+    void binaryThresholding(const cv::Mat &src, cv::Mat &dst, const double tau);
 
     cv::Mat originalImg;
     cv::Mat DoG;
@@ -36,7 +32,10 @@ public:
     double tau;
 
 private:
-    cv::Size s;
+    // Perform eq.(6) on each pixel
+    void gradientDoG(const cv::Mat &src, cv::Mat &dst, const double rho, const double sigma_c);
+    // Perform eq.(9) on each pixel
+    void flowDoG(const cv::Mat &src, cv::Mat &dst, const double sigma_m);
 };
 
 #endif // !CLD_H_

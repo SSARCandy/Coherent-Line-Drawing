@@ -31,9 +31,9 @@ CLD::CLD()
     init(s);
 }
 
-CLD::CLD(cv::Size s) { init(s); }
+CLD::CLD(const cv::Size s) { init(s); }
 
-void CLD::init(cv::Size s)
+void CLD::init(const cv::Size s)
 {
     originalImg = cv::Mat::zeros(s, CV_8UC1);
     result      = cv::Mat::zeros(s, CV_8UC1);
@@ -47,7 +47,7 @@ void CLD::init(cv::Size s)
     tau     = 0.8;
 }
 
-void CLD::readSrc(std::string file)
+void CLD::readSrc(const std::string file)
 {
     originalImg = cv::imread(file, CV_LOAD_IMAGE_GRAYSCALE);
 
@@ -75,7 +75,7 @@ void CLD::genCLD()
 /**
  * Flow-based DoG filtering
  */
-void CLD::flowDoG(cv::Mat &src, cv::Mat &dst, const double sigma_m)
+void CLD::flowDoG(const cv::Mat &src, cv::Mat &dst, const double sigma_m)
 {
     std::vector<double> gau_m;
     MakeGaussianVector(sigma_m, gau_m);
@@ -144,7 +144,7 @@ void CLD::flowDoG(cv::Mat &src, cv::Mat &dst, const double sigma_m)
     cv::normalize(dst, dst, 0, 1, cv::NORM_MINMAX);
 }
 
-void CLD::gradientDoG(cv::Mat &src, cv::Mat &dst, const double rho, const double sigma_c)
+void CLD::gradientDoG(const cv::Mat &src, cv::Mat &dst, const double rho, const double sigma_c)
 {
     const double sigma_s = SIGMA_RATIO * sigma_c;
     std::vector<double> gau_c, gau_s;
@@ -190,7 +190,7 @@ void CLD::gradientDoG(cv::Mat &src, cv::Mat &dst, const double rho, const double
     }
 }
 
-void CLD::binaryThresholding(cv::Mat &src, cv::Mat &dst, const double tau)
+void CLD::binaryThresholding(const cv::Mat &src, cv::Mat &dst, const double tau)
 {
 #pragma omp parallel for
     for (int y = 0; y < dst.rows; y++) {
