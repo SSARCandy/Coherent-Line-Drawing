@@ -10,7 +10,7 @@ This project implemented a non-photorealistic rendering technique presented by K
 - [Original academic paper](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.108.559&rep=rep1&type=pdf)
 - [Introduction in Chinese](https://ssarcandy.tw/2017/06/26/Coherent-Line-Drawing/)
 
-![demo](./demo/4.JPG)
+![demo](./demo/4.jpg)
 
 ## Workflow(youtube video)
 
