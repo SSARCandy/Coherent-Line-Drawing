@@ -12,7 +12,7 @@ ETF::ETF()
     ;
 }
 
-ETF::ETF(cv::Size s)
+ETF::ETF(const cv::Size s)
     : s{s}
     , flowField{cv::Mat::zeros(s, CV_32FC3)}
     , refinedETF{cv::Mat::zeros(s, CV_32FC3)}
@@ -25,7 +25,7 @@ ETF::ETF(cv::Size s)
  * Generate initial ETF 
  * by taking perpendicular vectors(counter-clockwise) from gradient map
  */
-void ETF::initial_ETF(std::string file, cv::Size s)
+void ETF::initial_ETF(const std::string file, const cv::Size s)
 {
     // Resizing Mat
     cv::resize(flowField, flowField, s, 0, 0, CV_INTER_LINEAR);

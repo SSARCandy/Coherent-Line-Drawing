@@ -7,9 +7,9 @@ class ETF
 {
 public:
     ETF();
-    ETF(cv::Size);
-    void initial_ETF(std::string, cv::Size);
-    void refine_ETF(int kernel);
+    ETF(const cv::Size);
+    void initial_ETF(const std::string, const cv::Size);
+    void refine_ETF(const int kernel);
 
     cv::Mat gradientMag; // Normalized gradient magnitude
     cv::Mat flowField;   // edge tangent flow
