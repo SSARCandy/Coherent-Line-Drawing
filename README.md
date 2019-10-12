@@ -12,7 +12,7 @@ This project implemented a non-photorealistic rendering technique presented by K
 
 ![demo](./demo/4.jpg)
 
-## Workflow(youtube video)
+## Workflow (Youtube)
 
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=48fTXKUTM-8
 " target="_blank"><img src="http://img.youtube.com/vi/48fTXKUTM-8/0.jpg" 
@@ -51,18 +51,16 @@ I provide another command line application that can directly use without graphic
 
 ```sh
 # Coherent-Line-Drawing Options:
-#   -h [ --help ]         Help message
-#   -s [ --src ] arg      Source image path
-#   -o [ --output ] arg   Output image path
-#   --ETF_kernel arg      ETF kernel size, default kernal = 5
-#   --ETF_iter arg        Refining n times ETF, default is 1 iteration
-#   --CLD_iter arg        Iterate n times FDoG, default is 1 iteration
-$ ./build/cld \
-    --src ./data/fingerprint.jpg \
-    --output 123.jpg \
-    --ETF_kernel 6 \
-    --ETF_iter 3 \
-    --CLD_iter 8
+#   -h [ --help ]            Help message
+#   -s [ --src ] arg         Source image path
+#   -o [ --output ] arg      Output image path
+#   --ETF_kernel arg (=5)    ETF kernel size
+#   --ETF_iter arg (=1)      Refining n times ETF
+#   --CLD_iter arg (=1)      Iterate n times FDoG
+#   --sigma_c arg (=1)       Line width
+#   --sigma_m arg (=3)       Degree of coherence
+#   --rho arg (=0.997)       Noise
+#   --tau arg (=0.8)         Thresholding
 ```
 
 ### Pre-Build GUI Version
