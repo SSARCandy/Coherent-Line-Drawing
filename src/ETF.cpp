@@ -50,10 +50,8 @@ void ETF::initial_ETF(std::string file, cv::Size s)
     flowField = cv::Mat::zeros(src.size(), CV_32FC3);
 
 #pragma omp parallel for
-    for (int i = 0; i < src.rows; ++i)
-    {
-        for (int j = 0; j < src.cols; ++j)
-        {
+    for (int i = 0; i < src.rows; ++i) {
+        for (int j = 0; j < src.cols; ++j) {
             cv::Vec3f u = grad_x.at<cv::Vec3f>(i, j);
             cv::Vec3f v = grad_y.at<cv::Vec3f>(i, j);
 
@@ -68,10 +66,8 @@ void ETF::initial_ETF(std::string file, cv::Size s)
 void ETF::refine_ETF(int kernel)
 {
 #pragma omp parallel for
-    for (int r = 0; r < flowField.rows; ++r)
-    {
-        for (int c = 0; c < flowField.cols; ++c)
-        {
+    for (int r = 0; r < flowField.rows; ++r) {
+        for (int c = 0; c < flowField.cols; ++c) {
             refinedETF.at<cv::Vec3f>(r, c) = computeNewVector(c, r, kernel);
         }
     }
@@ -85,10 +81,8 @@ cv::Mat ETF::rotate(const cv::Mat &src, const double degree)
     const double theta{degree / 180.0 * M_PI};
     cv::Mat dst{cv::Mat::zeros(src.size(), CV_32FC3)};
 
-    for (int i = 0; i < src.rows; ++i)
-    {
-        for (int j = 0; j < src.cols; ++j)
-        {
+    for (int i = 0; i < src.rows; ++i) {
+        for (int j = 0; j < src.cols; ++j) {
             cv::Vec3f v    = src.at<cv::Vec3f>(i, j);
             const float rx = v[0] * cos(theta) - v[1] * sin(theta);
             const float ry = v[1] * cos(theta) + v[0] * sin(theta);
@@ -108,10 +102,8 @@ cv::Vec3f ETF::computeNewVector(const int x, const int y, const int kernel)
     const cv::Vec3f t_cur_x = flowField.at<cv::Vec3f>(y, x);
     cv::Vec3f t_new         = cv::Vec3f(0, 0, 0);
 
-    for (int r = y - kernel; r <= y + kernel; ++r)
-    {
-        for (int c = x - kernel; c <= x + kernel; ++c)
-        {
+    for (int r = y - kernel; r <= y + kernel; ++r) {
+        for (int c = x - kernel; c <= x + kernel; ++c) {
             if (r < 0 || r >= refinedETF.rows || c < 0 || c >= refinedETF.cols) continue;
 
             const cv::Vec3f t_cur_y = flowField.at<cv::Vec3f>(r, c);

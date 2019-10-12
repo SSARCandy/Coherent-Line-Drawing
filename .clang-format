@@ -33,7 +33,7 @@ BraceWrapping:
   BeforeElse:      false
   IndentBraces:    false
 BreakBeforeBinaryOperators: None
-BreakBeforeBraces: Allman
+BreakBeforeBraces: Linux
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializersBeforeComma: true
 ColumnLimit:     120

@@ -92,8 +92,7 @@ protected:
     wxDECLARE_EVENT_TABLE();
 };
 
-enum
-{
+enum {
     // Menu > File
     ID_ONOPENSRC = 1,
     ID_ONSAVE,

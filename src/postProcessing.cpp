@@ -18,15 +18,12 @@ void PP::ETF(cv::Mat &flowfield, cv::Mat &dis)
 
 
 #pragma omp parallel for
-    for (int i = 0; i < nRows; i++)
-    {
-        for (int j = 0; j < nCols; j++)
-        {
+    for (int i = 0; i < nRows; i++) {
+        for (int j = 0; j < nCols; j++) {
             float w_sum = 0.0;
             float x     = i;
             float y     = j;
-            for (int k = 0; k < s; k++)
-            {
+            for (int k = 0; k < s; k++) {
                 cv::Vec3f v = cv::normalize(flowfield.at<cv::Vec3f>(int(x + nRows) % nRows, int(y + nCols) % nCols));
                 if (v[0] != 0) x = x + (abs(v[0]) / float(abs(v[0]) + abs(v[1]))) * (abs(v[0]) / v[0]);
                 if (v[1] != 0) y = y + (abs(v[1]) / float(abs(v[0]) + abs(v[1]))) * (abs(v[1]) / v[1]);
@@ -40,8 +37,7 @@ void PP::ETF(cv::Mat &flowfield, cv::Mat &dis)
 
             x = i;
             y = j;
-            for (int k = 0; k < s; k++)
-            {
+            for (int k = 0; k < s; k++) {
                 cv::Vec3f v = -cv::normalize(flowfield.at<cv::Vec3f>(int(x + nRows) % nRows, int(y + nCols) % nCols));
                 if (v[0] != 0) x = x + (abs(v[0]) / float(abs(v[0]) + abs(v[1]))) * (abs(v[0]) / v[0]);
                 if (v[1] != 0) y = y + (abs(v[1]) / float(abs(v[0]) + abs(v[1]))) * (abs(v[1]) / v[1]);
@@ -61,10 +57,8 @@ void PP::FlowField(cv::Mat &flowfield, cv::Mat &dis)
 {
     constexpr int resolution = 10;
 
-    for (int i = 0; i < dis.rows; i += resolution)
-    {
-        for (int j = 0; j < dis.cols; j += resolution)
-        {
+    for (int i = 0; i < dis.rows; i += resolution) {
+        for (int j = 0; j < dis.cols; j += resolution) {
             cv::Vec3f v = flowfield.at<cv::Vec3f>(i, j);
             cv::Point2f p(j, i);
             cv::Point2f p2(j + v[1] * 5, i + v[0] * 5);

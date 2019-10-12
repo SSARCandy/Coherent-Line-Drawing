@@ -207,13 +207,10 @@ void MyFrame::OnOpenSrc(wxCommandEvent &event)
         wxFD_OPEN | wxFD_FILE_MUST_EXIST);
     wxString s;
 
-    if (openFileDialog.ShowModal() == wxID_CANCEL)
-    {
+    if (openFileDialog.ShowModal() == wxID_CANCEL) {
         addlog("Load Img Canceled", wxColour(*wxBLACK));
         return; // the user changed idea...
-    }
-    else
-    {
+    } else {
         processingBox->SetValue(MODE_ORIGINIAL_IMAGE);
         drawPane->processingS = MODE_ORIGINIAL_IMAGE;
 
@@ -226,8 +223,7 @@ void MyFrame::OnOpenSrc(wxCommandEvent &event)
 
     // proceed loading the file chosen by the user, this can be done with e.g. wxWidgets input streams:
     wxFileInputStream input_stream(openFileDialog.GetPath());
-    if (!input_stream.IsOk())
-    {
+    if (!input_stream.IsOk()) {
         wxLogError("Cannot open file '%s'.", openFileDialog.GetPath());
         return;
     }
@@ -253,8 +249,7 @@ void MyFrame::OnSaveResult(wxCommandEvent &event)
     // save the current contents in the file;
     // this can be done with e.g. wxWidgets output streams:
     wxFileOutputStream output_stream(saveFileDialog.GetPath());
-    if (!output_stream.IsOk())
-    {
+    if (!output_stream.IsOk()) {
         wxLogError("Cannot save current contents in file '%s'.", saveFileDialog.GetPath());
         return;
     }
@@ -329,17 +324,13 @@ void MyFrame::OnProcessingBox(wxCommandEvent &event)
     wxString s            = processingBox->GetValue();
     drawPane->processingS = s;
 
-    if (s == MODE_ETF || s == MODE_ETF_DEBUG)
-    {
+    if (s == MODE_ETF || s == MODE_ETF_DEBUG) {
         render_loop_on = true;
-    }
-    else
-    {
+    } else {
         render_loop_on = false;
     }
 
-    if (s == MODE_CLD)
-    {
+    if (s == MODE_CLD) {
         drawPane->cld.genCLD();
         wxString s;
         s.Printf("FDoG: %d iterations", FDoG_iteration);
@@ -419,15 +410,12 @@ void MyFrame::addlog(wxString info, const wxColour &color)
 }
 void MyFrame::activateRenderLoop(bool on)
 {
-    if (on)
-    {
+    if (on) {
         start->SetLabel("Stop");
         Connect(wxID_ANY, wxEVT_IDLE, wxIdleEventHandler(MyFrame::onIdle));
         render_loop_on = true;
         addlog("-------Start iteration-------", wxColour(*wxBLACK));
-    }
-    else
-    {
+    } else {
         start->SetLabel("Start");
         Disconnect(wxEVT_IDLE, wxIdleEventHandler(MyFrame::onIdle));
         //Connect(wxID_ANY, wxEVT_IDLE, wxIdleEventHandler(MyFrame::onIdle));
@@ -478,23 +466,16 @@ void BasicDrawPane::render(wxDC &dc, bool render_loop_on)
     dis = cld.originalImg.clone();
     cv::cvtColor(dis, dis, CV_GRAY2BGR);
 
-    if (processingS == MODE_ETF)
-    {
+    if (processingS == MODE_ETF) {
         processing.ETF(cld.etf.flowField, dis);
         dis.convertTo(dis, CV_8UC1, 255);
         cv::cvtColor(dis, dis, CV_GRAY2BGR);
-    }
-    else if (processingS == MODE_ETF_DEBUG)
-    {
+    } else if (processingS == MODE_ETF_DEBUG) {
         processing.FlowField(cld.etf.flowField, dis);
-    }
-    else if (processingS == MODE_CLD)
-    {
+    } else if (processingS == MODE_CLD) {
         dis = cld.result.clone();
         cv::cvtColor(dis, dis, CV_GRAY2BGR);
-    }
-    else if (processingS == MODE_ANTI_ALIASING)
-    {
+    } else if (processingS == MODE_ANTI_ALIASING) {
         dis = cld.result.clone();
         processing.AntiAlias(dis, dis);
         cv::cvtColor(dis, dis, CV_GRAY2BGR);
