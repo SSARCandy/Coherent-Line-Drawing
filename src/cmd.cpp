@@ -5,9 +5,8 @@
 
 int main(int argc, char *argv[])
 {
-    std::string src_path;
-    std::string output_path;
-    int ETF_iter = 1, CLD_iter = 1;
+    std::string src_path, output_path;
+    int ETF_iter = 1, CLD_iter = 1, ETF_kernel = 5;
 
     // clang-format off
     boost::program_options::options_description description("Coherent-Line-Drawing Options");
@@ -15,8 +14,9 @@ int main(int argc, char *argv[])
         ("help,h", "Help message")
         ("src,s", boost::program_options::value<std::string>(&src_path)->required(), "Source image path")
         ("output,o", boost::program_options::value<std::string>(&output_path)->required(), "Output image path")
-        ("ETF_iter", boost::program_options::value<int>(&ETF_iter), "Refining n times ETF")
-        ("CLD_iter", boost::program_options::value<int>(&CLD_iter), "Iterate n times FDoG");
+        ("ETF_kernel", boost::program_options::value<int>(&ETF_kernel), "ETF kernel size, default kernel size = 5")
+        ("ETF_iter", boost::program_options::value<int>(&ETF_iter), "Refining n times ETF, default is 1 iteration")
+        ("CLD_iter", boost::program_options::value<int>(&CLD_iter), "Iterate n times FDoG, default is 1 iteration");
     // clang-format on
 
     try
@@ -37,20 +37,25 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    std::cout << "source image path = " << src_path << std::endl;
-    std::cout << "output image path = " << output_path << std::endl;
+    std::cout << "Source image path = " << src_path << std::endl;
+    std::cout << "Output image path = " << output_path << std::endl;
+    std::cout << "ETF kernel size = " << ETF_kernel << std::endl;
     std::cout << "ETF iteration = " << ETF_iter << std::endl;
     std::cout << "CLD iteration = " << CLD_iter << std::endl;
 
     CLD cld;
     cld.readSrc(src_path);
 
+    // Performing ETF refinement
     for (int i = 0; i < ETF_iter; ++i)
     {
-        cld.etf.refine_ETF(5);
+        cld.etf.refine_ETF(ETF_kernel);
     }
 
+    // Generate coherent line drawing
     cld.genCLD();
+
+    // Refining line drawing by iterative FDoG
     for (int i = 0; i < CLD_iter; ++i)
     {
         cld.combineImage();
@@ -58,7 +63,5 @@ int main(int argc, char *argv[])
     }
 
     cv::cvtColor(cld.result, cld.result, CV_GRAY2RGB);
-    // cv::imshow("t", cld.result);
-    // cv::waitKey(0);
     cv::imwrite(output_path, cld.result);
 }
