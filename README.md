@@ -23,9 +23,9 @@ alt="IMAGE ALT TEXT HERE" width="800" border="10" /></a>
 
 ### Requirement
 
-- OpenCV (prefer 3.0 or higher)
-- wxwidget (prefer 3.0 or higher)
-- cmake
+- OpenCV (3.0 or higher)
+- WxWidget (not required if you only interested in cmd application)
+- CMake
 
 It should work fine in Windows/Linux/MacOS.  
 I provided some scripts that can use in Linux:
@@ -45,7 +45,27 @@ $ ./build.sh
 $ ./linter.sh
 ```
 
-### Pre-Build Version
+### Command Line Version
+
+I provide another command line application that can directly use without graphic interface, the entry point is `src/cmd.cpp`. The options is list as following:
+
+```sh
+# Coherent-Line-Drawing Options:
+#   -h [ --help ]         Help message
+#   -s [ --src ] arg      Source image path
+#   -o [ --output ] arg   Output image path
+#   --ETF_kernel arg      ETF kernel size, default kernal = 5
+#   --ETF_iter arg        Refining n times ETF, default is 1 iteration
+#   --CLD_iter arg        Iterate n times FDoG, default is 1 iteration
+$ ./build/cld \
+    --src ./data/fingerprint.jpg \
+    -output 123.jpg \
+    --ETF_kernel 6 \
+    --ETF_iter 3 \
+    --CLD_iter 8
+```
+
+### Pre-Build GUI Version
 
 You can download pre-build version at [here](https://github.com/SSARCandy/Coherent-Line-Drawing/releases).  
 Including Windows and macOS versions.
