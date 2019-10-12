@@ -11,6 +11,7 @@ public:
     void initial_ETF(const std::string, const cv::Size);
     void refine_ETF(const int kernel);
 
+    cv::Size s;
     cv::Mat gradientMag; // Normalized gradient magnitude
     cv::Mat flowField;   // edge tangent flow
     cv::Mat refinedETF;  // ETF after refinement
@@ -22,8 +23,6 @@ private:
     float computeWs(const cv::Point2f &x, const cv::Point2f &y, const int r);
     float computeWm(const float gradmag_x, const float gradmag_y);
     float computeWd(const cv::Vec3f &x, const cv::Vec3f &y);
-
-    cv::Size s;
 };
 
 #endif // ETF_H_

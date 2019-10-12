@@ -7,9 +7,9 @@ install:
   - sudo apt-get install libopencv-dev
   - sudo apt-get install libwxgtk3.0-dev
   - sudo apt-get install libboost-all-dev
-  - sudo apt-get install clang-format colordiff
+  - sudo apt-get install clang-format colordiff lcov
 
 script:
   - ./linter.sh
-  - ./build.sh
+  - ./build.sh -c -d
   - ./test.sh
