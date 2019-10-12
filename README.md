@@ -23,8 +23,8 @@ alt="IMAGE ALT TEXT HERE" width="800" border="10" /></a>
 
 ### Requirement
 
-- OpenCV (3.0 or higher)
-- WxWidget (not required if you only interested in cmd application)
+- OpenCV 3
+- WxWidget 3 (not required for cmd application)
 - CMake
 
 It should work fine in Windows/Linux/MacOS.  
@@ -70,10 +70,8 @@ $ ./build/cld \
 You can download pre-build version at [here](https://github.com/SSARCandy/Coherent-Line-Drawing/releases).  
 Including Windows and macOS versions.
 
-## Screenshot
+**Screenshots**
 
-![demo](./demo/1.JPG)
-
-![demo](./demo/2.JPG)
-
-![demo](./demo/3.JPG)
+![demo](./demo/1.jpg)
+![demo](./demo/2.jpg)
+![demo](./demo/3.jpg)
