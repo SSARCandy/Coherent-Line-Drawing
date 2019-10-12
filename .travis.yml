@@ -3,11 +3,10 @@ compiler: gcc
 dist: bionic
 sudo: true
 
-install:
-  - sudo apt-get install libopencv-dev
-  - sudo apt-get install libwxgtk3.0-dev
-  - sudo apt-get install libboost-all-dev
-  - sudo apt-get install clang-format colordiff lcov
+
+addons:
+  apt:
+    packages: libopencv-dev libwxgtk3.0-dev libboost-all-dev clang-format colordiff lcov
 
 script:
   - ./linter.sh

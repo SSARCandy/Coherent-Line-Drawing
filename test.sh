@@ -11,6 +11,6 @@ lcov \
     --output-file coverage.info \
     --test-name coverageHtml
 
-lcov --remove coverage.info '/usr/include/*' -o coverage.info > /dev/null
+lcov --remove coverage.info '/usr/*' -o coverage.info > /dev/null
 
 genhtml -o .coverage coverage.info
