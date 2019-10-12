@@ -13,3 +13,6 @@ script:
   - ./linter.sh
   - ./build.sh -c -d
   - ./test.sh
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash) -f coverage.info || echo "Codecov did not collect coverage reports"
