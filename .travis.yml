@@ -3,13 +3,15 @@ compiler: gcc
 dist: bionic
 sudo: true
 
-install:
-  - sudo apt-get install libopencv-dev
-  - sudo apt-get install libwxgtk3.0-dev
-  - sudo apt-get install libboost-all-dev
-  - sudo apt-get install clang-format colordiff
+
+addons:
+  apt:
+    packages: libopencv-dev libwxgtk3.0-dev libboost-all-dev clang-format colordiff lcov
 
 script:
   - ./linter.sh
-  - ./build.sh
+  - ./build.sh -c -d
   - ./test.sh
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash) -f coverage.info || echo "Codecov did not collect coverage reports"

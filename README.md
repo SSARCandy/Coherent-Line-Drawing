@@ -1,6 +1,7 @@
 # Coherent Line Drawing
 
 [![Build Status](https://travis-ci.org/SSARCandy/Coherent-Line-Drawing.svg?branch=master)](https://travis-ci.org/SSARCandy/Coherent-Line-Drawing)
+[![codecov](https://codecov.io/gh/SSARCandy/Coherent-Line-Drawing/branch/master/graph/badge.svg)](https://codecov.io/gh/SSARCandy/Coherent-Line-Drawing)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/SSARCandy/Coherent-Line-Drawing/blob/master/LICENSE)
 
 

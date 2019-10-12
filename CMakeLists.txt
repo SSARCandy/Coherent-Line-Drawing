@@ -14,6 +14,12 @@ SET(default_build_type "Release")
 SET(CMAKE_CXX_STANDARD 14)
 SET(CMAKE_CXX_STANDARD_REQUIRED on)
 
+IF(CMAKE_BUILD_TYPE MATCHES Debug)
+    MESSAGE("Debug mode, enable gcov")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage")
+ENDIF(CMAKE_BUILD_TYPE MATCHES Debug)
+
 
 ADD_EXECUTABLE(Coherent-Line-Drawing
     "${PROJECT_SOURCE_DIR}/src/main.cpp" 
@@ -39,5 +45,6 @@ ADD_EXECUTABLE(cld
 )
 TARGET_LINK_LIBRARIES(cld
     boost_program_options
+    gcov
     ${OpenCV_LIBS}
 )
