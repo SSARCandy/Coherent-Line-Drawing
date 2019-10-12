@@ -59,7 +59,7 @@ I provide another command line application that can directly use without graphic
 #   --CLD_iter arg        Iterate n times FDoG, default is 1 iteration
 $ ./build/cld \
     --src ./data/fingerprint.jpg \
-    -output 123.jpg \
+    --output 123.jpg \
     --ETF_kernel 6 \
     --ETF_iter 3 \
     --CLD_iter 8
