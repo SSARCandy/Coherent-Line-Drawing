@@ -1,7 +1,9 @@
-﻿#include <opencv2/opencv.hpp>
+﻿#define _USE_MATH_DEFINES
+ 
+#include <cmath>
+#include <opencv2/opencv.hpp>
 #include "ETF.h"
 
-#define M_PI 3.14159265358979323846
 
 ETF::ETF()
     : s{cv::Size(300, 300)}
