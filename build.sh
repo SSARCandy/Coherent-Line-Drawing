@@ -5,7 +5,16 @@ PROGNAME=${0##*/}
 CURDIR="$( cd "$(dirname "$0")" ; pwd -P )"
 BUILD_TYPE="Release"
 BUILD_DIR="build"
-CORES="$(nproc --all)"
+
+if which nproc; then
+    # Linux
+    CORES="$(nproc --all)"
+elif which sysctl; then
+    # MacOS
+    CORES="$(sysctl -n hw.logicalcpu)"
+else
+    CORES=2
+fi
 JOBS=$(( CORES / 2 ))
 
 usage() {
@@ -58,7 +67,8 @@ while (( "$#" )); do
 done
 
 BUILD_OPTIONS="-DCMAKE_BUILD_TYPE=${BUILD_TYPE}"
-mkdir -p "${BUILD_DIR}" && cd "${BUILD_DIR}"
+mkdir -p "${BUILD_DIR}"
+cd "${BUILD_DIR}"
 if cmake .. ${BUILD_OPTIONS}; then
     make -j "${JOBS}" && cd "$CURDIR"
 else
