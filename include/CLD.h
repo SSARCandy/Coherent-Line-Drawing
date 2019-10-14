@@ -1,12 +1,13 @@
 #ifndef CLD_H_
 #define CLD_H_
 
+#define _USE_MATH_DEFINES
+
+#include <cmath>
 #include <opencv2/opencv.hpp>
 #include "ETF.h"
 
-#define M_PI 3.14159265358979323846
 #define SIGMA_RATIO 1.6
-#define STEPSIZE 1.0
 
 class CLD
 {
