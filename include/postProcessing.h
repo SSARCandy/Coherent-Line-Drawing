@@ -9,10 +9,10 @@
 class PP
 {
 public:
-    PP(cv::Size);
-    void ETF(cv::Mat &flowfield, cv::Mat &dis);
-    void FlowField(cv::Mat &flowfield, cv::Mat &dis);
-    void AntiAlias(cv::Mat &src, cv::Mat &dis);
+    PP(const cv::Size);
+    void visualizeFlowfield(const cv::Mat &flowfield, cv::Mat &dst);
+    cv::Mat visualizeETF(const cv::Mat &flowfield);
+    cv::Mat antiAlias(const cv::Mat &src);
 };
 
 #endif // POST_PROCESSING_H_
