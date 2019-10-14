@@ -9,7 +9,7 @@
 class PP
 {
 public:
-    PP(const cv::Size);
+    PP();
     void visualizeFlowfield(const cv::Mat &flowfield, cv::Mat &dst);
     cv::Mat visualizeETF(const cv::Mat &flowfield);
     cv::Mat antiAlias(const cv::Mat &src);

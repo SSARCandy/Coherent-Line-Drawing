@@ -432,7 +432,7 @@ void MyFrame::onIdle(wxIdleEvent &evt)
 
 #pragma region BasicDrawPane
 BasicDrawPane::BasicDrawPane(wxPanel *parent, cv::Size s, bool canUndo)
-    : processing(s)
+    : processing()
     , cld(s)
     , wxPanel(parent)
 {

@@ -1,7 +1,7 @@
 #include <opencv2/opencv.hpp>
 #include "postProcessing.h"
 
-PP::PP(const cv::Size s) {}
+PP::PP() {}
 
 // visualize the ETF
 cv::Mat PP::visualizeETF(const cv::Mat &flowfield)

@@ -8,6 +8,7 @@ void print_parameters(const boost::program_options::variables_map &vm)
     // clang-format off
     std::cout << "Source image path = " << vm["src"].as<std::string>() << std::endl;
     std::cout << "Output image path = " << vm["output"].as<std::string>() << std::endl;
+    std::cout << "Generate post processed images = " << vm["debug_img"].as<bool>() << std::endl;
 
     std::cout << "[ETF] Parameters\n"
               << "  kernel size = " << vm["ETF_kernel"].as<int>() << "\n"
@@ -29,6 +30,7 @@ int main(int argc, char *argv[])
     std::string src_path, output_path;
     int ETF_iter, CLD_iter, ETF_kernel;
     float sigma_c, sigma_m, rho, tau;
+    bool generate_post_processed_images{false};
 
     // clang-format off
     boost::program_options::options_description description("Coherent-Line-Drawing Options");
@@ -42,7 +44,8 @@ int main(int argc, char *argv[])
         ("sigma_c", boost::program_options::value<float>(&sigma_c)->default_value(1.0), "Line width")
         ("sigma_m", boost::program_options::value<float>(&sigma_m)->default_value(3.0), "Degree of coherence")
         ("rho", boost::program_options::value<float>(&rho)->default_value(0.997), "Noise")
-        ("tau", boost::program_options::value<float>(&tau)->default_value(0.8), "Thresholding");
+        ("tau", boost::program_options::value<float>(&tau)->default_value(0.8), "Thresholding")
+        ("debug_img", boost::program_options::bool_switch(&generate_post_processed_images), "Generate post processed images (anti-alias, flowfield visualize)");
     // clang-format on
 
     try {
@@ -84,6 +87,20 @@ int main(int argc, char *argv[])
     cv::cvtColor(cld.result, cld.result, CV_GRAY2RGB);
     cv::imwrite(output_path, cld.result);
     std::cout << "Result image save at " << output_path << std::endl;
+
+    if (generate_post_processed_images) {
+        PP utils{};
+
+        // Generate flow-field visualization
+        cv::Mat vis_etf = utils.visualizeETF(cld.etf.flowField);
+        vis_etf.convertTo(vis_etf, CV_8UC1, 255);
+        cv::cvtColor(vis_etf, vis_etf, CV_GRAY2BGR);
+        cv::imwrite("visualize-etf.jpg", vis_etf);
+
+        // Generate Anti-alias coherent line drawing
+        cv::Mat anti_alias = utils.antiAlias(cld.result.clone());
+        cv::imwrite("anti-alias.jpg", anti_alias);
+    }
 
     return 0;
 }
