@@ -1,15 +1,15 @@
 #include <opencv2/opencv.hpp>
 #include "postProcessing.h"
 
-PP::PP(cv::Size s) {}
+PP::PP() {}
 
 // visualize the ETF
-void PP::ETF(cv::Mat &flowfield, cv::Mat &dis)
+cv::Mat PP::visualizeETF(const cv::Mat &flowfield)
 {
     cv::Mat noise = cv::Mat::zeros(cv::Size(flowfield.cols / 2, flowfield.rows / 2), CV_32F);
-    dis           = cv::Mat::zeros(flowfield.size(), CV_32F);
-    randu(noise, 0, 1.0f);
-    resize(noise, noise, flowfield.size(), 0, 0, cv::INTER_NEAREST);
+    cv::Mat dst   = cv::Mat::zeros(flowfield.size(), CV_32F);
+    cv::randu(noise, 0, 1.0f);
+    cv::resize(noise, noise, flowfield.size(), 0, 0, cv::INTER_NEAREST);
 
     constexpr int s       = 10;
     constexpr float sigma = 2 * s * s;
@@ -31,7 +31,7 @@ void PP::ETF(cv::Mat &flowfield, cv::Mat &dis)
                 const float w  = (1 / (M_PI * sigma)) * exp(-(r2) / sigma);
                 int xx         = (int(x) + nRows) % nRows;
                 int yy         = (int(y) + nCols) % nCols;
-                dis.at<float>(i, j) += w * noise.at<float>(xx, yy);
+                dst.at<float>(i, j) += w * noise.at<float>(xx, yy);
                 w_sum += w;
             }
 
@@ -44,34 +44,38 @@ void PP::ETF(cv::Mat &flowfield, cv::Mat &dis)
 
                 const float r2 = k * k;
                 const float w  = (1 / (M_PI * sigma)) * exp(-(r2) / sigma);
-                dis.at<float>(i, j) += w * noise.at<float>(int(x + nRows) % nRows, int(y + nCols) % nCols);
+                dst.at<float>(i, j) += w * noise.at<float>(int(x + nRows) % nRows, int(y + nCols) % nCols);
                 w_sum += w;
             }
-            dis.at<float>(i, j) /= w_sum;
+            dst.at<float>(i, j) /= w_sum;
         }
     }
+
+    return dst;
 }
 
 // visualize ETF by drawing red arrowline
-void PP::FlowField(cv::Mat &flowfield, cv::Mat &dis)
+void PP::visualizeFlowfield(const cv::Mat &flowfield, cv::Mat &dst)
 {
     constexpr int resolution = 10;
 
-    for (int i = 0; i < dis.rows; i += resolution) {
-        for (int j = 0; j < dis.cols; j += resolution) {
-            cv::Vec3f v = flowfield.at<cv::Vec3f>(i, j);
-            cv::Point2f p(j, i);
-            cv::Point2f p2(j + v[1] * 5, i + v[0] * 5);
+    for (int i = 0; i < dst.rows; i += resolution) {
+        for (int j = 0; j < dst.cols; j += resolution) {
+            const cv::Vec3f v = flowfield.at<cv::Vec3f>(i, j);
+            const cv::Point2f p1(j, i);
+            const cv::Point2f p2(j + v[1] * 5, i + v[0] * 5);
 
-            arrowedLine(dis, p, p2, cv::Scalar(255, 0, 0), 1.5, 8, 0, 0.3);
+            cv::arrowedLine(dst, p1, p2, cv::Scalar(255, 0, 0), 1.5, 8, 0, 0.3);
         }
     }
 }
 
-void PP::AntiAlias(cv::Mat &src, cv::Mat &dst)
+cv::Mat PP::antiAlias(const cv::Mat &src)
 {
     constexpr int BLUR_SIZE = 3;
+    cv::Mat dst{cv::Mat::zeros(src.size(), CV_32F)};
 
-    normalize(src, dst, 60, 255, cv::NORM_MINMAX);
-    GaussianBlur(dst, dst, cv::Size(BLUR_SIZE, BLUR_SIZE), 0, 0);
+    cv::normalize(src, dst, 60, 255, cv::NORM_MINMAX);
+    cv::GaussianBlur(dst, dst, cv::Size(BLUR_SIZE, BLUR_SIZE), 0, 0);
+    return dst;
 }
