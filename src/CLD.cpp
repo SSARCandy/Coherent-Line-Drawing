@@ -12,16 +12,15 @@ void MakeGaussianVector(double sigma, std::vector<double> &GAU)
     constexpr double threshold = 0.001;
 
     int i = 0;
-    while (true) {
+    while (gauss(static_cast<double>(i), 0.0, sigma) >= threshold) {
         ++i;
-        if (gauss((double)i, 0.0, sigma) < threshold) break;
     }
     GAU.clear();
     GAU.resize(i + 1);
 
     GAU[0] = gauss(0.0, 0.0, sigma);
     for (int j = 1; j < GAU.size(); ++j) {
-        GAU[j] = gauss((double)j, 0.0, sigma);
+        GAU[j] = gauss(static_cast<double>(j), 0.0, sigma);
     }
 }
 
@@ -135,7 +134,6 @@ void CLD::flowDoG(const cv::Mat &src, cv::Mat &dst, const double sigma_m)
                     (int)round(pos.y) > img_h - 1)
                     break;
             }
-
 
             dst.at<float>(y, x) = (gau_m_acc / gau_m_weight_acc) > 0 ? 1.0 : 1 + tanh(gau_m_acc / gau_m_weight_acc);
         }
