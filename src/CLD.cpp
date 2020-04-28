@@ -13,14 +13,14 @@ void MakeGaussianVector(double sigma, std::vector<double> &GAU)
 
     int i = 0;
     while (true) {
-        i++;
+        ++i;
         if (gauss((double)i, 0.0, sigma) < threshold) break;
     }
     GAU.clear();
     GAU.resize(i + 1);
 
     GAU[0] = gauss(0.0, 0.0, sigma);
-    for (int j = 1; j < GAU.size(); j++) {
+    for (int j = 1; j < GAU.size(); ++j) {
         GAU[j] = gauss((double)j, 0.0, sigma);
     }
 }
@@ -85,14 +85,14 @@ void CLD::flowDoG(const cv::Mat &src, cv::Mat &dst, const double sigma_m)
     const int kernel_half = gau_m.size() - 1;
 
 #pragma omp parallel for
-    for (int y = 0; y < img_h; y++) {
-        for (int x = 0; x < img_w; x++) {
+    for (int y = 0; y < img_h; ++y) {
+        for (int x = 0; x < img_w; ++x) {
             double gau_m_acc        = -gau_m[0] * src.at<float>(y, x);
             double gau_m_weight_acc = -gau_m[0];
 
             // Intergral alone ETF
             cv::Point2f pos(x, y);
-            for (int step = 0; step < kernel_half; step++) {
+            for (int step = 0; step < kernel_half; ++step) {
                 cv::Vec3f tmp         = etf.flowField.at<cv::Vec3f>((int)round(pos.y), (int)round(pos.x));
                 cv::Point2f direction = cv::Point2f(tmp[1], tmp[0]);
 
@@ -115,7 +115,7 @@ void CLD::flowDoG(const cv::Mat &src, cv::Mat &dst, const double sigma_m)
 
             // Intergral alone inverse ETF
             pos = cv::Point2f(x, y);
-            for (int step = 0; step < kernel_half; step++) {
+            for (int step = 0; step < kernel_half; ++step) {
                 cv::Vec3f tmp         = -etf.flowField.at<cv::Vec3f>((int)round(pos.y), (int)round(pos.x));
                 cv::Point2f direction = cv::Point2f(tmp[1], tmp[0]);
 
@@ -154,8 +154,8 @@ void CLD::gradientDoG(const cv::Mat &src, cv::Mat &dst, const double rho, const 
     const int kernel = gau_s.size() - 1;
 
 #pragma omp parallel for
-    for (int y = 0; y < dst.rows; y++) {
-        for (int x = 0; x < dst.cols; x++) {
+    for (int y = 0; y < dst.rows; ++y) {
+        for (int x = 0; x < dst.cols; ++x) {
             double gau_c_acc        = 0;
             double gau_s_acc        = 0;
             double gau_c_weight_acc = 0;
@@ -165,7 +165,7 @@ void CLD::gradientDoG(const cv::Mat &src, cv::Mat &dst, const double rho, const 
 
             if (gradient.x == 0 && gradient.y == 0) continue;
 
-            for (int step = -kernel; step <= kernel; step++) {
+            for (int step = -kernel; step <= kernel; ++step) {
                 double row = y + gradient.y * step;
                 double col = x + gradient.x * step;
 
@@ -193,8 +193,8 @@ void CLD::gradientDoG(const cv::Mat &src, cv::Mat &dst, const double rho, const 
 void CLD::binaryThresholding(const cv::Mat &src, cv::Mat &dst, const double tau)
 {
 #pragma omp parallel for
-    for (int y = 0; y < dst.rows; y++) {
-        for (int x = 0; x < dst.cols; x++) {
+    for (int y = 0; y < dst.rows; ++y) {
+        for (int x = 0; x < dst.cols; ++x) {
             const float H = src.at<float>(y, x);
             const int v   = H < tau ? 0 : 255;
 
@@ -210,8 +210,8 @@ void CLD::binaryThresholding(const cv::Mat &src, cv::Mat &dst, const double tau)
 void CLD::combineImage()
 {
 #pragma omp parallel for
-    for (int y = 0; y < originalImg.rows; y++) {
-        for (int x = 0; x < originalImg.cols; x++) {
+    for (int y = 0; y < originalImg.rows; ++y) {
+        for (int x = 0; x < originalImg.cols; ++x) {
             const float H = result.at<uchar>(y, x);
 
             if (H == 0) {

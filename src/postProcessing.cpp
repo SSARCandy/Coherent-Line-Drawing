@@ -18,12 +18,12 @@ cv::Mat PP::visualizeETF(const cv::Mat &flowfield)
 
 
 #pragma omp parallel for
-    for (int i = 0; i < nRows; i++) {
-        for (int j = 0; j < nCols; j++) {
+    for (int i = 0; i < nRows; ++i) {
+        for (int j = 0; j < nCols; ++j) {
             float w_sum = 0.0;
             float x     = i;
             float y     = j;
-            for (int k = 0; k < s; k++) {
+            for (int k = 0; k < s; ++k) {
                 cv::Vec3f v = cv::normalize(flowfield.at<cv::Vec3f>(int(x + nRows) % nRows, int(y + nCols) % nCols));
                 if (v[0] != 0) x = x + (abs(v[0]) / float(abs(v[0]) + abs(v[1]))) * (abs(v[0]) / v[0]);
                 if (v[1] != 0) y = y + (abs(v[1]) / float(abs(v[0]) + abs(v[1]))) * (abs(v[1]) / v[1]);
@@ -37,7 +37,7 @@ cv::Mat PP::visualizeETF(const cv::Mat &flowfield)
 
             x = i;
             y = j;
-            for (int k = 0; k < s; k++) {
+            for (int k = 0; k < s; ++k) {
                 cv::Vec3f v = -cv::normalize(flowfield.at<cv::Vec3f>(int(x + nRows) % nRows, int(y + nCols) % nCols));
                 if (v[0] != 0) x = x + (abs(v[0]) / float(abs(v[0]) + abs(v[1]))) * (abs(v[0]) / v[0]);
                 if (v[1] != 0) y = y + (abs(v[1]) / float(abs(v[0]) + abs(v[1]))) * (abs(v[1]) / v[1]);
