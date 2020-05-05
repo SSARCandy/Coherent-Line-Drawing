@@ -17,19 +17,23 @@ This project implemented a non-photorealistic rendering technique presented by K
 
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=48fTXKUTM-8
 " target="_blank"><img src="http://img.youtube.com/vi/48fTXKUTM-8/0.jpg" 
-alt="IMAGE ALT TEXT HERE" width="800" border="10" /></a>
+alt="Coherent Line Drawing" width="800" border="10" /></a>
 
 
 ## Build
 
 ### Requirement
 
+- C++ 17
 - OpenCV 3
 - WxWidget 3 (not required for cmd application)
 - CMake
 
+_If you prefer C++ 11 version, there is a branch called [cpp11](https://github.com/SSARCandy/Coherent-Line-Drawing/tree/cpp11), the function is equivalent._  
+
 It should work fine in Windows/Linux/MacOS.  
 I provided some scripts that can use in Linux:
+
 
 ```sh
 # Usage: build.sh [options]
@@ -48,7 +52,7 @@ $ ./linter.sh
 
 ### Command Line Version
 
-I provide another command line application that can directly use without graphic interface, the entry point is `src/cmd.cpp`. The options is list as following:
+I provide another command line application that can directly use without graphic interface, the entry point is `src/cmd.cpp`. The options is list as following, also you can refer to `./test.sh` to see how to use:
 
 ```sh
 # Coherent-Line-Drawing Options:
