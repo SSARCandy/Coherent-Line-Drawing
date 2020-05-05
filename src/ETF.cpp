@@ -112,7 +112,7 @@ cv::Vec3f ETF::computeNewVector(const int x, const int y, const int kernel)
 
             const float phi = computePhi(t_cur_x, t_cur_y);
             const float w_s = computeWs(cv::Point2f(x, y), cv::Point2f(c, r), kernel);
-            const float w_m = computeWm(norm(gradientMag.at<cv::Vec3f>(y, x)), cv::norm(gradientMag.at<float>(r, c)));
+            const float w_m = computeWm(cv::norm(gradientMag.at<cv::Vec3f>(y, x)), cv::norm(gradientMag.at<float>(r, c)));
             const float w_d = computeWd(t_cur_x, t_cur_y);
             t_new += phi * t_cur_y * w_s * w_m * w_d;
         }
@@ -123,17 +123,17 @@ cv::Vec3f ETF::computeNewVector(const int x, const int y, const int kernel)
 /*
  * Paper's Eq(5)
  */
-float ETF::computePhi(const cv::Vec3f &x, const cv::Vec3f &y) { return x.dot(y) > 0 ? 1 : -1; }
+inline float ETF::computePhi(const cv::Vec3f &x, const cv::Vec3f &y) { return x.dot(y) > 0 ? 1 : -1; }
 
 /*
  * Paper's Eq(2)
  */
-float ETF::computeWs(const cv::Point2f &x, const cv::Point2f &y, const int r) { return norm(x - y) < r ? 1 : 0; }
+inline float ETF::computeWs(const cv::Point2f &x, const cv::Point2f &y, const int r) { return norm(x - y) < r ? 1 : 0; }
 
 /*
  * Paper's Eq(3)
  */
-float ETF::computeWm(const float gradmag_x, const float gradmag_y)
+inline float ETF::computeWm(const float gradmag_x, const float gradmag_y)
 {
     const float wm = (1 + tanh(gradmag_y - gradmag_x)) / 2;
     return wm;
@@ -142,4 +142,4 @@ float ETF::computeWm(const float gradmag_x, const float gradmag_y)
 /*
  * Paper's Eq(4)
  */
-float ETF::computeWd(const cv::Vec3f &x, const cv::Vec3f &y) { return abs(x.dot(y)); }
+inline float ETF::computeWd(const cv::Vec3f &x, const cv::Vec3f &y) { return abs(x.dot(y)); }
