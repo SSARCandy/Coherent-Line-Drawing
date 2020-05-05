@@ -22,4 +22,4 @@ lcov --remove coverage.info '/usr/*' -o coverage.info > /dev/null
 genhtml -o .coverage coverage.info
 
 # clean up
-rm *.jpg coverage.info
+rm *.jpg
