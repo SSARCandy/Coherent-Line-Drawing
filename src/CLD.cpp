@@ -1,3 +1,4 @@
+#include <tuple>
 #include <opencv2/opencv.hpp>
 #include "CLD.h"
 
@@ -55,7 +56,6 @@ void CLD::readSrc(const std::string file)
     FDoG   = cv::Mat::zeros(cv::Size(originalImg.cols, originalImg.rows), CV_32FC1);
 
     etf.initial_ETF(file, originalImg.size());
-    //genCLD();
 }
 
 
@@ -66,7 +66,6 @@ void CLD::genCLD()
 
     gradientDoG(originalImg_32FC1, DoG, this->rho, this->sigma_c);
     flowDoG(DoG, FDoG, this->sigma_m);
-    //flowDoG(DoG, FDoG, this->sigma_m);
 
     binaryThresholding(FDoG, result, this->tau);
 }
@@ -90,15 +89,19 @@ void CLD::flowDoG(const cv::Mat &src, cv::Mat &dst, const double sigma_m)
             double gau_m_weight_acc = -gau_m[0];
 
             // Intergral alone ETF
-            cv::Point2f pos(x, y);
-            for (int step = 0; step < kernel_half; ++step) {
-                cv::Vec3f tmp         = etf.flowField.at<cv::Vec3f>((int)round(pos.y), (int)round(pos.x));
+            for (auto [step, pos] = std::tuple{0, cv::Point2f(x, y)}; step < kernel_half; ++step) {
+                if (pos.x < 0. || pos.x > static_cast<float>(img_w - 1) || pos.y < 0. ||
+                    pos.y > static_cast<float>(img_h - 1))
+                    break;
+
+                const int px          = static_cast<int>(round(pos.x));
+                const int py          = static_cast<int>(round(pos.y));
+                cv::Vec3f tmp         = etf.flowField.at<cv::Vec3f>(py, px);
                 cv::Point2f direction = cv::Point2f(tmp[1], tmp[0]);
 
                 if (direction.x == 0 && direction.y == 0) break;
-                if (pos.x > (double)img_w - 1 || pos.x < 0.0 || pos.y > (double)img_h - 1 || pos.y < 0.0) break;
 
-                float value  = src.at<float>((int)round(pos.y), (int)round(pos.x));
+                float value  = src.at<float>(py, px);
                 float weight = gau_m[step];
 
                 gau_m_acc += value * weight;
@@ -106,22 +109,22 @@ void CLD::flowDoG(const cv::Mat &src, cv::Mat &dst, const double sigma_m)
 
                 // move alone ETF direction
                 pos += direction;
-
-                if ((int)round(pos.x) < 0 || (int)round(pos.x) > img_w - 1 || (int)round(pos.y) < 0 ||
-                    (int)round(pos.y) > img_h - 1)
-                    break;
             }
 
             // Intergral alone inverse ETF
-            pos = cv::Point2f(x, y);
-            for (int step = 0; step < kernel_half; ++step) {
-                cv::Vec3f tmp         = -etf.flowField.at<cv::Vec3f>((int)round(pos.y), (int)round(pos.x));
+            for (auto [step, pos] = std::tuple{0, cv::Point2f(x, y)}; step < kernel_half; ++step) {
+                if (pos.x < 0. || pos.x > static_cast<float>(img_w - 1) || pos.y < 0. ||
+                    pos.y > static_cast<float>(img_h - 1))
+                    break;
+
+                const int px          = static_cast<int>(round(pos.x));
+                const int py          = static_cast<int>(round(pos.y));
+                cv::Vec3f tmp         = -etf.flowField.at<cv::Vec3f>(py, px);
                 cv::Point2f direction = cv::Point2f(tmp[1], tmp[0]);
 
                 if (direction.x == 0 && direction.y == 0) break;
-                if (pos.x > (double)img_w - 1 || pos.x < 0.0 || pos.y > (double)img_h - 1 || pos.y < 0.0) break;
 
-                float value  = src.at<float>((int)round(pos.y), (int)round(pos.x));
+                float value  = src.at<float>(py, px);
                 float weight = gau_m[step];
 
                 gau_m_acc += value * weight;
@@ -129,10 +132,6 @@ void CLD::flowDoG(const cv::Mat &src, cv::Mat &dst, const double sigma_m)
 
                 // move alone ETF direction
                 pos += direction;
-
-                if ((int)round(pos.x) < 0 || (int)round(pos.x) > img_w - 1 || (int)round(pos.y) < 0 ||
-                    (int)round(pos.y) > img_h - 1)
-                    break;
             }
 
             dst.at<float>(y, x) = (gau_m_acc / gau_m_weight_acc) > 0 ? 1.0 : 1 + tanh(gau_m_acc / gau_m_weight_acc);
@@ -164,16 +163,16 @@ void CLD::gradientDoG(const cv::Mat &src, cv::Mat &dst, const double rho, const 
             if (gradient.x == 0 && gradient.y == 0) continue;
 
             for (int step = -kernel; step <= kernel; ++step) {
-                double row = y + gradient.y * step;
-                double col = x + gradient.x * step;
+                const double row = y + gradient.y * step;
+                const double col = x + gradient.x * step;
 
-                if (col > (double)dst.cols - 1 || col < 0.0 || row > (double)dst.rows - 1 || row < 0.0) continue;
+                if (col > dst.cols - 1 || col < 0.0 || row > dst.rows - 1 || row < 0.0) continue;
 
-                float value = src.at<float>((int)round(row), (int)round(col));
+                const float value = src.at<float>((int)round(row), (int)round(col));
 
-                int gau_idx         = abs(step);
-                double gau_c_weight = (gau_idx >= gau_c.size()) ? 0.0 : gau_c[gau_idx];
-                double gau_s_weight = gau_s[gau_idx];
+                const int gau_idx         = abs(step);
+                const double gau_c_weight = gau_c[gau_idx];
+                const double gau_s_weight = gau_s[gau_idx];
 
                 gau_c_acc += value * gau_c_weight;
                 gau_s_acc += value * gau_s_weight;
@@ -190,13 +189,11 @@ void CLD::gradientDoG(const cv::Mat &src, cv::Mat &dst, const double rho, const 
 
 void CLD::binaryThresholding(const cv::Mat &src, cv::Mat &dst, const double tau)
 {
+    const std::unordered_map<bool, int> binary2color{{true, 0}, {false, 255}};
 #pragma omp parallel for
     for (int y = 0; y < dst.rows; ++y) {
         for (int x = 0; x < dst.cols; ++x) {
-            const float H = src.at<float>(y, x);
-            const int v   = H < tau ? 0 : 255;
-
-            dst.at<uchar>(y, x) = v;
+            dst.at<uchar>(y, x) = binary2color.at(src.at<float>(y, x) < tau);
         }
     }
 }
