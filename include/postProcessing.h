@@ -6,13 +6,13 @@
 #include <cmath>
 #include <opencv2/opencv.hpp>
 
-class PP
+namespace postprocess
 {
-public:
-    PP();
-    void visualizeFlowfield(const cv::Mat &flowfield, cv::Mat &dst);
-    cv::Mat visualizeETF(const cv::Mat &flowfield);
-    cv::Mat antiAlias(const cv::Mat &src);
-};
+
+void visualizeFlowfield(const cv::Mat &flowfield, cv::Mat &dst);
+cv::Mat visualizeETF(const cv::Mat &flowfield);
+cv::Mat antiAlias(const cv::Mat &src);
+
+} // namespace postprocess
 
 #endif // POST_PROCESSING_H_

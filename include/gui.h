@@ -23,7 +23,6 @@ public:
     BasicDrawPane(wxPanel *parent, cv::Size, bool canUndo);
 
     CLD cld;
-    PP processing;
     cv::Mat dis;
     cv::Mat temp;
     std::string processingS;

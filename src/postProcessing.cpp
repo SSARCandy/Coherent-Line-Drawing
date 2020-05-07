@@ -1,10 +1,11 @@
 #include <opencv2/opencv.hpp>
-#include "postProcessing.h"
+#include "include/postProcessing.h"
 
-PP::PP() {}
+namespace postprocess
+{
 
 // visualize the ETF
-cv::Mat PP::visualizeETF(const cv::Mat &flowfield)
+cv::Mat visualizeETF(const cv::Mat &flowfield)
 {
     cv::Mat noise = cv::Mat::zeros(cv::Size(flowfield.cols / 2, flowfield.rows / 2), CV_32F);
     cv::Mat dst   = cv::Mat::zeros(flowfield.size(), CV_32F);
@@ -55,7 +56,7 @@ cv::Mat PP::visualizeETF(const cv::Mat &flowfield)
 }
 
 // visualize ETF by drawing red arrowline
-void PP::visualizeFlowfield(const cv::Mat &flowfield, cv::Mat &dst)
+void visualizeFlowfield(const cv::Mat &flowfield, cv::Mat &dst)
 {
     constexpr int resolution = 10;
 
@@ -70,7 +71,7 @@ void PP::visualizeFlowfield(const cv::Mat &flowfield, cv::Mat &dst)
     }
 }
 
-cv::Mat PP::antiAlias(const cv::Mat &src)
+cv::Mat antiAlias(const cv::Mat &src)
 {
     constexpr int BLUR_SIZE = 3;
     cv::Mat dst{cv::Mat::zeros(src.size(), CV_32F)};
@@ -79,3 +80,5 @@ cv::Mat PP::antiAlias(const cv::Mat &src)
     cv::GaussianBlur(dst, dst, cv::Size(BLUR_SIZE, BLUR_SIZE), 0, 0);
     return dst;
 }
+
+} // namespace postprocess

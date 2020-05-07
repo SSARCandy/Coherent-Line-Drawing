@@ -432,8 +432,7 @@ void MyFrame::onIdle(wxIdleEvent &evt)
 
 #pragma region BasicDrawPane
 BasicDrawPane::BasicDrawPane(wxPanel *parent, cv::Size s, bool canUndo)
-    : processing()
-    , cld(s)
+    : cld(s)
     , wxPanel(parent)
 {
     activateDraw = false;
@@ -467,17 +466,17 @@ void BasicDrawPane::render(wxDC &dc, bool render_loop_on)
     cv::cvtColor(dis, dis, CV_GRAY2BGR);
 
     if (processingS == MODE_ETF) {
-        dis = processing.visualizeETF(cld.etf.flowField);
+        dis = postprocess::visualizeETF(cld.etf.flowField);
         dis.convertTo(dis, CV_8UC1, 255);
         cv::cvtColor(dis, dis, CV_GRAY2BGR);
     } else if (processingS == MODE_ETF_DEBUG) {
-        processing.visualizeFlowfield(cld.etf.flowField, dis);
+        postprocess::visualizeFlowfield(cld.etf.flowField, dis);
     } else if (processingS == MODE_CLD) {
         dis = cld.result.clone();
         cv::cvtColor(dis, dis, CV_GRAY2BGR);
     } else if (processingS == MODE_ANTI_ALIASING) {
         dis = cld.result.clone();
-        dis = processing.antiAlias(dis);
+        dis = postprocess::antiAlias(dis);
         cv::cvtColor(dis, dis, CV_GRAY2BGR);
     }
 
