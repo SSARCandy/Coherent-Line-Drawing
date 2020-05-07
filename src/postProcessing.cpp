@@ -57,9 +57,10 @@ cv::Mat visualizeETF(const cv::Mat &flowfield)
 }
 
 // visualize ETF by drawing red arrowline
-void visualizeFlowfield(const cv::Mat &flowfield, cv::Mat &dst)
+cv::Mat visualizeFlowfield(const cv::Mat &flowfield)
 {
     constexpr int resolution = 10;
+    cv::Mat dst{flowfield.size(), CV_32FC3, cv::Scalar(1, 1, 1)};
 
     for (int i = 0; i < dst.rows; i += resolution) {
         for (int j = 0; j < dst.cols; j += resolution) {
@@ -67,9 +68,11 @@ void visualizeFlowfield(const cv::Mat &flowfield, cv::Mat &dst)
             const cv::Point2f p1(j, i);
             const cv::Point2f p2(j + v[1] * 5, i + v[0] * 5);
 
-            cv::arrowedLine(dst, p1, p2, cv::Scalar(255, 0, 0), 1.5, 8, 0, 0.3);
+            cv::arrowedLine(dst, p1, p2, cv::Scalar(1, 0, 0), 1.5, 8, 0, 0.3);
         }
     }
+
+    return dst;
 }
 
 cv::Mat antiAlias(const cv::Mat &src)

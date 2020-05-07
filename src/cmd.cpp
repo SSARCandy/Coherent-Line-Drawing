@@ -95,6 +95,12 @@ int main(int argc, char *argv[])
         cv::cvtColor(vis_etf, vis_etf, CV_GRAY2BGR);
         cv::imwrite("visualize-etf.jpg", vis_etf);
 
+        // Generate flow-field arrow direction visualization
+        cv::Mat vis_flow = postprocess::visualizeFlowfield(cld.etf.flowField);
+        vis_flow.convertTo(vis_flow, CV_8UC3, 255);
+        cv::cvtColor(vis_flow, vis_flow, CV_RGB2BGR);
+        cv::imwrite("arrow-etf.jpg", vis_flow);
+
         // Generate Anti-alias coherent line drawing
         cv::Mat anti_alias = postprocess::antiAlias(cld.result.clone());
         cv::imwrite("anti-alias.jpg", anti_alias);

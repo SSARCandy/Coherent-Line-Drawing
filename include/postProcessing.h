@@ -6,7 +6,7 @@
 namespace postprocess
 {
 
-void visualizeFlowfield(const cv::Mat &flowfield, cv::Mat &dst);
+cv::Mat visualizeFlowfield(const cv::Mat &flowfield);
 cv::Mat visualizeETF(const cv::Mat &flowfield);
 cv::Mat antiAlias(const cv::Mat &src);
 

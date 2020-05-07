@@ -467,7 +467,9 @@ void BasicDrawPane::render(wxDC &dc, bool render_loop_on)
         dis.convertTo(dis, CV_8UC1, 255);
         cv::cvtColor(dis, dis, CV_GRAY2BGR);
     } else if (processingS == MODE_ETF_DEBUG) {
-        postprocess::visualizeFlowfield(cld.etf.flowField, dis);
+        dis = postprocess::visualizeFlowfield(cld.etf.flowField);
+        dis.convertTo(dis, CV_8UC3, 255);
+        cv::cvtColor(dis, dis, CV_RGB2BGR);
     } else if (processingS == MODE_CLD) {
         dis = cld.result.clone();
         cv::cvtColor(dis, dis, CV_GRAY2BGR);
