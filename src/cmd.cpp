@@ -1,7 +1,7 @@
 #include <boost/program_options.hpp>
 #include <opencv2/opencv.hpp>
-#include "CLD.h"
-#include "postProcessing.h"
+#include "include/CLD.h"
+#include "include/postProcessing.h"
 
 void print_parameters(const boost::program_options::variables_map &vm)
 {

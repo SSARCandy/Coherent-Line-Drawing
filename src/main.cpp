@@ -1,4 +1,4 @@
-#include "gui.h"
+#include "include/gui.h"
 
 // clang-format off
 BEGIN_EVENT_TABLE(BasicDrawPane, wxPanel)
