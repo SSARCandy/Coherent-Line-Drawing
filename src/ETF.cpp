@@ -1,7 +1,7 @@
 ﻿#define _USE_MATH_DEFINES
 
-#include <cmath>
 #include <opencv2/opencv.hpp>
+#include "include/const.h"
 #include "include/ETF.h"
 
 
@@ -80,7 +80,7 @@ void ETF::refine_ETF(int kernel)
 
 cv::Mat ETF::rotate(const cv::Mat &src, const double degree)
 {
-    const double theta{degree / 180.0 * M_PI};
+    const double theta{degree / 180.0 * constant::PI};
     cv::Mat dst{cv::Mat::zeros(src.size(), CV_32FC3)};
 
     for (int i = 0; i < src.rows; ++i) {

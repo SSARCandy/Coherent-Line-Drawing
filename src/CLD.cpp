@@ -1,11 +1,12 @@
 #include <tuple>
 #include <opencv2/opencv.hpp>
+#include "include/const.h"
 #include "include/CLD.h"
 
 // Eq.(8)
 inline double gauss(double x, double mean, double sigma)
 {
-    return (exp((-(x - mean) * (x - mean)) / (2 * sigma * sigma)) / sqrt(M_PI * 2.0 * sigma * sigma));
+    return (exp((-(x - mean) * (x - mean)) / (2 * sigma * sigma)) / sqrt(constant::PI * 2.0 * sigma * sigma));
 }
 
 void MakeGaussianVector(double sigma, std::vector<double> &GAU)

@@ -1,4 +1,5 @@
 #include <opencv2/opencv.hpp>
+#include "include/const.h"
 #include "include/postProcessing.h"
 
 namespace postprocess
@@ -29,7 +30,7 @@ cv::Mat visualizeETF(const cv::Mat &flowfield)
                 if (v[0] != 0) x = x + (abs(v[0]) / float(abs(v[0]) + abs(v[1]))) * (abs(v[0]) / v[0]);
                 if (v[1] != 0) y = y + (abs(v[1]) / float(abs(v[0]) + abs(v[1]))) * (abs(v[1]) / v[1]);
                 const float r2 = k * k;
-                const float w  = (1 / (M_PI * sigma)) * exp(-(r2) / sigma);
+                const float w  = (1 / (constant::PI * sigma)) * exp(-(r2) / sigma);
                 int xx         = (int(x) + nRows) % nRows;
                 int yy         = (int(y) + nCols) % nCols;
                 dst.at<float>(i, j) += w * noise.at<float>(xx, yy);
@@ -44,7 +45,7 @@ cv::Mat visualizeETF(const cv::Mat &flowfield)
                 if (v[1] != 0) y = y + (abs(v[1]) / float(abs(v[0]) + abs(v[1]))) * (abs(v[1]) / v[1]);
 
                 const float r2 = k * k;
-                const float w  = (1 / (M_PI * sigma)) * exp(-(r2) / sigma);
+                const float w  = (1 / (constant::PI * sigma)) * exp(-(r2) / sigma);
                 dst.at<float>(i, j) += w * noise.at<float>(int(x + nRows) % nRows, int(y + nCols) % nCols);
                 w_sum += w;
             }

@@ -1,6 +1,3 @@
-#include <ctime>
-#include <fstream>
-#include <iostream>
 #include "include/gui.h"
 
 #define MODE_ORIGINIAL_IMAGE "Original Image"
