@@ -1,0 +1,23 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: apt
+      run: sudo apt-get install g++ cmake libopencv-dev libwxgtk3.0-dev libboost-all-dev clang-format colordiff lcov
+    - name: lint
+      run: bash linter.sh
+    - name: build
+      run: ./build.sh -c -d
+    - name: test
+      run: ./test.sh
