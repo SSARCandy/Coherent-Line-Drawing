@@ -20,18 +20,15 @@ class BasicDrawPane : public wxPanel
 {
 
 public:
-    BasicDrawPane(wxPanel *parent, cv::Size, bool canUndo);
+    BasicDrawPane(wxPanel *, cv::Size);
 
     CLD cld;
     cv::Mat dis;
-    cv::Mat temp;
     std::string processingS;
-    void paintEvent(wxPaintEvent &evt);
-    void paintNow(bool);
-    void render(wxDC &dc, bool);
+    void render();
     DECLARE_EVENT_TABLE()
 private:
-    bool activateDraw;
+    wxClientDC dc_;
 };
 
 class MyFrame : public wxFrame
@@ -53,7 +50,7 @@ public:
     void addlog(wxString info, const wxColour &color);
     void activateRenderLoop(bool on);
 
-protected:
+private:
     bool render_loop_on;
     int ETF_kernel;
     int ETF_iteration;

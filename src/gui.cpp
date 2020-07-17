@@ -97,7 +97,7 @@ MyFrame::MyFrame(const wxString &title, const wxPoint &pos, const wxSize &size)
     dp->SetSizer(dps);
 
 
-    drawPane = new BasicDrawPane(dp, cv::Size(256, 256), true);
+    drawPane = new BasicDrawPane(dp, cv::Size(256, 256));
     dps->Add(drawPane, 1, wxEXPAND);
 
     // wxTextCtrl: http://docs.wxwidgets.org/trunk/classwx_text_ctrl.html
@@ -267,7 +267,7 @@ void MyFrame::OnClean(wxCommandEvent &event)
 {
     drawPane->cld.init(cv::Size(300, 300));
     ETF_iteration = FDoG_iteration = 0;
-    drawPane->paintNow(true); //execute clean action
+    drawPane->render();
 
     wxSize img(drawPane->cld.originalImg.cols, drawPane->cld.originalImg.rows);
     dp->SetMinSize(img);
@@ -312,7 +312,7 @@ void MyFrame::OnIterativeFDoG(wxCommandEvent &event)
     wxString s;
     s.Printf("FDoG: %d iterations", ++FDoG_iteration);
     SetStatusText(s, 2);
-    drawPane->paintNow(true);
+    drawPane->render();
 }
 
 //Comboboxes
@@ -335,7 +335,7 @@ void MyFrame::OnProcessingBox(wxCommandEvent &event)
     }
 
     addlog("[Mode Changed] " + s, wxColour(*wxBLACK));
-    drawPane->paintNow(true);
+    drawPane->render();
     activateRenderLoop(render_loop_on);
 }
 
@@ -346,8 +346,6 @@ void MyFrame::OnSliderETFkernel(wxCommandEvent &event)
     ETF_kernel = slider_ETFkernel->GetValue();
     s.Printf("ETF kernel size : %d", ETF_kernel);
     slider_ETFkernel_t->SetLabel(s);
-
-    //drawPane->cld.genCLD();
 }
 
 void MyFrame::OnSliderRho(wxCommandEvent &event)
@@ -358,7 +356,7 @@ void MyFrame::OnSliderRho(wxCommandEvent &event)
     slider_rho_t->SetLabel(s);
 
     drawPane->cld.genCLD();
-    drawPane->paintNow(true); //execute action
+    drawPane->render();
 }
 
 void MyFrame::OnSliderSigmaM(wxCommandEvent &event)
@@ -369,7 +367,7 @@ void MyFrame::OnSliderSigmaM(wxCommandEvent &event)
     slider_sigma1_t->SetLabel(s);
 
     drawPane->cld.genCLD();
-    drawPane->paintNow(true); //execute action
+    drawPane->render();
 }
 
 void MyFrame::OnSliderSigmaC(wxCommandEvent &event)
@@ -380,7 +378,7 @@ void MyFrame::OnSliderSigmaC(wxCommandEvent &event)
     slider_sigma2_t->SetLabel(s);
 
     drawPane->cld.genCLD();
-    drawPane->paintNow(true); //execute action
+    drawPane->render();
 }
 
 void MyFrame::OnSliderTau(wxCommandEvent &event)
@@ -391,7 +389,7 @@ void MyFrame::OnSliderTau(wxCommandEvent &event)
     slider_t_t->SetLabel(s);
 
     drawPane->cld.binaryThresholding(drawPane->cld.FDoG, drawPane->cld.result, drawPane->cld.tau);
-    drawPane->paintNow(true); //execute action
+    drawPane->render();
 }
 
 void MyFrame::addlog(wxString info, const wxColour &color)
@@ -405,6 +403,7 @@ void MyFrame::addlog(wxString info, const wxColour &color)
     log->SetDefaultStyle(wxTextAttr(color));
     log->AppendText(s);
 }
+
 void MyFrame::activateRenderLoop(bool on)
 {
     if (on) {
@@ -412,52 +411,33 @@ void MyFrame::activateRenderLoop(bool on)
         Connect(wxID_ANY, wxEVT_IDLE, wxIdleEventHandler(MyFrame::onIdle));
         render_loop_on = true;
         addlog("-------Start iteration-------", wxColour(*wxBLACK));
-    } else {
-        start->SetLabel("Start");
-        Disconnect(wxEVT_IDLE, wxIdleEventHandler(MyFrame::onIdle));
-        //Connect(wxID_ANY, wxEVT_IDLE, wxIdleEventHandler(MyFrame::onIdle));
-        render_loop_on = false;
-        addlog("-------Stop iteration-------", wxColour(*wxBLACK));
+        return;
     }
+
+    start->SetLabel("Start");
+    Disconnect(wxEVT_IDLE, wxIdleEventHandler(MyFrame::onIdle));
+    render_loop_on = false;
+    addlog("-------Stop iteration-------", wxColour(*wxBLACK));
 }
+
 void MyFrame::onIdle(wxIdleEvent &evt)
 {
-    drawPane->paintNow(render_loop_on);
+    if (!render_loop_on) return;
+    drawPane->render();
     evt.RequestMore(); // render continuously, not only once on idle
 }
 #pragma endregion
 
 #pragma region BasicDrawPane
-BasicDrawPane::BasicDrawPane(wxPanel *parent, cv::Size s, bool canUndo)
+BasicDrawPane::BasicDrawPane(wxPanel *parent, cv::Size s)
     : cld(s)
     , wxPanel(parent)
+    , dc_(wxClientDC(this))
 {
-    activateDraw = false;
 }
 
-
-//first frame
-void BasicDrawPane::paintEvent(wxPaintEvent &evt)
-{
-    wxPaintDC dc(this);
-    //render(dc);
-    dis = cld.originalImg.clone();
-    dis.convertTo(dis, CV_8UC1, 255);
-    //cvtColor(dis, dis, CV_GRAY2RGB);
-    wxImage img(dis.cols, dis.rows, dis.data, true);
-    wxBitmap bmp(img);
-    dc.DrawBitmap(bmp, 0, 0);
-}
-
-//render loop
-void BasicDrawPane::paintNow(bool render_loop_on)
-{
-    wxClientDC dc(this);
-    render(dc, render_loop_on);
-}
-
-//Main Render(iteration) Section
-void BasicDrawPane::render(wxDC &dc, bool render_loop_on)
+// Main Render(iteration) Section
+void BasicDrawPane::render()
 {
     dis = cld.originalImg.clone();
     cv::cvtColor(dis, dis, CV_GRAY2BGR);
@@ -479,8 +459,7 @@ void BasicDrawPane::render(wxDC &dc, bool render_loop_on)
         cv::cvtColor(dis, dis, CV_GRAY2BGR);
     }
 
-    wxImage img(dis.cols, dis.rows, dis.data, true);
-    wxBitmap bmp(img);
-    dc.DrawBitmap(bmp, 0, 0);
+    wxBitmap bmp(wxImage(dis.cols, dis.rows, dis.data, true));
+    dc_.DrawBitmap(bmp, 0, 0);
 }
 #pragma endregion
