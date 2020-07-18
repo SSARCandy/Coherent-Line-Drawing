@@ -319,7 +319,7 @@ void MyFrame::OnIterativeFDoG(wxCommandEvent &event)
 //Comboboxes
 void MyFrame::OnProcessingBox(wxCommandEvent &event)
 {
-    std::string s = processingBox->GetValue();
+    std::string s = processingBox->GetValue().ToStdString();
     drawPane->set_mode(s);
 
     render_loop_on = (s == MODE_ETF) || (s == MODE_ETF_DEBUG);
