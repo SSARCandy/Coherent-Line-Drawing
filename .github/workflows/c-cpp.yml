@@ -13,6 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: apt update
+      run: sudo apt-get update
     - name: apt
       run: sudo apt-get install g++ cmake libopencv-dev libwxgtk3.0-dev libboost-all-dev clang-format colordiff lcov
     - name: lint
