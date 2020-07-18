@@ -199,7 +199,7 @@ void MyFrame::OnToggleLog(wxCommandEvent &event)
 void MyFrame::OnOpenSrc(wxCommandEvent &event)
 {
     render_loop_on = false;
-    activateRenderLoop(render_loop_on);
+    SetRenderingState(render_loop_on);
     wxFileDialog openFileDialog(this, _("Open image file"), "", "", "image files (*.bmp;*.png;*.jpg)|*.bmp;*.png;*.jpg",
         wxFD_OPEN | wxFD_FILE_MUST_EXIST);
     wxString s;
@@ -231,7 +231,7 @@ void MyFrame::OnOpenSrc(wxCommandEvent &event)
     this->Layout();
 
     render_loop_on = true;
-    activateRenderLoop(render_loop_on);
+    SetRenderingState(render_loop_on);
     ETF_iteration = FDoG_iteration = 0;
     s.Printf("ETF: %d iterations", ETF_iteration);
     SetStatusText(s, 1);
@@ -261,7 +261,7 @@ void MyFrame::OnSaveResult(wxCommandEvent &event)
 void MyFrame::OnStart(wxCommandEvent &event)
 {
     render_loop_on = !render_loop_on;
-    activateRenderLoop(render_loop_on);
+    SetRenderingState(render_loop_on);
 }
 
 void MyFrame::OnClean(wxCommandEvent &event)
@@ -333,7 +333,7 @@ void MyFrame::OnProcessingBox(wxCommandEvent &event)
 
     addlog("[Mode Changed] " + s, wxColour(*wxBLACK));
     drawPane->render();
-    activateRenderLoop(render_loop_on);
+    SetRenderingState(render_loop_on);
 }
 
 //Slides: Pattern Parameter
@@ -401,23 +401,23 @@ void MyFrame::addlog(wxString info, const wxColour &color)
     log->AppendText(s);
 }
 
-void MyFrame::activateRenderLoop(bool on)
+void MyFrame::SetRenderingState(bool on)
 {
     if (on) {
         start->SetLabel("Stop");
-        Connect(wxID_ANY, wxEVT_IDLE, wxIdleEventHandler(MyFrame::onIdle));
+        Connect(wxID_ANY, wxEVT_IDLE, wxIdleEventHandler(MyFrame::OnIdle));
         render_loop_on = true;
         addlog("-------Start iteration-------", wxColour(*wxBLACK));
         return;
     }
 
     start->SetLabel("Start");
-    Disconnect(wxEVT_IDLE, wxIdleEventHandler(MyFrame::onIdle));
+    Disconnect(wxEVT_IDLE, wxIdleEventHandler(MyFrame::OnIdle));
     render_loop_on = false;
     addlog("-------Stop iteration-------", wxColour(*wxBLACK));
 }
 
-void MyFrame::onIdle(wxIdleEvent &evt)
+void MyFrame::OnIdle(wxIdleEvent &evt)
 {
     if (!render_loop_on) return;
     drawPane->render();
