@@ -16,26 +16,30 @@ public:
     virtual bool OnInit();
 };
 
-class BasicDrawPane : public wxPanel
+class DrawPane : public wxPanel
 {
 
 public:
-    BasicDrawPane(wxPanel *, cv::Size);
+    DrawPane(wxPanel *, cv::Size);
 
-    CLD cld;
-    cv::Mat dis;
-    std::string processingS;
     void render();
+    void set_mode(std::string);
+    cv::Mat &image();
+    CLD &cld();
     DECLARE_EVENT_TABLE()
+
 private:
+    std::string mode_;
     wxClientDC dc_;
+    CLD cld_;
+    cv::Mat dis_;
 };
 
 class MyFrame : public wxFrame
 {
 public:
     MyFrame(const wxString &title, const wxPoint &pos, const wxSize &size);
-    BasicDrawPane *drawPane;
+    DrawPane *drawPane;
     wxPanel *dp; // drawpane Container
     wxSlider *slider_rho;
     wxSlider *slider_ETFkernel;

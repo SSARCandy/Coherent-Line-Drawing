@@ -1,7 +1,7 @@
 #include "include/gui.h"
 
 // clang-format off
-BEGIN_EVENT_TABLE(BasicDrawPane, wxPanel)
+BEGIN_EVENT_TABLE(DrawPane, wxPanel)
 
 END_EVENT_TABLE()
 
