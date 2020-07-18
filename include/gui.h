@@ -52,7 +52,6 @@ public:
     wxStaticText *slider_sigma2_t;
     wxStaticText *slider_t_t;
     void addlog(wxString info, const wxColour &color);
-    void activateRenderLoop(bool on);
 
 private:
     bool render_loop_on;
@@ -67,28 +66,25 @@ private:
     wxButton *iterativeFDoG;
     wxComboBox *processingBox;
 
+    void SetRenderingState(bool on);
+
     void OnStart(wxCommandEvent &event);
     void OnClean(wxCommandEvent &event);
     void OnSolveIt(wxCommandEvent &event);
     void OnRefineETF(wxCommandEvent &event);
     void OnIterativeFDoG(wxCommandEvent &event);
-
     void OnProcessingBox(wxCommandEvent &event);
-
-
     void OnSliderRho(wxCommandEvent &event);
     void OnSliderETFkernel(wxCommandEvent &event);
     void OnSliderSigmaM(wxCommandEvent &event);
     void OnSliderSigmaC(wxCommandEvent &event);
     void OnSliderTau(wxCommandEvent &event);
-
     void OnOpenSrc(wxCommandEvent &event);
     void OnSaveResult(wxCommandEvent &event);
-
     void OnExit(wxCommandEvent &event);
     void OnAbout(wxCommandEvent &event);
     void OnToggleLog(wxCommandEvent &event);
-    void onIdle(wxIdleEvent &evt);
+    void OnIdle(wxIdleEvent &evt);
     wxDECLARE_EVENT_TABLE();
 };
 
