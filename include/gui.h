@@ -30,7 +30,6 @@ public:
 
 private:
     std::string mode_;
-    wxClientDC dc_;
     CLD cld_;
     cv::Mat dis_;
 };

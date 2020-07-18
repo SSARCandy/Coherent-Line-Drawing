@@ -429,7 +429,6 @@ void MyFrame::OnIdle(wxIdleEvent &evt)
 DrawPane::DrawPane(wxPanel *parent, cv::Size s)
     : cld_(s)
     , wxPanel(parent)
-    , dc_(wxClientDC(this))
 {
 }
 
@@ -457,7 +456,8 @@ void DrawPane::render()
     }
 
     wxBitmap bmp(wxImage(dis_.cols, dis_.rows, dis_.data, true));
-    dc_.DrawBitmap(bmp, 0, 0);
+    wxClientDC dc(this);
+    dc.DrawBitmap(bmp, 0, 0);
 }
 
 CLD &DrawPane::cld() { return cld_; }
