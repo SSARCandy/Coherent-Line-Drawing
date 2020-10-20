@@ -26,9 +26,10 @@ alt="Coherent Line Drawing" width="800" border="10" /></a>
 ### Requirement
 
 - C++ 17
+- CMake
 - OpenCV 3
 - WxWidget 3 (not required for cmd application)
-- CMake
+- Boost (not required for gui application)
 
 _If you prefer C++ 11 version, there is a branch called [cpp11](https://github.com/SSARCandy/Coherent-Line-Drawing/tree/cpp11), the function is equivalent._  
 
