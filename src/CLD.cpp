@@ -51,7 +51,7 @@ void CLD::init(const cv::Size s)
 
 void CLD::readSrc(const std::string file)
 {
-    originalImg = cv::imread(file, CV_LOAD_IMAGE_GRAYSCALE);
+    originalImg = cv::imread(file, cv::IMREAD_GRAYSCALE);
 
     result = cv::Mat::zeros(cv::Size(originalImg.cols, originalImg.rows), CV_8UC1);
     DoG    = cv::Mat::zeros(cv::Size(originalImg.cols, originalImg.rows), CV_32FC1);

@@ -252,7 +252,7 @@ void MyFrame::OnSaveResult(wxCommandEvent &event)
     }
 
     cv::Mat res = drawPane->image().clone();
-    cv::cvtColor(drawPane->image(), res, CV_BGR2RGB);
+    cv::cvtColor(drawPane->image(), res, cv::COLOR_BGR2RGB);
     cv::imwrite((const char *)saveFileDialog.GetPath().mb_str(), res);
 }
 
@@ -436,23 +436,23 @@ DrawPane::DrawPane(wxPanel *parent, cv::Size s)
 void DrawPane::render()
 {
     dis_ = cld_.originalImg.clone();
-    cv::cvtColor(dis_, dis_, CV_GRAY2BGR);
+    cv::cvtColor(dis_, dis_, cv::COLOR_GRAY2BGR);
 
     if (mode_ == MODE_ETF) {
         dis_ = postprocess::visualizeETF(cld_.etf.flowField);
         dis_.convertTo(dis_, CV_8UC1, 255);
-        cv::cvtColor(dis_, dis_, CV_GRAY2BGR);
+        cv::cvtColor(dis_, dis_, cv::COLOR_GRAY2BGR);
     } else if (mode_ == MODE_ETF_DEBUG) {
         dis_ = postprocess::visualizeFlowfield(cld_.etf.flowField);
         dis_.convertTo(dis_, CV_8UC3, 255);
-        cv::cvtColor(dis_, dis_, CV_RGB2BGR);
+        cv::cvtColor(dis_, dis_, cv::COLOR_RGB2BGR);
     } else if (mode_ == MODE_CLD) {
         dis_ = cld_.result.clone();
-        cv::cvtColor(dis_, dis_, CV_GRAY2BGR);
+        cv::cvtColor(dis_, dis_, cv::COLOR_GRAY2BGR);
     } else if (mode_ == MODE_ANTI_ALIASING) {
         dis_ = cld_.result.clone();
         dis_ = postprocess::antiAlias(dis_);
-        cv::cvtColor(dis_, dis_, CV_GRAY2BGR);
+        cv::cvtColor(dis_, dis_, cv::COLOR_GRAY2BGR);
     }
 
     wxBitmap bmp(wxImage(dis_.cols, dis_.rows, dis_.data, true));

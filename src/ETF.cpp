@@ -30,9 +30,9 @@ ETF::ETF(const cv::Size s)
 void ETF::initial_ETF(const std::string file, const cv::Size s)
 {
     // Resizing Mat
-    cv::resize(flowField, flowField, s, 0, 0, CV_INTER_LINEAR);
-    cv::resize(refinedETF, refinedETF, s, 0, 0, CV_INTER_LINEAR);
-    cv::resize(gradientMag, gradientMag, s, 0, 0, CV_INTER_LINEAR);
+    cv::resize(flowField, flowField, s, 0, 0, cv::INTER_LINEAR);
+    cv::resize(refinedETF, refinedETF, s, 0, 0, cv::INTER_LINEAR);
+    cv::resize(gradientMag, gradientMag, s, 0, 0, cv::INTER_LINEAR);
 
     cv::Mat src = cv::imread(file, 1);
     cv::Mat src_n;

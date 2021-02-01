@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
         cld.genCLD();
     }
 
-    cv::cvtColor(cld.result, cld.result, CV_GRAY2RGB);
+    cv::cvtColor(cld.result, cld.result, cv::COLOR_GRAY2RGB);
     cv::imwrite(output_path, cld.result);
     std::cout << "Result image save at " << output_path << std::endl;
 
@@ -92,13 +92,13 @@ int main(int argc, char *argv[])
         // Generate flow-field visualization
         cv::Mat vis_etf = postprocess::visualizeETF(cld.etf.flowField);
         vis_etf.convertTo(vis_etf, CV_8UC1, 255);
-        cv::cvtColor(vis_etf, vis_etf, CV_GRAY2BGR);
+        cv::cvtColor(vis_etf, vis_etf, cv::COLOR_GRAY2BGR);
         cv::imwrite("visualize-etf.jpg", vis_etf);
 
         // Generate flow-field arrow direction visualization
         cv::Mat vis_flow = postprocess::visualizeFlowfield(cld.etf.flowField);
         vis_flow.convertTo(vis_flow, CV_8UC3, 255);
-        cv::cvtColor(vis_flow, vis_flow, CV_RGB2BGR);
+        cv::cvtColor(vis_flow, vis_flow, cv::COLOR_RGB2BGR);
         cv::imwrite("arrow-etf.jpg", vis_flow);
 
         // Generate Anti-alias coherent line drawing
