@@ -12,11 +12,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: apt update
       run: sudo apt-get update
     - name: apt
-      run: sudo apt-get install g++ cmake libopencv-dev libwxgtk3.0-dev libboost-all-dev clang-format colordiff lcov
+      run: sudo apt-get install g++ cmake libopencv-dev libwxgtk3.2-dev libboost-all-dev clang-format colordiff lcov
     - name: lint
       run: bash linter.sh
     - name: build
