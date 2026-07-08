@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coherent Line Drawing — WebGL</title>
+<style>
+  :root {
+    --bg: #16181d;
+    --panel: #1f2229;
+    --border: #2e323c;
+    --text: #d7dae0;
+    --muted: #8a8f9a;
+    --accent: #4ea1ff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.5 system-ui, "Segoe UI", sans-serif;
+    display: flex; min-height: 100vh;
+  }
+  #panel {
+    width: 350px; flex: 0 0 350px; background: var(--panel);
+    border-right: 1px solid var(--border); padding: 16px; overflow-y: auto;
+  }
+  #panel h1 { font-size: 16px; margin: 0 0 4px; }
+  #panel .sub { color: var(--muted); font-size: 12px; margin-bottom: 16px; }
+  #panel .sub a { color: var(--accent); text-decoration: none; }
+  .ctrl { margin-bottom: 12px; }
+  .ctrl label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 2px; }
+  .ctrl label .val { color: var(--accent); font-variant-numeric: tabular-nums; }
+  .ctrl input[type=range] { width: 100%; accent-color: var(--accent); }
+  .row { display: flex; gap: 8px; }
+  button, .filebtn {
+    background: #2a2f3a; color: var(--text); border: 1px solid var(--border);
+    border-radius: 6px; padding: 7px 10px; cursor: pointer; font-size: 13px;
+    flex: 1; text-align: center;
+  }
+  button:hover, .filebtn:hover { background: #343a47; }
+  select {
+    width: 100%; background: #2a2f3a; color: var(--text);
+    border: 1px solid var(--border); border-radius: 6px; padding: 6px;
+  }
+  hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+  #stats { color: var(--muted); font-size: 12px; margin-top: 12px; white-space: pre-line; }
+  #view {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    padding: 16px; overflow: auto;
+  }
+  #view.drag { outline: 2px dashed var(--accent); outline-offset: -8px; }
+  canvas { max-width: 100%; max-height: calc(100vh - 32px); background: #000; box-shadow: 0 4px 24px rgba(0,0,0,.5); }
+  #err { color: #ff7b7b; padding: 24px; }
+</style>
+</head>
+<body>
+<div id="panel">
+  <h1>Coherent Line Drawing</h1>
+  <div class="sub">WebGL2 port of <a href="https://github.com/SSARCandy/Coherent-Line-Drawing" target="_blank">SSARCandy/Coherent-Line-Drawing</a><br>(Kang et al., NPAR 2007)</div>
+
+  <div class="row" style="margin-bottom:12px">
+    <label class="filebtn">Open image<input type="file" id="file" accept="image/*" hidden></label>
+    <button id="save">Save PNG</button>
+  </div>
+
+  <div class="ctrl">
+    <label>View</label>
+    <select id="mode">
+      <option value="0" selected>Result (line drawing)</option>
+      <option value="1">FDoG (before threshold)</option>
+      <option value="2">ETF flow field (LIC)</option>
+      <option value="3">Original</option>
+    </select>
+  </div>
+
+  <hr>
+
+  <div class="ctrl"><label>ETF kernel <span class="val" id="v_etf_kernel"></span></label>
+    <input type="range" id="etf_kernel" min="1" max="15" step="1" value="5"></div>
+  <div class="ctrl"><label>ETF iterations <span class="val" id="v_etf_iter"></span></label>
+    <input type="range" id="etf_iter" min="0" max="8" step="1" value="3"></div>
+  <div class="ctrl"><label>CLD iterations (FDoG) <span class="val" id="v_cld_iter"></span></label>
+    <input type="range" id="cld_iter" min="1" max="5" step="1" value="2"></div>
+  <div class="ctrl"><label>&sigma;<sub>c</sub> — line width <span class="val" id="v_sigma_c"></span></label>
+    <input type="range" id="sigma_c" min="0.3" max="5" step="0.05" value="1"></div>
+  <div class="ctrl"><label>&sigma;<sub>m</sub> — coherence <span class="val" id="v_sigma_m"></span></label>
+    <input type="range" id="sigma_m" min="0.5" max="15" step="0.1" value="3"></div>
+  <div class="ctrl"><label>&rho; — noise <span class="val" id="v_rho"></span></label>
+    <input type="range" id="rho" min="0.9" max="1" step="0.001" value="0.997"></div>
+  <div class="ctrl"><label>&tau; — threshold <span class="val" id="v_tau"></span></label>
+    <input type="range" id="tau" min="0.01" max="1" step="0.01" value="0.9"></div>
+
+  <div id="stats"></div>
+</div>
+<div id="view"><canvas id="canvas"></canvas></div>
+
+<script>
+"use strict";
+
+// ---------------------------------------------------------------- WebGL setup
+const canvas = document.getElementById("canvas");
+const gl = canvas.getContext("webgl2", { preserveDrawingBuffer: true });
+if (!gl || !gl.getExtension("EXT_color_buffer_float")) {
+  document.getElementById("view").innerHTML =
+    '<div id="err">WebGL2 with float render targets (EXT_color_buffer_float) is required.</div>';
+  throw new Error("WebGL2 float rendering unavailable");
+}
+
+const VS = `#version 300 es
+const vec2 P[3] = vec2[3](vec2(-1.,-1.), vec2(3.,-1.), vec2(-1.,3.));
+void main() { gl_Position = vec4(P[gl_VertexID], 0., 1.); }`;
+
+const HEADER = `#version 300 es
+precision highp float;
+precision highp int;
+const float PI = 3.14159265358979323846;
+out vec4 o;
+float gauss(float x, float sigma) {
+  return exp(-(x*x) / (2.0*sigma*sigma)) / (sqrt(2.0*PI) * sigma);
+}
+`;
+
+// ------------------------------------------------------------------- Shaders
+
+// Grayscale
+const FS_GRAY = `
+uniform sampler2D u_src;
+void main() {
+  vec3 c = texelFetch(u_src, ivec2(gl_FragCoord.xy), 0).rgb;
+  o = vec4(dot(c, vec3(0.299, 0.587, 0.114)), 0., 0., 1.);
+}`;
+
+// Min-max stretch: v' = (v - min) / (max - min)
+const FS_STRETCH = `
+uniform sampler2D u_src;
+uniform float u_min, u_max;
+void main() {
+  float v = texelFetch(u_src, ivec2(gl_FragCoord.xy), 0).r;
+  float d = max(u_max - u_min, 1e-12);
+  o = vec4((v - u_min) / d, 0., 0., 1.);
+}`;
+
+// 5x5 Sobel (matches cv::Sobel ksize=5): smooth [1 4 6 4 1] x deriv [-1 -2 0 2 1]
+const FS_SOBEL = `
+uniform sampler2D u_src;
+float px(ivec2 p, ivec2 d, ivec2 sz) {
+  return texelFetch(u_src, clamp(p + d, ivec2(0), sz - 1), 0).r;
+}
+void main() {
+  ivec2 p = ivec2(gl_FragCoord.xy);
+  ivec2 sz = textureSize(u_src, 0);
+  const float S[5] = float[5](1., 4., 6., 4., 1.);
+  const float D[5] = float[5](-1., -2., 0., 2., 1.);
+  float gx = 0., gy = 0.;
+  for (int j = 0; j < 5; ++j)
+    for (int i = 0; i < 5; ++i) {
+      float v = px(p, ivec2(i - 2, j - 2), sz);
+      gx += D[i] * S[j] * v;
+      gy += S[i] * D[j] * v;
+    }
+  o = vec4(gx, gy, length(vec2(gx, gy)), 1.);
+}`;
+
+// Initial ETF: tangent = gradient rotated 90deg, plus normalized gradient magnitude
+const FS_ETF_INIT = `
+uniform sampler2D u_grad;
+uniform float u_magMin, u_magMax;
+void main() {
+  vec4 g = texelFetch(u_grad, ivec2(gl_FragCoord.xy), 0);
+  vec2 t = vec2(-g.y, g.x);
+  float len = length(t);
+  t = len > 0. ? t / len : vec2(0.);
+  float m = (g.z - u_magMin) / max(u_magMax - u_magMin, 1e-12);
+  o = vec4(t, m, 1.);
+}`;
+
+// ETF refinement — paper Eq.(1): t_new = sum(phi * t_y * ws * wm * wd)
+const FS_ETF_REFINE = `
+uniform sampler2D u_etf;
+uniform int u_kernel;
+void main() {
+  ivec2 p = ivec2(gl_FragCoord.xy);
+  ivec2 sz = textureSize(u_etf, 0);
+  vec4 cx = texelFetch(u_etf, p, 0);
+  vec2 tx = cx.xy;
+  vec2 tnew = vec2(0.);
+  for (int dy = -u_kernel; dy <= u_kernel; ++dy)
+    for (int dx = -u_kernel; dx <= u_kernel; ++dx) {
+      ivec2 q = p + ivec2(dx, dy);
+      if (q.x < 0 || q.y < 0 || q.x >= sz.x || q.y >= sz.y) continue;
+      if (dx*dx + dy*dy >= u_kernel*u_kernel) continue;      // ws, Eq.(2)
+      vec4 cy = texelFetch(u_etf, q, 0);
+      float phi = dot(tx, cy.xy) > 0. ? 1. : -1.;            // Eq.(5)
+      float wm  = (1. + tanh(cy.z - cx.z)) * 0.5;            // Eq.(3)
+      float wd  = abs(dot(tx, cy.xy));                       // Eq.(4)
+      tnew += phi * cy.xy * wm * wd;
+    }
+  float len = length(tnew);
+  o = vec4(len > 0. ? tnew / len : vec2(0.), cx.z, 1.);
+}`;
+
+// DoG across the gradient direction (perpendicular to ETF)
+const FS_DOG = `
+uniform sampler2D u_gray, u_etf;
+uniform float u_sigmaC, u_rho;
+uniform int u_kernel;   // half length of the sigma_s gaussian support
+uniform int u_lenC;     // half length of the sigma_c gaussian support
+void main() {
+  ivec2 p = ivec2(gl_FragCoord.xy);
+  ivec2 sz = textureSize(u_gray, 0);
+  vec2 t = texelFetch(u_etf, p, 0).xy;
+  vec2 grad = vec2(t.y, -t.x);
+  if (grad == vec2(0.)) { o = vec4(0., 0., 0., 1.); return; }
+  float sigmaS = 1.6 * u_sigmaC;
+  float accC = 0., accS = 0., wC = 0., wS = 0.;
+  for (int s = -u_kernel; s <= u_kernel; ++s) {
+    vec2 fp = vec2(p) + grad * float(s);
+    if (fp.x < 0. || fp.x > float(sz.x - 1) || fp.y < 0. || fp.y > float(sz.y - 1)) continue;
+    float v = texelFetch(u_gray, ivec2(round(fp)), 0).r;
+    int a = abs(s);
+    if (a <= u_lenC) {
+      float w = gauss(float(a), u_sigmaC);
+      accC += v * w; wC += w;
+    }
+    float w = gauss(float(a), sigmaS);
+    accS += v * w; wS += w;
+  }
+  o = vec4(accC / max(wC, 1e-12) - u_rho * accS / max(wS, 1e-12), 0., 0., 1.);
+}`;
+
+// Flow-based DoG: integrate DoG response along the ETF streamline
+const FS_FDOG = `
+uniform sampler2D u_dog, u_etf;
+uniform float u_sigmaM;
+uniform int u_half;
+void main() {
+  ivec2 p = ivec2(gl_FragCoord.xy);
+  ivec2 sz = textureSize(u_dog, 0);
+  float center = texelFetch(u_dog, p, 0).r;
+  float g0 = gauss(0., u_sigmaM);
+  float acc = -g0 * center;
+  float wacc = -g0;
+  for (int dir = 0; dir < 2; ++dir) {
+    float sgn = dir == 0 ? 1. : -1.;
+    vec2 pos = vec2(p);
+    for (int s = 0; s < u_half; ++s) {
+      if (pos.x < 0. || pos.x > float(sz.x - 1) || pos.y < 0. || pos.y > float(sz.y - 1)) break;
+      ivec2 ip = ivec2(round(pos));
+      vec2 d = sgn * texelFetch(u_etf, ip, 0).xy;
+      if (d == vec2(0.)) break;
+      float w = gauss(float(s), u_sigmaM);
+      acc  += texelFetch(u_dog, ip, 0).r * w;
+      wacc += w;
+      pos += d;
+    }
+  }
+  float h = acc / wacc;
+  o = vec4(h > 0. ? 1. : 1. + tanh(h), 0., 0., 1.);
+}`;
+
+// Normalize + binary threshold: black where value < tau
+const FS_THRESH = `
+uniform sampler2D u_src;
+uniform float u_min, u_max, u_tau;
+void main() {
+  float v = texelFetch(u_src, ivec2(gl_FragCoord.xy), 0).r;
+  if (u_max - u_min > 1e-6) v = (v - u_min) / (u_max - u_min);
+  o = vec4(v < u_tau ? 0. : 1., 0., 0., 1.);
+}`;
+
+// Superimpose black result pixels onto the gray image (for CLD iterations)
+const FS_COMBINE = `
+uniform sampler2D u_gray, u_result;
+void main() {
+  ivec2 p = ivec2(gl_FragCoord.xy);
+  float g = texelFetch(u_gray, p, 0).r;
+  float r = texelFetch(u_result, p, 0).r;
+  o = vec4(r == 0. ? 0. : g, 0., 0., 1.);
+}`;
+
+// 3x3 gaussian blur ([1 2 1]/4 separable, done in one pass)
+const FS_BLUR3 = `
+uniform sampler2D u_src;
+void main() {
+  ivec2 p = ivec2(gl_FragCoord.xy);
+  ivec2 sz = textureSize(u_src, 0);
+  const float K[3] = float[3](0.25, 0.5, 0.25);
+  float acc = 0.;
+  for (int j = 0; j < 3; ++j)
+    for (int i = 0; i < 3; ++i) {
+      ivec2 q = clamp(p + ivec2(i - 1, j - 1), ivec2(0), sz - 1);
+      acc += K[i] * K[j] * texelFetch(u_src, q, 0).r;
+    }
+  o = vec4(acc, 0., 0., 1.);
+}`;
+
+// Min/max reduction, init: v -> (v, v)
+const FS_REDUCE_INIT = `
+uniform sampler2D u_src;
+uniform int u_channel;
+void main() {
+  float v = texelFetch(u_src, ivec2(gl_FragCoord.xy), 0)[u_channel];
+  o = vec4(v, v, 0., 1.);
+}`;
+
+// Min/max reduction, 2x downsample step
+const FS_REDUCE = `
+uniform sampler2D u_src;
+uniform ivec2 u_srcSize;
+void main() {
+  ivec2 p = ivec2(gl_FragCoord.xy) * 2;
+  vec2 mm = vec2(1e30, -1e30);
+  for (int j = 0; j < 2; ++j)
+    for (int i = 0; i < 2; ++i) {
+      ivec2 q = min(p + ivec2(i, j), u_srcSize - 1);
+      vec2 t = texelFetch(u_src, q, 0).rg;
+      mm.x = min(mm.x, t.x);
+      mm.y = max(mm.y, t.y);
+    }
+  o = vec4(mm, 0., 1.);
+}`;
+
+// Line integral convolution to visualize the ETF
+const FS_LIC = `
+uniform sampler2D u_etf, u_noise;
+ivec2 wrap(vec2 p, vec2 sz) { return ivec2(mod(round(p), sz)); }
+void main() {
+  ivec2 p = ivec2(gl_FragCoord.xy);
+  vec2 sz = vec2(textureSize(u_etf, 0));
+  const int STEPS = 10;
+  const float SIGMA2 = 200.;   // 2 * s^2, s = 10
+  float acc = 0., wsum = 0.;
+  for (int dir = 0; dir < 2; ++dir) {
+    float sgn = dir == 0 ? 1. : -1.;
+    vec2 pos = vec2(p);
+    for (int k = 0; k < STEPS; ++k) {
+      vec2 v = sgn * texelFetch(u_etf, wrap(pos, sz), 0).xy;
+      pos += v;
+      float w = exp(-float(k*k) / SIGMA2);
+      acc += w * texelFetch(u_noise, wrap(pos, sz), 0).r;
+      wsum += w;
+    }
+  }
+  float v = acc / wsum;
+  v = clamp((v - 0.35) * 3., 0., 1.);   // contrast boost
+  o = vec4(vec3(v), 1.);
+}`;
+
+// Final display: pick source per view mode
+const FS_DISPLAY = `
+uniform sampler2D u_src;
+uniform int u_rgb;       // 1 = show rgb as-is, 0 = replicate red channel
+void main() {
+  vec4 c = texelFetch(u_src, ivec2(gl_FragCoord.xy), 0);
+  o = u_rgb == 1 ? vec4(c.rgb, 1.) : vec4(vec3(c.r), 1.);
+}`;
+
+// --------------------------------------------------------------- GL utilities
+function compile(type, src) {
+  const s = gl.createShader(type);
+  gl.shaderSource(s, src);
+  gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS))
+    throw new Error(gl.getShaderInfoLog(s) + "\n" + src);
+  return s;
+}
+const vs = compile(gl.VERTEX_SHADER, VS);
+function program(fsSrc) {
+  const p = gl.createProgram();
+  gl.attachShader(p, vs);
+  gl.attachShader(p, compile(gl.FRAGMENT_SHADER, HEADER + fsSrc));
+  gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+  return p;
+}
+
+const prog = {
+  gray: program(FS_GRAY),       stretch: program(FS_STRETCH),
+  sobel: program(FS_SOBEL),     etfInit: program(FS_ETF_INIT),
+  etfRefine: program(FS_ETF_REFINE), dog: program(FS_DOG),
+  fdog: program(FS_FDOG),       thresh: program(FS_THRESH),
+  combine: program(FS_COMBINE), blur3: program(FS_BLUR3),
+  reduceInit: program(FS_REDUCE_INIT), reduce: program(FS_REDUCE),
+  lic: program(FS_LIC),         display: program(FS_DISPLAY),
+};
+
+function makeTex(w, h, internalFormat) {
+  const t = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, t);
+  gl.texStorage2D(gl.TEXTURE_2D, 1, internalFormat, w, h);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  return t;
+}
+function makeFbo(tex) {
+  const f = gl.createFramebuffer();
+  gl.bindFramebuffer(gl.FRAMEBUFFER, f);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+  return f;
+}
+
+// Run a fullscreen pass. uniforms: { name: ["1f"|"1i"|"2i"|..., ...values] }
+function runPass(p, fbo, w, h, uniforms, textures) {
+  gl.useProgram(p);
+  let unit = 0;
+  for (const name in textures) {
+    gl.activeTexture(gl.TEXTURE0 + unit);
+    gl.bindTexture(gl.TEXTURE_2D, textures[name]);
+    gl.uniform1i(gl.getUniformLocation(p, name), unit++);
+  }
+  for (const name in uniforms) {
+    const [type, ...v] = uniforms[name];
+    gl["uniform" + type](gl.getUniformLocation(p, name), ...v);
+  }
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+  gl.viewport(0, 0, w, h);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+
+// --------------------------------------------------------- Pipeline resources
+let W = 0, H = 0;
+let tex = {}, fbo = {};
+let srcTex = null;
+
+function allocate(w, h) {
+  for (const k in tex) gl.deleteTexture(tex[k]);
+  for (const k in fbo) gl.deleteFramebuffer(fbo[k]);
+  if (srcTex) gl.deleteTexture(srcTex);
+  tex = {}; fbo = {};
+  W = w; H = h;
+
+  const spec = {
+    gray: gl.R32F, grayN: gl.R32F, grayIt: gl.R32F, blurTmp: gl.R32F,
+    grad: gl.RGBA32F, etfA: gl.RGBA32F, etfB: gl.RGBA32F,
+    dog: gl.R32F, fdog: gl.R32F, result: gl.R8, noise: gl.R8,
+    redA: gl.RG32F, redB: gl.RG32F,
+  };
+  for (const k in spec) {
+    tex[k] = makeTex(w, h, spec[k]);
+    fbo[k] = makeFbo(tex[k]);
+  }
+
+  // Blocky noise for the LIC visualization (2x2 blocks, like the C++ half-res noise)
+  const n = new Uint8Array(w * h);
+  for (let y = 0; y < h; y += 2)
+    for (let x = 0; x < w; x += 2) {
+      const v = Math.random() * 255 | 0;
+      for (let j = 0; j < 2 && y + j < h; ++j)
+        for (let i = 0; i < 2 && x + i < w; ++i) n[(y + j) * w + x + i] = v;
+    }
+  gl.bindTexture(gl.TEXTURE_2D, tex.noise);
+  gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+  gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, w, h, gl.RED, gl.UNSIGNED_BYTE, n);
+
+  srcTex = makeTex(w, h, gl.RGBA8);
+  canvas.width = w;
+  canvas.height = h;
+}
+
+// Compute [min, max] of one channel of a texture via GPU reduction
+const mmBuf = new Float32Array(4);
+function minMax(srcT, channel) {
+  runPass(prog.reduceInit, fbo.redA, W, H, { u_channel: ["1i", channel] }, { u_src: srcT });
+  let cw = W, ch = H, src = "redA", dst = "redB";
+  while (cw > 1 || ch > 1) {
+    const nw = Math.max(1, Math.ceil(cw / 2)), nh = Math.max(1, Math.ceil(ch / 2));
+    runPass(prog.reduce, fbo[dst], nw, nh, { u_srcSize: ["2i", cw, ch] }, { u_src: tex[src] });
+    [src, dst] = [dst, src];
+    cw = nw; ch = nh;
+  }
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fbo[src]);
+  gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.FLOAT, mmBuf);
+  return [mmBuf[0], mmBuf[1]];
+}
+
+// Gaussian support half-length, same rule as MakeGaussianVector (threshold 0.001)
+function gauHalf(sigma) {
+  const g = x => Math.exp(-x * x / (2 * sigma * sigma)) / (Math.sqrt(2 * Math.PI) * sigma);
+  let i = 0;
+  while (g(i) >= 0.001) ++i;
+  return i;   // valid taps: 0..i (size i+1 in the C++ vector)
+}
+
+// ------------------------------------------------------------------ Pipeline
+const params = {};
+const ids = ["etf_kernel", "etf_iter", "cld_iter", "sigma_c", "sigma_m", "rho", "tau"];
+
+function readParams() {
+  for (const id of ids) {
+    params[id] = parseFloat(document.getElementById(id).value);
+    document.getElementById("v_" + id).textContent = params[id];
+  }
+}
+
+let etfFinal = "etfA";
+
+function pipeline() {
+  const t0 = performance.now();
+
+  // 1. Grayscale, min-max normalized
+  runPass(prog.gray, fbo.gray, W, H, {}, { u_src: srcTex });
+  let [mn, mx] = minMax(tex.gray, 0);
+  runPass(prog.stretch, fbo.grayN, W, H, { u_min: ["1f", mn], u_max: ["1f", mx] }, { u_src: tex.gray });
+
+  // 2. Gradient (5x5 Sobel) and initial ETF (perpendicular of gradient)
+  runPass(prog.sobel, fbo.grad, W, H, {}, { u_src: tex.grayN });
+  [mn, mx] = minMax(tex.grad, 2);
+  runPass(prog.etfInit, fbo.etfA, W, H,
+    { u_magMin: ["1f", mn], u_magMax: ["1f", mx] }, { u_grad: tex.grad });
+
+  // 3. ETF refinement (ping-pong)
+  let a = "etfA", b = "etfB";
+  for (let i = 0; i < params.etf_iter; ++i) {
+    runPass(prog.etfRefine, fbo[b], W, H, { u_kernel: ["1i", params.etf_kernel] }, { u_etf: tex[a] });
+    [a, b] = [b, a];
+  }
+  etfFinal = a;
+
+  // 4. FDoG + threshold, optionally iterated with edge superimposition
+  const halfS = gauHalf(1.6 * params.sigma_c);
+  const halfC = gauHalf(params.sigma_c);
+  const halfM = gauHalf(params.sigma_m);
+  let gray = "grayN";
+  for (let it = 0; it < params.cld_iter; ++it) {
+    if (it > 0) {
+      runPass(prog.combine, fbo.blurTmp, W, H, {}, { u_gray: tex[gray], u_result: tex.result });
+      runPass(prog.blur3, fbo.grayIt, W, H, {}, { u_src: tex.blurTmp });
+      gray = "grayIt";
+    }
+    runPass(prog.dog, fbo.dog, W, H, {
+      u_sigmaC: ["1f", params.sigma_c], u_rho: ["1f", params.rho],
+      u_kernel: ["1i", halfS], u_lenC: ["1i", halfC],
+    }, { u_gray: tex[gray], u_etf: tex[etfFinal] });
+
+    runPass(prog.fdog, fbo.fdog, W, H, {
+      u_sigmaM: ["1f", params.sigma_m], u_half: ["1i", halfM],
+    }, { u_dog: tex.dog, u_etf: tex[etfFinal] });
+
+    [mn, mx] = minMax(tex.fdog, 0);
+    runPass(prog.thresh, fbo.result, W, H, {
+      u_min: ["1f", mn], u_max: ["1f", mx], u_tau: ["1f", params.tau],
+    }, { u_src: tex.fdog });
+  }
+
+  gl.finish();
+  const ms = performance.now() - t0;
+  document.getElementById("stats").textContent =
+    `${W} x ${H}\npipeline: ${ms.toFixed(1)} ms`;
+  display();
+}
+
+function display() {
+  const mode = +document.getElementById("mode").value;
+  if (mode === 2) {
+    runPass(prog.lic, null, W, H, {}, { u_etf: tex[etfFinal], u_noise: tex.noise });
+    return;
+  }
+  const src = mode === 0 ? tex.result : mode === 1 ? tex.fdog : srcTex;
+  runPass(prog.display, null, W, H, { u_rgb: ["1i", mode === 3 ? 1 : 0] }, { u_src: src });
+}
+
+// --------------------------------------------------------------- Image input
+let currentImage = null;   // ImageBitmap / canvas / img
+
+function loadImage(source) {
+  currentImage = source;
+  const w = source.width, h = source.height;
+
+  const c = document.createElement("canvas");
+  c.width = w; c.height = h;
+  c.getContext("2d").drawImage(source, 0, 0, w, h);
+
+  allocate(w, h);
+  gl.bindTexture(gl.TEXTURE_2D, srcTex);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+  gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, c);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+  schedule();
+}
+
+// Blank fallback when the default image can't be fetched (e.g. over file://)
+function blankImage() {
+  const c = document.createElement("canvas");
+  c.width = 600; c.height = 600;
+  const x = c.getContext("2d");
+  x.fillStyle = "#fff";
+  x.fillRect(0, 0, 600, 600);
+  return c;
+}
+
+// --------------------------------------------------------------------- Wiring
+let raf = 0;
+function schedule() {
+  cancelAnimationFrame(raf);
+  raf = requestAnimationFrame(() => { readParams(); pipeline(); });
+}
+
+for (const id of ids) {
+  document.getElementById(id).addEventListener("input", schedule);
+}
+document.getElementById("mode").addEventListener("change", display);
+
+document.getElementById("file").addEventListener("change", e => {
+  const f = e.target.files[0];
+  if (f) createImageBitmap(f).then(loadImage);
+});
+
+const view = document.getElementById("view");
+view.addEventListener("dragover", e => { e.preventDefault(); view.classList.add("drag"); });
+view.addEventListener("dragleave", () => view.classList.remove("drag"));
+view.addEventListener("drop", e => {
+  e.preventDefault(); view.classList.remove("drag");
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith("image/")) createImageBitmap(f).then(loadImage);
+});
+
+document.getElementById("save").addEventListener("click", () => {
+  display();   // make sure the drawing buffer holds the current view
+  canvas.toBlob(b => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(b);
+    a.download = "coherent-line-drawing.png";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+});
+
+readParams();
+const query = new URLSearchParams(location.search);
+if (query.get("view")) document.getElementById("mode").value = query.get("view");
+const imgParam = query.get("img") || "../data/lighthouse.png";
+fetch(imgParam)
+  .then(r => { if (!r.ok) throw new Error(r.status); return r.blob(); })
+  .then(createImageBitmap).then(loadImage)
+  .catch(() => loadImage(blankImage()));
+</script>
+</body>
+</html>
