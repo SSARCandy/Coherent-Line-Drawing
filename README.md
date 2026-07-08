@@ -14,6 +14,10 @@ This project implemented a non-photorealistic rendering technique presented by K
 
 ![demo](./demo/4.jpg)
 
+## WebGL Version (run in browser)
+
+**[Live demo](https://ssarcandy.github.io/Coherent-Line-Drawing/webgl/)** — a GPU port of the full pipeline running entirely in the browser, no installation required. Every stage runs as a WebGL2 fragment shader, so all parameters update in real time. See [`webgl/`](./webgl/) for details.
+
 ## Workflow (Youtube)
 
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=48fTXKUTM-8
