@@ -31,7 +31,7 @@ alt="Coherent Line Drawing" width="800" border="10" /></a>
 
 - C++ 17
 - CMake
-- OpenCV 3
+- OpenCV 4
 - WxWidget 3 (not required for cmd application)
 - Boost (not required for gui application)
 

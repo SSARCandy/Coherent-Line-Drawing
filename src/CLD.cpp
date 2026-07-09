@@ -172,7 +172,7 @@ void CLD::gradientDoG(const cv::Mat &src, cv::Mat &dst, const double rho, const 
 
                 const float value = src.at<float>((int)round(row), (int)round(col));
 
-                const int gau_idx         = abs(step);
+                const int gau_idx = abs(step);
                 // The sigma_s support is wider than sigma_c's; beyond gau_c's
                 // support the center gaussian contributes nothing.
                 const double gau_c_weight = gau_idx < static_cast<int>(gau_c.size()) ? gau_c[gau_idx] : 0.0;
