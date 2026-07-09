@@ -50,6 +50,9 @@
   #view.drag { outline: 2px dashed var(--accent); outline-offset: -8px; }
   canvas { max-width: 100%; max-height: calc(100vh - 32px); background: #000; box-shadow: 0 4px 24px rgba(0,0,0,.5); }
   #err { color: #ff7b7b; padding: 24px; }
+  #mobile-err { margin: auto; text-align: center; padding: 24px; max-width: 100%; }
+  #mobile-err h2 { color: #ff7b7b; font-size: 20px; margin: 0 0 8px; }
+  #mobile-err p { color: var(--muted); margin: 0; }
 </style>
 </head>
 <body>
@@ -95,6 +98,16 @@
 
 <script>
 "use strict";
+
+// --------------------------------------------------------- Desktop-only guard
+const MIN_WIDTH = 768;
+if (window.innerWidth < MIN_WIDTH) {
+  document.body.innerHTML =
+    '<div id="mobile-err"><h2>Desktop only</h2>' +
+    '<p>This demo requires a screen at least ' + MIN_WIDTH + 'px wide.<br>' +
+    'Please open this page on a desktop computer.</p></div>';
+  throw new Error("Screen too small — desktop only");
+}
 
 // ---------------------------------------------------------------- WebGL setup
 const canvas = document.getElementById("canvas");
